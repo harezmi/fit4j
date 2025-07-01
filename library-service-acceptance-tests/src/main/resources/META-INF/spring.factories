@@ -1,0 +1,23 @@
+org.springframework.test.context.ContextCustomizerFactory=\
+  com.udemy.libraries.acceptancetests.context.AcceptanceTestContextCustomizerFactory, \
+  com.udemy.libraries.acceptancetests.context.TestContainersContextCustomizerFactory, \
+  com.udemy.libraries.acceptancetests.context.MockWebServerContextCustomizerFactory,\
+  com.udemy.libraries.acceptancetests.context.GrpcContextCustomizerFactory,\
+  com.udemy.libraries.acceptancetests.context.EmbeddedKafkaContextCustomizerFactory,\
+  com.udemy.libraries.acceptancetests.context.EmbeddedDynamoDBContextCustomizerFactory, \
+  com.udemy.libraries.acceptancetests.context.EmbeddedRedisContextCustomizerFactory
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.udemy.libraries.acceptancetests.autoconfigure.TestScopeAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.IntegrationTestGrpcAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestGrpcAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestHttpAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestKafkaAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestMockAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestProtobufAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestSecurityAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestHelperAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.EventTrackerAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.ExperimentationPlatformAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestDynamoDBAutoConfiguration, \
+  com.udemy.libraries.acceptancetests.autoconfigure.TestFixtureAutoConfiguration

@@ -1,0 +1,73 @@
+package com.udemy.libraries.acceptancetests.context
+
+import com.udemy.libraries.acceptancetests.AcceptanceTest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.ClassOrderer
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestClassOrder
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
+import org.springframework.test.context.TestPropertySource
+
+@TestClassOrder(ClassOrderer.OrderAnnotation::class)
+class ContextCachingForAcceptanceTestsShouldBeWorkingSuite {
+    @Nested
+    @Order(1)
+    @AcceptanceTest
+    inner class FirstTest {
+        @Autowired
+        private lateinit var applicationContext: ApplicationContext
+
+        @Test
+        fun `initialize static application context`() {
+            Assertions.assertNull(applicationContextStatic)
+            applicationContextStatic = applicationContext
+        }
+    }
+
+
+    @Nested
+    @Order(2)
+    @AcceptanceTest
+    inner class SecondTest {
+
+        @Autowired
+        private lateinit var applicationContext: ApplicationContext
+
+        @Test
+        fun `check if application contexts are the same`() {
+            Assertions.assertNotNull(applicationContextStatic)
+            Assertions.assertSame(applicationContextStatic, applicationContext)
+        }
+    }
+
+    @Nested
+    @Order(3)
+    @AcceptanceTest
+    @TestPropertySource(properties = ["foo=bar"])
+    inner class ThirdTest {
+
+        @Autowired
+        private lateinit var applicationContext: ApplicationContext
+
+        @AfterEach
+        fun `reset static context`() {
+            applicationContextStatic = null
+        }
+
+        @Test
+        fun `check if application contexts are the same`() {
+            Assertions.assertNotNull(applicationContextStatic)
+            Assertions.assertNotSame(applicationContextStatic, applicationContext)
+        }
+    }
+
+    companion object {
+        var applicationContextStatic: ApplicationContext? = null
+    }
+}
+
+

@@ -1,0 +1,32 @@
+tests:
+  - name: "it should return responses from test fixture yml"
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          responses:
+            - body:
+                rate: "1.00"
+            - body:
+                rate: "2.00"
+            - body:
+                rate: "3.00"
+      - request:
+          protocol: grpc
+          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          response:
+            body:
+              user:
+                user_id: 123
+      - request:
+          protocol: http
+          path: "/test-1"
+          method: GET
+          response:
+            status: 200
+      - request:
+          protocol: http
+          path: "/test-2"
+          method: GET
+          response:
+            status: 200

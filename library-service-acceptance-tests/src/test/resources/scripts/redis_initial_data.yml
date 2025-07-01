@@ -1,0 +1,67 @@
+- entry:
+    type: "string"
+    data:
+        key: "stringKey"
+        value: "stringValue"
+- entry:
+    type: "hash"
+    data:
+        key: "hashKey"
+        fields:
+            field1: "value1"
+            field2: "value2"
+- entry:
+    type: "list"
+    data:
+        key: "listKey"
+        values: ["value1", "value2", "value3"]
+- entry:
+    type: "set"
+    data:
+        key: "setKey"
+        members: ["value1", "value2", "value3"]
+- entry:
+    type: "sortedset"
+    data:
+        key: "sortedSetKey"
+        members:
+            - value: "value1"
+              score: 1.0
+            - value: "value2"
+              score: 2.0
+- entry:
+    type: "bitmap"
+    data:
+        key: "bitmapKey"
+        bits:
+            - offset: 7
+              value: true
+            - offset: 8
+              value: false
+- entry:
+    type: "hyperloglog"
+    data:
+        key: "hllKey"
+        values: ["value1", "value2"]
+- entry:
+    type: "geospatial"
+    data:
+        key: "geoKey"
+        locations:
+            - name: "Palermo"
+              longitude: 13.361389
+              latitude: 38.115556
+            - name: "Catania"
+              longitude: 15.087269
+              latitude: 37.502669
+- entry:
+    type: "stream"
+    data:
+        key: "streamKey"
+        entries:
+            - fields:
+                  field1: "value1"
+                  field2: "value2"
+            - fields:
+                  field3: "value3"
+                  field4: "value4"

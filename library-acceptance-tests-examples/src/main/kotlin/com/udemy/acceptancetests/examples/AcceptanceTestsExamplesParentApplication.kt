@@ -1,0 +1,7 @@
+package com.udemy.acceptancetests.examples
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+
+@SpringBootApplication
+class AcceptanceTestsExamplesParentApplication
+

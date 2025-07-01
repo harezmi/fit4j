@@ -1,0 +1,96 @@
+common_fixtures: &common_fixtures
+  - request:
+      protocol: http
+      path: "/health"
+      response:
+        status: 200
+tests:
+  - name: test1
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          response:
+            body:
+              rate: "1.00"
+      - request:
+          protocol: grpc
+          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          response:
+            body:
+              user:
+                user_id: "#{@testFixture.variables.userId}"
+      - request:
+          protocol: http
+          path: "/internal-api-2.0/payouts/acl/email/"
+          response:
+            status: 200
+      - request:
+          protocol: http
+          path: "/internal-api-2.0/payouts/acl/paypal-method/210"
+          response:
+            status: 200
+            body:
+              id: 210
+              status: "active"
+              is_active: "true"
+              email: "a@b"
+              country_id: "US"
+              payer_id: "111"
+  - name: test2
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.rpc.revenue.revenueapi.v1.GetTotalInstructorEarningRequest
+          predicate: "#request.year > 2019"
+          response:
+            status: "UNAVAILABLE"
+      - request:
+          protocol: http
+          path: "/v1/payments/payouts"
+          predicate: "#request.method == 'GET'"
+          response:
+            status: 200
+            body:
+              batch_header:
+                sender_batch_header:
+                  email_subject: "a@b"
+                  sender_batch_id: "12"
+                  recipient_type: "PAYPAL_ID"
+                payout_batch_id: "13"
+                batch_status: "SUCCESS"
+      - <<: *common_fixtures
+
+  - name: test3
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          responses:
+            - body:
+                rate: "1.00"
+            - status: "UNAVAILABLE"
+      - request:
+          protocol: http
+          path: "/internal-api-2.0/payouts/acl/paypal-method/210"
+          responses:
+            - status: 200
+              body:
+                id: 210
+                status: "active"
+                is_active: "true"
+                email: "a@b"
+                country_id: "US"
+                payer_id: "111"
+            - status: 404
+  - name: "*"
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.rpc.revenue.revenueapi.v1.GetTotalInstructorEarningRequest
+          response:
+            body:
+              amount:
+                value: "100.00"
+              statementCount: 1
+

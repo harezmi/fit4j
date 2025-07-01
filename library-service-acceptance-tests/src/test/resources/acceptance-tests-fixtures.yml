@@ -1,0 +1,123 @@
+tests:
+  - name: "*"
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.services.exp.cas.configurationmanagementservice.v2.GetSuppressedFeaturesRequest
+          response:
+            status: "OK"
+  - name: AnotherSampleGrpcIntegrationTest
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          response:
+            body:
+              user:
+                user_id: 123
+  - name: SampleGrpcIntegrationTest
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          predicate: "#request.sourceCurrency == 'USD' && #request.targetCurrency == 'TRY'"
+          response:
+            body:
+              rate: "1.00"
+  - name: GrpcMockServiceResponseFactoryIntegrationTests
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          predicate: "#request.sourceCurrency == 'USD' && #request.targetCurrency == 'TRY'"
+          response:
+            body:
+              rate: "1.00"
+      - request:
+          protocol: grpc
+          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          response:
+            body:
+              user:
+                user_id: "#{@testFixtureData.variables.userId}"
+  - name: HttpMockServiceResponseFactoryIntegrationTests
+    fixtures:
+      - request:
+          protocol: http
+          path: "/test/foo/"
+          response:
+            status: 401
+            headers:
+              Content-Type: "application/json"
+
+      - request:
+          protocol: http
+          path: "/foo/#{@testFixtureData.variables.userId}"
+          response:
+            status: 200
+
+      - request:
+          protocol: http
+          path: "/foo?user_id=#{@testFixtureData.variables.userId}"
+          response:
+            status: 200
+
+      - request:
+          protocol: http
+          path: "/bar"
+          method: POST
+          predicate: "#request.body == 'withBody'"
+          response:
+            status: 200
+            body:
+              id: 210
+              status: "active"
+
+      - request:
+          protocol: http
+          path: "/baz"
+          response:
+            status: 200
+
+      - request:
+          protocol: http
+          path: "/test/predicate/"
+          predicate: "#request.method == 'GET' && @hitCounter.isHit(1)"
+          response:
+            status: 401
+            headers:
+              Content-Type: "application/json"
+
+      - request:
+          protocol: http
+          path: "/test/predicate/"
+          predicate: "#request.method == 'GET' && @hitCounter.isHit(2)"
+          response:
+            status: 200
+            headers:
+              Content-Type: "application/json"
+
+
+  - name: ExperimentationPlatformAcceptanceTest
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.udemy.services.exp.cas.configurationservice.v2.FeatureVariantRequest
+          response:
+            body:
+              featureVariant:
+                data: |
+                  {
+                    "key": "value1"
+                  }
+                isInExperiment: true
+                experimentIdList: [1,2,3]
+  - name: AcceptanceTestEventTrackerIntegrationTests
+    fixtures:
+      - request:
+          protocol: http
+          path: "/subjects/ChatResponseGenerated?deleted=false"
+          method: POST
+          response:
+            status: 201
+

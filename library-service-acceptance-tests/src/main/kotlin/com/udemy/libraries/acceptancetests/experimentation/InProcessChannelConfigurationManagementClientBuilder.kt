@@ -1,0 +1,25 @@
+package com.udemy.libraries.acceptancetests.experimentation
+
+import com.udemy.libraries.exp.sdk.ConfigurationManagementClientBuilder
+import com.udemy.libraries.exp.sdk.config.ExpPlatformConfig
+import io.grpc.ManagedChannel
+import io.grpc.inprocess.InProcessChannelBuilder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+
+class InProcessChannelConfigurationManagementClientBuilder :
+    ConfigurationManagementClientBuilder {
+
+    private val logger : Logger = LoggerFactory.getLogger(this.javaClass)
+
+    constructor() : super()
+
+    @Value("\${grpc.server.inProcessName}")
+    private lateinit var inProcessChannelName: String
+
+    override fun managedChannel(expPlatformConfig: ExpPlatformConfig): ManagedChannel {
+        logger.debug("Creating InProcessChannel for experimentation platform configuration management")
+        return InProcessChannelBuilder.forName(inProcessChannelName).build()
+    }
+}

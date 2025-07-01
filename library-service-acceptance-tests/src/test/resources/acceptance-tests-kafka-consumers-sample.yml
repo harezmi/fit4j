@@ -1,0 +1,20 @@
+- consumer:
+    topic: ${kafka.topic.name}
+    containerFactory:
+      consumerFactory:
+        configs:
+          - key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          - value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      containerProperties:
+        ackMode: MANUAL_IMMEDIATE
+        groupId: sample-consumer-group-1
+- consumer:
+    topic: sample-topic-2
+    containerFactory:
+      beanName: kafkaListenerContainerFactory
+      containerProperties:
+        groupId: sample-consumer-group-2
+
+
+
+

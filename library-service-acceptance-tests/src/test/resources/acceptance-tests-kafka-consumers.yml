@@ -1,0 +1,26 @@
+- consumer:
+    topic: sample-topic-1
+    containerFactory:
+      consumerFactory:
+        configs:
+          - key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          - value.deserializer: com.udemy.libraries.acceptancetests.kafka.CaptureCreditRequestDeserializer
+          - auto.offset.reset: earliest
+      containerProperties:
+        ackMode: MANUAL_IMMEDIATE
+        groupId: sample-consumer-group-1
+- consumer:
+    topic: udemy-test-topic
+    containerFactory:
+      consumerFactory:
+        configs:
+          - key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          - value.deserializer: com.udemy.libraries.acceptancetests.kafka.CaptureCreditRequestDeserializer
+          - auto.offset.reset: earliest
+      containerProperties:
+        ackMode: MANUAL_IMMEDIATE
+        groupId: sample-consumer-group-2
+
+
+
+

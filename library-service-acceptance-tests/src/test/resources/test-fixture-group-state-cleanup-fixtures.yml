@@ -1,0 +1,23 @@
+tests:
+  - name: "test-fixture-1"
+    fixtures:
+      - request:
+          protocol: http
+          path: "/test-1"
+          responses:
+            - status: 500
+              body: "Internal Server Error"
+            - status: 404
+              body: "Not Found"
+            - status: 200
+              body: "Success"
+      - request:
+          protocol: grpc
+          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          responses:
+            - body:
+                rate: "1.00"
+            - body:
+                rate: "2.00"
+            - body:
+                rate: "3.00"

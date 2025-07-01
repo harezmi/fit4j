@@ -1,0 +1,7 @@
+- container: org.testcontainers.containers.KafkaContainer
+  name: kafka-service-bus
+  image: confluentinc/cp-kafka:5.4.3
+  reuse: false
+  exposedProperties:
+    - bootstrapServers
+

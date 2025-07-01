@@ -1,0 +1,14 @@
+tests:
+  - name: "test-fixture-1"
+    fixtures:
+      - request:
+          protocol: http
+          path: "/test-1"
+          response:
+            status: 200
+      - request:
+          protocol: http
+          path: "/test-2"
+          response:
+            status: 200
+
