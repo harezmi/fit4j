@@ -3,7 +3,7 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          type: com.example.CurrencyServiceOuterClass$GetRateRequest
           responses:
             - body:
                 rate: "1.00"
@@ -13,7 +13,7 @@ tests:
                 rate: "3.00"
       - request:
           protocol: grpc
-          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          type: com.example.UserRetrievalServiceOuterClass$GetUserRequest
           response:
             body:
               user:

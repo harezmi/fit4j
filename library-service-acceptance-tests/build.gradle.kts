@@ -22,15 +22,10 @@ dependencies {
 	val mockkVersion : String by project
 	val protobufJavaVersion : String by project
 	val dynamoDBLocalVersion : String by project
-	val udemySASVersion : String by project
-	val udemyProtobufKotlinVersion : String by project
 	val grpcVersion : String by project
 	val elasticSearchVersion: String by project
 	val redisVersion: String by project
 	val apacheAvroVersion: String by project
-	val udemyEventTrackerVersion: String by project
-	val udemyExpPlatformVersion: String by project
-	val udemyRequestContextVersion: String by project
 
 	implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 	implementation("org.springframework.boot:spring-boot-starter-web")

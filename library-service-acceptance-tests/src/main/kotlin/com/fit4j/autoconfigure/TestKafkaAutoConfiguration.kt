@@ -1,0 +1,63 @@
+package com.fit4j.autoconfigure
+
+import com.fit4j.EnableOnAcceptanceTestClass
+import com.fit4j.kafka.KafkaTopicCleaner
+import com.fit4j.kafka.KafkaMessageTracker
+import com.fit4j.kafka.KafkaMessageTrackerAspect
+import com.fit4j.kafka.TestKafkaConsumerConfigurer
+import com.fit4j.kafka.TestKafkaConsumerDefinition
+import com.fit4j.kafka.TestKafkaConsumerDefinitionProvider
+import com.fit4j.kafka.TestMessageListener
+import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.AutoConfigureAfter
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.support.GenericApplicationContext
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry
+import org.springframework.kafka.test.EmbeddedKafkaBroker
+
+@AutoConfiguration
+@AutoConfigureAfter(KafkaAutoConfiguration::class)
+@ConditionalOnBean(KafkaListenerEndpointRegistry::class)
+@ConditionalOnProperty(name = ["spring.kafka.bootstrap-servers"])
+@EnableOnAcceptanceTestClass
+class TestKafkaAutoConfiguration {
+    @Bean
+    fun kafkaMessageTracker() : KafkaMessageTracker {
+        return KafkaMessageTracker()
+    }
+
+    @Bean
+    fun kafkaMessageTrackerAspect(kafkaMessageTracker: KafkaMessageTracker) : KafkaMessageTrackerAspect {
+        return KafkaMessageTrackerAspect(kafkaMessageTracker)
+    }
+
+    @Bean
+    fun testMessageListener(kafkaMessageTracker: KafkaMessageTracker) : TestMessageListener {
+        return TestMessageListener(kafkaMessageTracker)
+    }
+
+    @Bean
+    fun testKafkaConsumerDefinitionProvider(applicationContext: GenericApplicationContext) : TestKafkaConsumerDefinitionProvider {
+        return TestKafkaConsumerDefinitionProvider(applicationContext)
+    }
+
+    @Bean
+    fun testKafkaConsumerConfigurer(testMessageListener: TestMessageListener,
+                                    applicationContext: GenericApplicationContext,
+                                    testKafkaConsumerDefinitions: List<TestKafkaConsumerDefinition>,
+                                    testKafkaConsumerDefinitionProvider: TestKafkaConsumerDefinitionProvider) : TestKafkaConsumerConfigurer {
+        val defList = if(testKafkaConsumerDefinitions.isNotEmpty()) testKafkaConsumerDefinitions
+                        else testKafkaConsumerDefinitionProvider.getTestKafkaConsumerDefinitions()
+        return TestKafkaConsumerConfigurer(testMessageListener,applicationContext,defList)
+    }
+
+    @Bean
+    @ConditionalOnBean(EmbeddedKafkaBroker::class)
+    @ConditionalOnProperty(name = ["udemy.test.kafka.topicCleaner.enabled"], havingValue = "true", matchIfMissing = false)
+    fun kafkaTopicCleaner(kafkaBroker: EmbeddedKafkaBroker) : KafkaTopicCleaner {
+        return KafkaTopicCleaner(kafkaBroker)
+    }
+}

@@ -6,7 +6,7 @@
   username: root
   password: root
   databaseName: udemy_v1
-  initScript: scripts/udemy_v1_init.sql
+  initScript: scripts/v1_init.sql
   env:
     - TZ: "America/Los_Angeles"
   urlParam:

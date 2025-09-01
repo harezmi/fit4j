@@ -1,23 +1,23 @@
 org.springframework.test.context.ContextCustomizerFactory=\
-  com.udemy.libraries.acceptancetests.context.AcceptanceTestContextCustomizerFactory, \
-  com.udemy.libraries.acceptancetests.context.TestContainersContextCustomizerFactory, \
-  com.udemy.libraries.acceptancetests.context.MockWebServerContextCustomizerFactory,\
-  com.udemy.libraries.acceptancetests.context.GrpcContextCustomizerFactory,\
-  com.udemy.libraries.acceptancetests.context.EmbeddedKafkaContextCustomizerFactory,\
-  com.udemy.libraries.acceptancetests.context.EmbeddedDynamoDBContextCustomizerFactory, \
-  com.udemy.libraries.acceptancetests.context.EmbeddedRedisContextCustomizerFactory
+  com.fit4j.context.AcceptanceTestContextCustomizerFactory, \
+  com.fit4j.context.TestContainersContextCustomizerFactory, \
+  com.fit4j.context.MockWebServerContextCustomizerFactory,\
+  com.fit4j.context.GrpcContextCustomizerFactory,\
+  com.fit4j.context.EmbeddedKafkaContextCustomizerFactory,\
+  com.fit4j.context.EmbeddedDynamoDBContextCustomizerFactory, \
+  com.fit4j.context.EmbeddedRedisContextCustomizerFactory
 
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.udemy.libraries.acceptancetests.autoconfigure.TestScopeAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.IntegrationTestGrpcAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestGrpcAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestHttpAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestKafkaAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestMockAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestProtobufAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestSecurityAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestHelperAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.EventTrackerAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.ExperimentationPlatformAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestDynamoDBAutoConfiguration, \
-  com.udemy.libraries.acceptancetests.autoconfigure.TestFixtureAutoConfiguration
+  com.fit4j.autoconfigure.TestScopeAutoConfiguration, \
+  com.fit4j.autoconfigure.IntegrationTestGrpcAutoConfiguration, \
+  com.fit4j.autoconfigure.TestGrpcAutoConfiguration, \
+  com.fit4j.autoconfigure.TestHttpAutoConfiguration, \
+  com.fit4j.autoconfigure.TestKafkaAutoConfiguration, \
+  com.fit4j.autoconfigure.TestMockAutoConfiguration, \
+  com.fit4j.autoconfigure.TestProtobufAutoConfiguration, \
+  com.fit4j.autoconfigure.TestSecurityAutoConfiguration, \
+  com.fit4j.autoconfigure.TestHelperAutoConfiguration, \
+  com.fit4j.autoconfigure.EventTrackerAutoConfiguration, \
+  com.fit4j.autoconfigure.ExperimentationPlatformAutoConfiguration, \
+  com.fit4j.autoconfigure.TestDynamoDBAutoConfiguration, \
+  com.fit4j.autoconfigure.TestFixtureAutoConfiguration

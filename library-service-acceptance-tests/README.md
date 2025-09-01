@@ -116,7 +116,7 @@ maven(url = "https://packages.confluent.io/maven/")
 ## Create a Test Class
 
 ```kotlin
-import com.udemy.libraries.acceptancetests.AcceptanceTest
+import com.fit4j.AcceptanceTest
 import org.junit.jupiter.api.Test
 
 @AcceptanceTest
@@ -143,7 +143,7 @@ or any test method in general. A test method usually consists of 3 parts:
 You can add an inner class to your test class and mark it with the `@TestConfiguration` annotation as follows.
 
 ```kotlin
-import com.udemy.libraries.acceptancetests.AcceptanceTest
+import com.fit4j.AcceptanceTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.junit.jupiter.api.Test
 
@@ -177,7 +177,7 @@ you can place each of those steps in their own methods aside from already writte
 is triggered.
 
 ```kotlin
-import com.udemy.libraries.acceptancetests.helpers.BaseAcceptanceTest
+import com.fit4j.helpers.BaseAcceptanceTest
 
 class SampleAcceptanceTest : BaseAcceptanceTest() {
 
@@ -211,8 +211,8 @@ verification of messages/events, or entities created/updated, as well as verific
 resulted without any unexpected errors.
 
 ```kotlin
-import com.udemy.libraries.acceptancetests.helpers.AcceptanceTestTemplate
-import com.udemy.libraries.acceptancetests.AcceptanceTest
+import com.fit4j.helpers.AcceptanceTestTemplate
+import com.fit4j.AcceptanceTest
 import org.junit.jupiter.api.Test
 
 @AcceptanceTest
@@ -254,7 +254,7 @@ typically more fine-grained tests compared to acceptance tests in terms of the f
 only service - repository, or controller - service layer integrations etc.
 
 ```kotlin
-import com.udemy.libraries.acceptancetests.IntegrationTest
+import com.fit4j.IntegrationTest
 import org.junit.jupiter.api.Test
 
 @IntegrationTest
@@ -323,12 +323,12 @@ value is regarded as SpEL expression itself.
 
 In case declarative way of defining request-response trainings is not capable of what you are trying to do, you can still
 return responses programmatically within the acceptance test class via creating a bean from
-`com.udemy.libraries.acceptancetests.grpc.GrpcResponseJsonBuilder` interface as follows.
+`com.fit4j.grpc.GrpcResponseJsonBuilder` interface as follows.
 
 ```kotlin
 import com.google.protobuf.Message
-import com.udemy.libraries.acceptancetests.AcceptanceTest
-import com.udemy.libraries.acceptancetests.grpc.GrpcResponseJsonBuilder
+import com.fit4j.AcceptanceTest
+import com.fit4j.grpc.GrpcResponseJsonBuilder
 import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
@@ -499,7 +499,7 @@ In the above example, the body part is written as a SpEL expression, and it refe
 which is defined in the `PaymentGrpcServiceAcceptanceTests` test class as below.
 
 ```kotlin
-import com.udemy.libraries.acceptancetests.AcceptanceTest
+import com.fit4j.AcceptanceTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
@@ -516,13 +516,13 @@ class PaymentGrpcServiceAcceptanceTests {
 ```
 
 Similar to gRPC, if you need to return HTTP responses programmatically the library provides the necessary mechanism for you.
-In that case, you will need to implement a bean from `com.udemy.libraries.acceptancetests.http.HttpResponseJsonBuilder` 
+In that case, you will need to implement a bean from `com.fit4j.http.HttpResponseJsonBuilder` 
 interface in the acceptance test configuration class, and prepare the response programmatically as follows.
 
 ```kotlin
 import com.google.protobuf.Message
-import com.udemy.libraries.acceptancetests.AcceptanceTest
-import com.udemy.libraries.acceptancetests.grpc.GrpcResponseJsonBuilder
+import com.fit4j.AcceptanceTest
+import com.fit4j.grpc.GrpcResponseJsonBuilder
 import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
@@ -613,7 +613,7 @@ You can call a particular grpc endpoint of your service via a grpc stub instance
 
 ```kotlin
 import com.udemy.dto.credit.v1.Money
-import com.udemy.libraries.acceptancetests.AcceptanceTest
+import com.fit4j.AcceptanceTest
 import com.udemy.rpc.payments.checkout.credit.v1.CreditServiceGrpc
 import com.udemy.rpc.payments.checkout.credit.v1.ReserveCreditRequest
 import net.devh.boot.grpc.client.inject.GrpcClient
@@ -652,7 +652,7 @@ create and initialize a `ServiceRequestContext` object with the necessary values
 will detect it in the Spring container and use it while calling your gRPC endpoints.
 
 ```kotlin
-import com.udemy.libraries.acceptancetests.AcceptanceTest
+import com.fit4j.AcceptanceTest
 import com.udemy.libraries.requestcontext.spring.RequestContextProvider
 import com.udemy.services.dto.user.UserOuterClass
 import com.udemy.services.requestcontext.v1.ServiceRequestContextOuterClass.ServiceRequestContext
@@ -741,7 +741,7 @@ messages to be consumed by your service via the `KafkaTemplate` instance accessi
 message and verify it.
 
 ```kotlin
-import com.udemy.libraries.acceptancetests.helpers.BaseAcceptanceTest
+import com.fit4j.helpers.BaseAcceptanceTest
 import com.udemy.rpc.payments.checkout.credit.v1beta1.CaptureCreditRequest
 import org.junit.jupiter.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
@@ -779,7 +779,7 @@ deletes topics after each test method execution. It is disabled by default, you 
 # How to Verify gRPC & REST Calls, Kafka Messages and EventTracking Events?
 
 The acceptance test library provides you with the ability to verify the GRPC and REST calls made by your service.
-This can be done via a bean of type `com.udemy.libraries.acceptancetests.mock.MockServiceCallTracker` provided by the
+This can be done via a bean of type `com.fit4j.mock.MockServiceCallTracker` provided by the
 acceptance tests library. It provides methods like `getGrpcRequest`, `getHttpRequest` to get the requests submitted by
 your service. It also provides methods like `hasAnyError`, `hasGrpcError`, `hasHttpError` which will let you check
 whether there are any errors with the given status codes.
@@ -843,7 +843,7 @@ corresponding message instance.
 
 ### Verify Published or Consumed Kafka Messages
 
-A bean of type `com.udemy.libraries.acceptancetests.helpers.AcceptanceTestHelper` is already available if your test class
+A bean of type `com.fit4j.helpers.AcceptanceTestHelper` is already available if your test class
 inherits from `BaseAcceptanceTest` and it provides several convenience `verifyEntity` and `verifyEvent` methods for 
 verification of JPA entities and Kafka messages.
 
@@ -975,7 +975,7 @@ on top of your test class.
 
 ```kotlin
 import org.testcontainers.junit.jupiter.Testcontainers
-import com.udemy.libraries.acceptancetests.AcceptanceTest
+import com.fit4j.AcceptanceTest
 import org.junit.jupiter.api.Test
 
 @Testcontainers
@@ -1062,15 +1062,15 @@ they use rest of the acceptance test library features.
 By default, the acceptance test library registers all test container definitions discovered within `acceptance-tests-test-containers.yml`
 file if the test class also has `@org.testcontainers.junit.jupiter.Testcontainers` annotation. However, your test classes might not need all of them to be
 bootstrapped, instead it might just need a couple of those test container definitions to be instantiated. For this purpose,
-the acceptance test library provides another annotation `@com.udemy.libraries.acceptancetests.testcontainers.Testcontainers`
+the acceptance test library provides another annotation `@com.fit4j.testcontainers.Testcontainers`
 which expects you to list the container definition names for registration, and only those explicitly listed in the annotation
 will be registered and available for your test. This annotation also inherits from `@org.testcontainers.junit.jupiter.Testcontainers`
-so it is  just enough to place the `@com.udemy.libraries.acceptancetests.testcontainers.Testcontainers` annotation on the
+so it is  just enough to place the `@com.fit4j.testcontainers.Testcontainers` annotation on the
 test class.
 
 ```kotlin
 @AcceptanceTest
-@com.udemy.libraries.acceptancetests.testcontainers.Testcontainers(definitions = ["redisContainerDefinition"])
+@com.fit4j.testcontainers.Testcontainers(definitions = ["redisContainerDefinition"])
 class TestContainersWithSelectiveRegistrationIntegrationTests {
     
     @Test

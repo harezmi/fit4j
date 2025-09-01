@@ -1,0 +1,22 @@
+package com.fit4j.testcontainers
+
+import com.fit4j.AcceptanceTest
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+
+@AcceptanceTest
+class TestContainersContextCustomizerWithoutAnnotationIntegrationTests  {
+
+
+    @Autowired(required = false)
+    private var testContainerDefinitions:List<TestContainerDefinition>? = null
+
+    @Test
+    fun `it should not attempt to register test containers if no testcontainers annotation is present`() {
+        // Given
+        // When
+        Assertions.assertNull(testContainerDefinitions)
+        // Then
+    }
+}

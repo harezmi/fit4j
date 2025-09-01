@@ -1,12 +1,12 @@
 - container: org.testcontainers.containers.MySQLContainer
-  name: udemy_v1
+  name: v1
   image: mysql:8.0.37
   exposedPorts:
     - 3306
   username: root
   password: root
-  databaseName: udemy_v1
-  initScript: scripts/udemy_v1_init.sql
+  databaseName: v1
+  initScript: scripts/v1_init.sql
   env:
     - TZ: "America/Los_Angeles"
   urlParam:
@@ -17,13 +17,13 @@
     - username
     - password
 - container: org.testcontainers.containers.MySQLContainer
-  name: udemy_omega
+  name: omega
   image: mysql:8.0.37
   exposedPorts:
     - 3306
   username: root
   password: root
-  databaseName: udemy_omega_db
+  databaseName: omega_db
   env:
     - TZ: America/Los_Angeles
   urlParam:
