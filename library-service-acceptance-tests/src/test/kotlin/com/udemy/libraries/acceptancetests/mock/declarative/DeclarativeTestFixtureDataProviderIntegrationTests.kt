@@ -1,14 +1,13 @@
 package com.udemy.libraries.acceptancetests.mock.declarative
 
+import com.example.CurrencyServiceOuterClass
+import com.example.UserRetrievalServiceOuterClass
 import com.google.rpc.Code
 import com.udemy.libraries.acceptancetests.AcceptanceTest
 import com.udemy.libraries.acceptancetests.grpc.GrpcTestFixture
 import com.udemy.libraries.acceptancetests.grpc.GrpcTestFixtureResponse
 import com.udemy.libraries.acceptancetests.http.HttpTestFixture
 import com.udemy.libraries.acceptancetests.http.HttpTestFixtureResponse
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService.GetRateRequest
-import com.udemy.rpc.revenue.revenueapi.v1.GetTotalInstructorEarningRequest
-import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUserRequest
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
@@ -48,7 +47,7 @@ class DeclarativeTestFixtureDataProviderIntegrationTests {
     fun `it should return test fixtures for the given test1`() {
         //given
         val tf1 = GrpcTestFixture(
-            requestType = GetRateRequest::class.java, predicate = null,
+            requestType = CurrencyServiceOuterClass.GetRateRequest::class.java, predicate = null,
             responses = listOf(GrpcTestFixtureResponse(statusCode = 0,
                 responseBody = """
                                 {
@@ -56,7 +55,7 @@ class DeclarativeTestFixtureDataProviderIntegrationTests {
                                 }
                                 """.trimIndent(),))
         )
-        val tf2 = GrpcTestFixture(GetUserRequest::class.java, null, listOf(
+        val tf2 = GrpcTestFixture(UserRetrievalServiceOuterClass.GetUserRequest::class.java, null, listOf(
             GrpcTestFixtureResponse(0, """
                     {
                     "user":
@@ -78,7 +77,7 @@ class DeclarativeTestFixtureDataProviderIntegrationTests {
                            "payer_id": "111"
                         }
                         """.trimIndent())))
-        val tf5 = GrpcTestFixture(GetTotalInstructorEarningRequest::class.java, null, listOf(
+        val tf5 = GrpcTestFixture(UserRetrievalServiceOuterClass.GetTotalInstructorEarningRequest::class.java, null, listOf(
             GrpcTestFixtureResponse(0, """
                         {
                            "amount": {
@@ -101,7 +100,7 @@ class DeclarativeTestFixtureDataProviderIntegrationTests {
     @Test
     fun `it should return test fixtures for the given test2`() {
         //given
-        val tf1 = GrpcTestFixture(GetTotalInstructorEarningRequest::class.java, null, listOf(GrpcTestFixtureResponse(Code.UNAVAILABLE_VALUE)))
+        val tf1 = GrpcTestFixture(UserRetrievalServiceOuterClass.GetTotalInstructorEarningRequest::class.java, null, listOf(GrpcTestFixtureResponse(Code.UNAVAILABLE_VALUE)))
         val tf2 = HttpTestFixture(
             requestPath = "/v1/payments/payouts",
             predicate = TestFixturePredicate("#request.method == 'GET'", predicateEvaluator),
@@ -123,7 +122,7 @@ class DeclarativeTestFixtureDataProviderIntegrationTests {
         )
         val tf3 = HttpTestFixture(requestPath = "/health", expressionResolver=expressionResolver, responses = listOf(HttpTestFixtureResponse(statusCode = 200)))
         val tf4 = GrpcTestFixture(
-            requestType = GetTotalInstructorEarningRequest::class.java,
+            requestType = UserRetrievalServiceOuterClass.GetTotalInstructorEarningRequest::class.java,
             predicate = TestFixturePredicate("#request.year > 2019", evaluator = predicateEvaluator),
             responses = listOf(
                 GrpcTestFixtureResponse(statusCode = 0,
@@ -148,7 +147,7 @@ class DeclarativeTestFixtureDataProviderIntegrationTests {
     @Test
     fun `it should return test fixtures for the given test3`() {
         val tf1 = GrpcTestFixture(
-            requestType = GetRateRequest::class.java, predicate = null,
+            requestType = CurrencyServiceOuterClass.GetRateRequest::class.java, predicate = null,
             responses = listOf(
                             GrpcTestFixtureResponse(statusCode = 0, responseBody = """
                                     {
@@ -171,7 +170,7 @@ class DeclarativeTestFixtureDataProviderIntegrationTests {
                         """.trimIndent()), HttpTestFixtureResponse(statusCode =  404)))
 
         val tf3 = GrpcTestFixture(
-            requestType = GetTotalInstructorEarningRequest::class.java,
+            requestType = UserRetrievalServiceOuterClass.GetTotalInstructorEarningRequest::class.java,
             predicate = TestFixturePredicate("#request.year > 2019", evaluator = predicateEvaluator),
             responses = listOf(
                 GrpcTestFixtureResponse(statusCode = 0,
@@ -197,7 +196,7 @@ class DeclarativeTestFixtureDataProviderIntegrationTests {
     @Test
     fun `it should return test fixtures for the given test4`() {
         //given
-        val tf1 = GrpcTestFixture(GetTotalInstructorEarningRequest::class.java, null, listOf(
+        val tf1 = GrpcTestFixture(UserRetrievalServiceOuterClass.GetTotalInstructorEarningRequest::class.java, null, listOf(
             GrpcTestFixtureResponse(0, """
                         {
                            "amount": {

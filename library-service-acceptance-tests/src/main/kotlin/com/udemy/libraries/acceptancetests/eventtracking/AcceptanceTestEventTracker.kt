@@ -1,6 +1,6 @@
 package com.udemy.libraries.acceptancetests.eventtracking
 
-import com.udemy.eventtracking.listener.EventPublishTaskListener
+import com.udemy.libraries.acceptancetests.legacy_api.eventtracking.EventPublishTaskListener
 import org.apache.avro.specific.SpecificRecord
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

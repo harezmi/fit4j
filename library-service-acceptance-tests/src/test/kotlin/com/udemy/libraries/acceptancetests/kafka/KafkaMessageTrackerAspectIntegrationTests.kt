@@ -1,9 +1,9 @@
 package com.udemy.libraries.acceptancetests.kafka
 
+import com.example.CreditServiceOuterClass
 import com.google.protobuf.Message
 import com.udemy.libraries.acceptancetests.AcceptanceTest
 import com.udemy.libraries.acceptancetests.helpers.AcceptanceTestHelper
-import com.udemy.rpc.payments.checkout.credit.v1beta1.CaptureCreditRequest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,10 +23,10 @@ class KafkaMessageTrackerAspectIntegrationTests {
 
     @Test
     fun `it should identify topic to which message sent`() {
-        val message = CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
+        val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
         helper.beans.kafkaTemplate.send("sample-topic-1",message)
 
-        val event = helper.getEvent(CaptureCreditRequest::class)
+        val event = helper.getEvent(CreditServiceOuterClass.CaptureCreditRequest::class)
         Assertions.assertEquals("123", event?.paymentAttemptId)
         val messagePublished = helper.beans.kafkaMessageTracker.getMessagesPublishedAt("sample-topic-1").first()
         Assertions.assertEquals(message, messagePublished.data)
@@ -37,7 +37,7 @@ class KafkaMessageTrackerAspectIntegrationTests {
 
     @Test
     fun `it should identify default topic to which message sent`() {
-        val message = CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
+        val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
         helper.beans.kafkaTemplate.sendDefault("foo",message)
 
         val messagePublished = helper.beans.kafkaMessageTracker.getMessagesPublishedAt("udemy-test-topic").first()
@@ -52,7 +52,7 @@ class KafkaMessageTrackerAspectIntegrationTests {
 
 class CaptureCreditRequestDeserializer : MessageDeserializer() {
     override fun parseFrom(data: ByteArray?): Message {
-        return CaptureCreditRequest.parseFrom(data)
+        return CreditServiceOuterClass.CaptureCreditRequest.parseFrom(data)
     }
 }
 

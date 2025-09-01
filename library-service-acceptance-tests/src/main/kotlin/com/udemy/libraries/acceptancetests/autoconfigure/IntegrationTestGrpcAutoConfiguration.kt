@@ -1,9 +1,9 @@
 package com.udemy.libraries.acceptancetests.autoconfigure
 
+import com.example.UserRetrievalServiceOuterClass
 import com.udemy.libraries.acceptancetests.EnableOnIntegrationTestClass
-import com.udemy.libraries.requestcontext.spring.RequestContextInterceptor
-import com.udemy.libraries.requestcontext.spring.RequestContextMarshaller
-import com.udemy.services.requestcontext.v1.ServiceRequestContextOuterClass.ServiceRequestContext
+import com.udemy.libraries.acceptancetests.legacy_api.requestcontext.RequestContextInterceptor
+import com.udemy.libraries.acceptancetests.legacy_api.requestcontext.RequestContextMarshaller
 import io.grpc.Metadata
 import io.grpc.stub.MetadataUtils
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer
@@ -34,7 +34,7 @@ class IntegrationTestGrpcAutoConfiguration {
     @Bean
     fun serviceRequestContextGlobalClientInterceptorConfigurer(applicationContext: ApplicationContext) : GlobalClientInterceptorConfigurer {
         return GlobalClientInterceptorConfigurer { interceptors ->
-            val beansMap = applicationContext.getBeansOfType(ServiceRequestContext::class.java)
+            val beansMap = applicationContext.getBeansOfType(UserRetrievalServiceOuterClass.ServiceRequestContext::class.java)
             if (beansMap.isNotEmpty()) {
                 val serviceRequestContext = beansMap.firstNotNullOf { it.value }
                 val metadata = Metadata()

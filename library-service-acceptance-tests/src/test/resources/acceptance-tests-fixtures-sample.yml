@@ -9,13 +9,13 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          type: com.example.CurrencyServiceOuterClass$GetRateRequest
           response:
             body:
               rate: "1.00"
       - request:
           protocol: grpc
-          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          type: com.example.UserRetrievalServiceOuterClass$GetUserRequest
           response:
             body:
               user:
@@ -41,7 +41,7 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.rpc.revenue.revenueapi.v1.GetTotalInstructorEarningRequest
+          type: com.example.UserRetrievalServiceOuterClass$GetTotalInstructorEarningRequest
           predicate: "#request.year > 2019"
           response:
             status: "UNAVAILABLE"
@@ -65,7 +65,7 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          type: com.example.CurrencyServiceOuterClass$GetRateRequest
           responses:
             - body:
                 rate: "1.00"
@@ -87,7 +87,7 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.rpc.revenue.revenueapi.v1.GetTotalInstructorEarningRequest
+          type: com.example.UserRetrievalServiceOuterClass$GetTotalInstructorEarningRequest
           response:
             body:
               amount:

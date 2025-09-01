@@ -1,7 +1,7 @@
 package com.udemy.libraries.acceptancetests.autoconfigure
 
 import com.udemy.libraries.acceptancetests.EnableOnAcceptanceTestClass
-import com.udemy.sas.JWTProvider
+import com.udemy.libraries.acceptancetests.legacy_api.sas.JWTProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.context.annotation.Bean

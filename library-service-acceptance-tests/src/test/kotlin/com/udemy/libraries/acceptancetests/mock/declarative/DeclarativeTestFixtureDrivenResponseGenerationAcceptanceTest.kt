@@ -1,12 +1,12 @@
 package com.udemy.libraries.acceptancetests.mock.declarative
 
+import com.example.CurrencyServiceGrpc
+import com.example.CurrencyServiceOuterClass
+import com.example.UserRetrievalServiceGrpc
+import com.example.UserRetrievalServiceOuterClass
 import com.udemy.libraries.acceptancetests.AcceptanceTest
 import com.udemy.libraries.acceptancetests.AcceptanceTestFixture
 import com.udemy.libraries.acceptancetests.helpers.AcceptanceTestHelper
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeRateServiceGrpc
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService
-import com.udemy.services.retrieval.user.v1.UserRetrievalServiceGrpc
-import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUserRequest
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -24,7 +24,7 @@ import org.springframework.test.context.TestPropertySource
 class DeclarativeTestFixtureDrivenResponseGenerationAcceptanceTest {
 
     @GrpcClient("currencyExchangeRateService")
-    private lateinit var currencyExchangeRateService: CurrencyExchangeRateServiceGrpc.CurrencyExchangeRateServiceBlockingStub
+    private lateinit var currencyExchangeRateService: CurrencyServiceGrpc.CurrencyServiceBlockingStub
 
     @GrpcClient("userRetrievalService")
     private lateinit var userRetrievalService: UserRetrievalServiceGrpc.UserRetrievalServiceBlockingStub
@@ -36,18 +36,18 @@ class DeclarativeTestFixtureDrivenResponseGenerationAcceptanceTest {
     @AcceptanceTestFixture("it should return responses from test fixture yml")
     fun `it should return responses from test fixture yml`() {
 
-        val getRateRequest1 = CurrencyExchangeService.GetRateRequest.newBuilder().setSourceCurrency("USD")
+        val getRateRequest1 = CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD")
             .setTargetCurrency("TRY").build()
         val getRateResponse1 = currencyExchangeRateService.getRate(getRateRequest1)
         Assertions.assertEquals("1.00",getRateResponse1.rate)
 
-        val getRateRequest2 = CurrencyExchangeService.GetRateRequest.newBuilder().setSourceCurrency("USD")
+        val getRateRequest2 = CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD")
             .setTargetCurrency("TRY").build()
         val getRateResponse2 = currencyExchangeRateService.getRate(getRateRequest2)
         Assertions.assertEquals("2.00",getRateResponse2.rate)
 
 
-        val request = GetUserRequest.newBuilder().setUserId(123L).build()
+        val request = UserRetrievalServiceOuterClass.GetUserRequest.newBuilder().setUserId(123L).build()
         val response = userRetrievalService.getUser(request)
         Assertions.assertEquals(123L,response.user.userId)
 

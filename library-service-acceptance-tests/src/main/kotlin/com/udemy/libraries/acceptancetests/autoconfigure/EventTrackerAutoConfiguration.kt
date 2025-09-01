@@ -1,8 +1,9 @@
 package com.udemy.libraries.acceptancetests.autoconfigure
 
-import com.udemy.eventtracking.EventTracker
+
 import com.udemy.libraries.acceptancetests.EnableOnAcceptanceTestClass
 import com.udemy.libraries.acceptancetests.eventtracking.AcceptanceTestEventTracker
+import com.udemy.libraries.acceptancetests.legacy_api.eventtracking.EventTracker
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.annotation.Bean

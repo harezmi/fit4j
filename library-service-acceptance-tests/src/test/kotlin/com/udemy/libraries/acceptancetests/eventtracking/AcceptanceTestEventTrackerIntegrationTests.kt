@@ -1,10 +1,10 @@
 package com.udemy.libraries.acceptancetests.eventtracking
 
-import com.udemy.eventtracking.EventTracker
-import com.udemy.eventtracking.EventTrackerBuilder
-import com.udemy.eventtracking.events.ChatResponseGenerated.ChatResponseGenerated
 import com.udemy.libraries.acceptancetests.AcceptanceTest
 import com.udemy.libraries.acceptancetests.helpers.AcceptanceTestHelper
+import com.udemy.libraries.acceptancetests.legacy_api.eventtracking.ChatResponseGenerated
+import com.udemy.libraries.acceptancetests.legacy_api.eventtracking.EventTracker
+import com.udemy.libraries.acceptancetests.legacy_api.eventtracking.EventTrackerBuilder
 import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -54,12 +54,6 @@ class AcceptanceTestEventTrackerIntegrationTests {
             .apply { userId?.let { setUserId(it) } }
             .apply { organizationId?.let { setOrganizationId(it) } }
             .setUserMessageId("user-message-1")
-            .setAssistantMessageId("assistant-message-1")
-            .setIsSuccessful(true)
-            .apply { failureReason?.let { setFailureReason(it) } }
-            .apply { requestId?.let { setRequestId(it) } }
-            .setEventTime(DateTime.now())
-            .setReceiveTime(DateTime.now())
             .build()
 
         Assertions.assertFalse(helper.beans.acceptanceTestEventTracker.isEventSubmitted(event))

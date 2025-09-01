@@ -1,7 +1,7 @@
 package com.udemy.libraries.acceptancetests.experimentation
 
-import com.udemy.libraries.exp.sdk.ConfigurationServiceClientBuilder
-import com.udemy.libraries.exp.sdk.config.ExpPlatformConfig
+import com.udemy.libraries.acceptancetests.legacy_api.experimentation.ConfigurationServiceClientBuilder
+import com.udemy.libraries.acceptancetests.legacy_api.experimentation.ExpPlatformConfig
 import io.grpc.ManagedChannel
 import io.grpc.inprocess.InProcessChannelBuilder
 import org.slf4j.Logger

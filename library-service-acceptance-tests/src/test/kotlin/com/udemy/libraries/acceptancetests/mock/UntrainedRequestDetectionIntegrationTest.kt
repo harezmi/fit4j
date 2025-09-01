@@ -1,10 +1,9 @@
 package com.udemy.libraries.acceptancetests.mock
 
+import com.example.CurrencyServiceGrpc
+import com.example.CurrencyServiceOuterClass
 import com.udemy.libraries.acceptancetests.AcceptanceTest
-import com.udemy.libraries.requestcontext.spring.RequestContextProvider
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeRateServiceGrpc
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService.GetRateRequest
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService.GetRateResponse
+import com.udemy.libraries.acceptancetests.legacy_api.requestcontext.RequestContextProvider
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
@@ -56,7 +55,7 @@ class UntrainedRequestDetectionIntegrationTest {
 
 class TestService {
     @GrpcClient("currencyExchangeRateService")
-    private lateinit var currencyExchangeRateService: CurrencyExchangeRateServiceGrpc.CurrencyExchangeRateServiceBlockingStub
+    private lateinit var currencyExchangeRateService: CurrencyServiceGrpc.CurrencyServiceBlockingStub
 
     @Autowired
     private lateinit var restTemplateBuilder: RestTemplateBuilder
@@ -64,7 +63,7 @@ class TestService {
     @Value("\${udemy.test.mockWebServer.port}")
     private lateinit var port:Integer
 
-    fun doWork() : GetRateResponse{
+    fun doWork() : CurrencyServiceOuterClass.GetRateResponse{
         try {
             val restTemplate = restTemplateBuilder.rootUri("http://localhost:$port").build()
             val message = restTemplate.getForObject("/hello", String::class.java)
@@ -73,12 +72,12 @@ class TestService {
         }
 
         try {
-            val getRateRequest = GetRateRequest.newBuilder().setSourceCurrency("USD")
+            val getRateRequest = CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD")
                 .setTargetCurrency("TRY").build()
             return currencyExchangeRateService.getRate(getRateRequest)
         } catch (e: Exception) {
             //swallow the exception and return default response
-            return GetRateResponse.newBuilder().build()
+            return CurrencyServiceOuterClass.GetRateResponse.newBuilder().build()
         }
     }
 }

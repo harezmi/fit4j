@@ -1,10 +1,9 @@
 package com.udemy.libraries.acceptancetests.mock.declarative
 
+import com.example.CurrencyServiceOuterClass
 import com.udemy.libraries.acceptancetests.AcceptanceTest
 import com.udemy.libraries.acceptancetests.AcceptanceTestFixture
 import com.udemy.libraries.acceptancetests.mock.MockServiceResponseFactory
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService.GetRateRequest
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService.GetRateResponse
 import okhttp3.Headers
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -108,10 +107,10 @@ class TestFixtureGroupStateCleanupIntegrationTest {
         val actualResponse4 = mockServiceResponseFactory.getResponseFor(request)
 
 
-        val expectedResponse1 = GetRateResponse.newBuilder().setRate("1.00").build()
-        val expectedResponse2 = GetRateResponse.newBuilder().setRate("2.00").build()
-        val expectedResponse3 = GetRateResponse.newBuilder().setRate("3.00").build()
-        val expectedResponse4 = GetRateResponse.newBuilder().setRate("3.00").build()
+        val expectedResponse1 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("1.00").build()
+        val expectedResponse2 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("2.00").build()
+        val expectedResponse3 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("3.00").build()
+        val expectedResponse4 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("3.00").build()
 
         Assertions.assertEquals(expectedResponse1, actualResponse1)
         Assertions.assertEquals(expectedResponse2, actualResponse2)
@@ -130,10 +129,10 @@ class TestFixtureGroupStateCleanupIntegrationTest {
         val actualResponse4 = mockServiceResponseFactory.getResponseFor(request)
 
 
-        val expectedResponse1 = GetRateResponse.newBuilder().setRate("1.00").build()
-        val expectedResponse2 = GetRateResponse.newBuilder().setRate("2.00").build()
-        val expectedResponse3 = GetRateResponse.newBuilder().setRate("3.00").build()
-        val expectedResponse4 = GetRateResponse.newBuilder().setRate("3.00").build()
+        val expectedResponse1 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("1.00").build()
+        val expectedResponse2 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("2.00").build()
+        val expectedResponse3 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("3.00").build()
+        val expectedResponse4 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("3.00").build()
 
         Assertions.assertEquals(expectedResponse1, actualResponse1)
         Assertions.assertEquals(expectedResponse2, actualResponse2)
@@ -141,8 +140,8 @@ class TestFixtureGroupStateCleanupIntegrationTest {
         Assertions.assertEquals(expectedResponse4, actualResponse4)
     }
 
-    private fun createGrpcRequest(): GetRateRequest =
-        GetRateRequest.newBuilder().setSourceCurrency("USD").setTargetCurrency("TRY").build()
+    private fun createGrpcRequest(): CurrencyServiceOuterClass.GetRateRequest =
+        CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD").setTargetCurrency("TRY").build()
 
     private fun createWebRequest(path: String, method: String = "GET", body: String? = null): RecordedRequest {
         val buffer = Buffer()

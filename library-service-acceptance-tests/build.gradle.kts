@@ -1,24 +1,17 @@
 import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.google.protobuf.gradle.*
 
 plugins {
 	`java-library`
-	id("com.udemy.gradle.plugins.publish") version "2.1.1"
 	kotlin("jvm") version "2.0.20"
 	kotlin("plugin.spring") version "2.0.20"
+    id("com.google.protobuf") version "0.9.4"
 }
 
 repositories {
 	mavenCentral()
 	maven(url = "https://packages.confluent.io/maven/")
-	maven {
-		name = "GitHubPackages"
-		url = uri("https://maven.pkg.github.com/udemy/packages-repo")
-		credentials {
-			username = System.getenv("GITHUB_PACKAGES_USERNAME")
-			password = System.getenv("GITHUB_PACKAGES_TOKEN")
-		}
-	}
 }
 
 dependencies {
@@ -54,6 +47,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 	implementation("io.grpc:grpc-api:$grpcVersion")
 	implementation("io.grpc:grpc-stub:$grpcVersion")
+    implementation("io.grpc:grpc-kotlin-stub:1.4.3")
 	implementation("com.google.protobuf:protobuf-java:$protobufJavaVersion")
 	implementation("com.google.protobuf:protobuf-java-util:$protobufJavaVersion")
 	implementation("io.mockk:mockk:$mockkVersion")
@@ -70,14 +64,6 @@ dependencies {
 	implementation("org.apache.avro:avro:$apacheAvroVersion")
 	implementation("com.github.codemonstur:embedded-redis:1.4.3")
 
-	implementation("com.udemy.libraries.protobufs:kotlin:$udemyProtobufKotlinVersion") //required for MoneyConverter
-	implementation("com.udemy.libraries.sas:sas-core:$udemySASVersion") //required for JWTProvider defined in TestHttpConfig
-	implementation("com.udemy.libraries.eventtracking:eventtracker:$udemyEventTrackerVersion")
-
-	implementation("com.udemy.libraries.exp:exp-platform-sdk:$udemyExpPlatformVersion")
-	implementation("com.udemy.libraries.exp:exp-platform-sdk-spring-boot-starter:$udemyExpPlatformVersion")
-	implementation("com.udemy.libraries.requestcontext:spring:$udemyRequestContextVersion")
-
 	implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.2.0")
 	implementation("io.github.resilience4j:resilience4j-kotlin:2.2.0")
 	implementation("io.github.resilience4j:resilience4j-micrometer:2.2.0")
@@ -89,7 +75,6 @@ dependencies {
 	implementation("jakarta.annotation:jakarta.annotation-api")
 
 	testImplementation("com.mysql:mysql-connector-j")
-	testImplementation("com.udemy.eventtracking.events:chatresponsegenerated:102.0.0-release")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 }
 
@@ -114,4 +99,42 @@ java {
 	sourceCompatibility = JavaVersion.VERSION_17
 	targetCompatibility = JavaVersion.VERSION_17
 	withSourcesJar()
+}
+
+sourceSets {
+    test {
+        proto {
+        }
+        java {
+            setSrcDirs(
+                listOf(
+                    "build/generated/source/proto/main/grpckt",
+                    "build/generated/source/proto/main/grpc",
+                    "build/generated/source/proto/main/java"
+                )
+            )
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.17.3"
+    }
+    plugins {
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.43.2"
+        }
+        id("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.1.0:jdk7@jar"
+        }
+    }
+    generateProtoTasks {
+        ofSourceSet("main").forEach {
+            it.plugins {
+                id("grpc")
+                id("grpckt")
+            }
+        }
+    }
 }

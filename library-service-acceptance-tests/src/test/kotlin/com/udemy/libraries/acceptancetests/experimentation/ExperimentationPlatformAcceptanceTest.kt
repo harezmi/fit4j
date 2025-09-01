@@ -1,7 +1,7 @@
 package com.udemy.libraries.acceptancetests.experimentation
 
 import com.udemy.libraries.acceptancetests.AcceptanceTest
-import com.udemy.libraries.exp.sdk.ExpPlatform
+import com.udemy.libraries.acceptancetests.legacy_api.experimentation.ExpPlatform
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

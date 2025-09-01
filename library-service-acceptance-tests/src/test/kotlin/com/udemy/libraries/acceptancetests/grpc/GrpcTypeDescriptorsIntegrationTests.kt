@@ -1,11 +1,10 @@
 package com.udemy.libraries.acceptancetests.grpc
 
+import com.example.CreditServiceOuterClass
+import com.example.CurrencyServiceOuterClass
+import com.example.PaymentTransactionServiceOuterClass
 import com.google.protobuf.Any
 import com.google.protobuf.Descriptors
-import com.udemy.dto.checkout.v1.Credit
-import com.udemy.dto.checkout.v1.GatewayPaymentTransaction
-import com.udemy.dto.checkout.v1.PaymentTransaction
-import com.udemy.dto.learner_activity.las.response.v1beta1.Row
 import com.udemy.libraries.acceptancetests.AcceptanceTest
 import com.udemy.libraries.acceptancetests.helpers.AcceptanceTestHelper
 import org.junit.jupiter.api.Assertions
@@ -24,12 +23,12 @@ class GrpcTypeDescriptorsIntegrationTests {
     class TestConfig {
         @Bean
         fun grpcTypeDescriptors1() : List<Descriptors.Descriptor> {
-            return listOf(PaymentTransaction.getDescriptor())
+            return listOf(PaymentTransactionServiceOuterClass.PaymentTransaction.getDescriptor())
         }
 
         @Bean
         fun grpcTypeDescriptors2() : List<Descriptors.Descriptor> {
-            return listOf(GatewayPaymentTransaction.getDescriptor())
+            return listOf(PaymentTransactionServiceOuterClass.GatewayPaymentTransaction.getDescriptor())
         }
 
         @Bean
@@ -48,18 +47,18 @@ class GrpcTypeDescriptorsIntegrationTests {
         val ptContent = """
             {
                 "values": [{
-                    "@type": "type.googleapis.com/udemy.dto.checkout.v1.PaymentTransaction",
+                    "@type": "type.googleapis.com/com.example.PaymentTransaction",
                     "id": "123",
                     "paymentAttemptId": "456"
                 }]
             }
             """.trimIndent()
 
-        val rowBuilder = Row.newBuilder()
+        val rowBuilder = CurrencyServiceOuterClass.Row.newBuilder()
         helper.beans.jsonProtoParser.merge(ptContent,rowBuilder)
         val row = rowBuilder.build()
         val any = row.getValues(0) as Any
-        val pt = any.unpack(PaymentTransaction::class.java)
+        val pt = any.unpack(PaymentTransactionServiceOuterClass.PaymentTransaction::class.java)
         Assertions.assertEquals("123",pt.id)
         Assertions.assertEquals("456",pt.paymentAttemptId)
     }
@@ -69,17 +68,17 @@ class GrpcTypeDescriptorsIntegrationTests {
         val ptContent = """
             {
                 "values": [{
-                    "@type": "type.googleapis.com/udemy.dto.checkout.v1.Credit",
+                    "@type": "type.googleapis.com/com.example.Credit",
                     "currency": "usd"
                 }]
             }
             """.trimIndent()
 
-        val rowBuilder = Row.newBuilder()
+        val rowBuilder = CurrencyServiceOuterClass.Row.newBuilder()
         helper.beans.jsonProtoParser.merge(ptContent,rowBuilder)
         val row = rowBuilder.build()
         val any = row.getValues(0) as Any
-        val credit = any.unpack(Credit::class.java)
+        val credit = any.unpack(CreditServiceOuterClass.Credit::class.java)
         Assertions.assertEquals("usd",credit.currency)
     }
 }

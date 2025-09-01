@@ -3,20 +3,17 @@ package com.udemy.libraries.acceptancetests.autoconfigure
 import com.udemy.libraries.acceptancetests.EnableOnAcceptanceTestClass
 import com.udemy.libraries.acceptancetests.experimentation.InProcessChannelConfigurationManagementClientBuilder
 import com.udemy.libraries.acceptancetests.experimentation.InProcessChannelConfigurationServiceClientBuilder
-import com.udemy.libraries.exp.sdk.ConfigurationManagementClientBuilder
-import com.udemy.libraries.exp.sdk.ConfigurationServiceClientBuilder
-import com.udemy.libraries.exp.sdk.autoconfigure.ExpPlatformAutoConfiguration
+import com.udemy.libraries.acceptancetests.legacy_api.experimentation.ConfigurationManagementClientBuilder
+import com.udemy.libraries.acceptancetests.legacy_api.experimentation.ConfigurationServiceClientBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import java.lang.Thread.UncaughtExceptionHandler
 
 @AutoConfiguration
-@AutoConfigureAfter(ExpPlatformAutoConfiguration::class)
 @ConditionalOnProperty(prefix = "expplatform", name = ["enabled"], havingValue = "true", matchIfMissing = false)
 @ConditionalOnClass(name=["com.udemy.libraries.exp.sdk.ConfigurationServiceClientBuilder",
     "com.udemy.libraries.exp.sdk.ConfigurationManagementClientBuilder"])

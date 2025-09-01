@@ -1,19 +1,13 @@
 package com.udemy.libraries.acceptancetests.grpc
 
+import com.example.AutoComplete
+import com.example.CurrencyServiceOuterClass
+import com.example.UserRetrievalServiceOuterClass
 import com.google.protobuf.Message
 import com.google.protobuf.StringValue
 import com.udemy.libraries.acceptancetests.AcceptanceTest
 import com.udemy.libraries.acceptancetests.mock.MockServiceResponseFactory
 import com.udemy.libraries.acceptancetests.mock.MockServiceResponseProvider
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService.GetRateRequest
-import com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService.GetRateResponse
-import com.udemy.services.dto.user.UserOuterClass.User
-import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUserRequest
-import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUserResponse
-import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
-import com.udemy.services.search.searchautocomplete.rpc.v1.SearchAutocompleteService.AutocompleteRequest
-import com.udemy.services.search.searchautocomplete.rpc.v1.SearchAutocompleteService.AutocompleteResponse
-import com.udemy.services.search.searchautocomplete.rpc.v1.SearchAutocompleteService.AutocompleteResponseDto
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import org.junit.jupiter.api.Assertions
@@ -73,7 +67,7 @@ class GrpcMockServiceResponseFactoryIntegrationTests {
         @Bean
         fun grpcResponseJsonBuilder(): GrpcResponseJsonBuilder<Message> {
             return GrpcResponseJsonBuilder {
-                if(it is AutocompleteRequest) {
+                if(it is AutoComplete.AutocompleteRequest) {
                     """
                         {
                           "response": [
@@ -82,7 +76,7 @@ class GrpcMockServiceResponseFactoryIntegrationTests {
                               }
                           ]
                         }""".trimIndent()
-                } else if (it is GetUserRequest && it.userId != 0.toLong()) {
+                } else if (it is UserRetrievalServiceOuterClass.GetUserRequest && it.userId != 0.toLong()) {
                     """
                         {
                           "user":
@@ -92,7 +86,7 @@ class GrpcMockServiceResponseFactoryIntegrationTests {
                           
                         }
                     """.trimIndent()
-                } else if (it is GetUsersRequest) {
+                } else if (it is UserRetrievalServiceOuterClass.GetUsersRequest) {
                     """
                         throw {
                             "status": "PERMISSION_DENIED"
@@ -121,49 +115,49 @@ class GrpcMockServiceResponseFactoryIntegrationTests {
     @Test
     fun `it should resolve a response for the given gRPC AutocompleteRequest`() {
         // Given
-        val request = AutocompleteRequest.getDefaultInstance()
+        val request = AutoComplete.AutocompleteRequest.getDefaultInstance()
 
         // When
         val response = mockServiceResponseFactory.getResponseFor(request)
 
         // Then
-        val expectedResponse = AutocompleteResponse.newBuilder()
-            .addResponse(AutocompleteResponseDto.newBuilder().setName("foo").build()).build()
+        val expectedResponse = AutoComplete.AutocompleteResponse.newBuilder()
+            .addResponse(AutoComplete.AutocompleteResponseDto.newBuilder().setName("foo").build()).build()
         Assertions.assertEquals(expectedResponse, response)
     }
 
     @Test
     fun `it should resolve a response from programmatic response provider for the given gRPC GetUserRequest`() {
         // Given
-        val request = GetUserRequest.newBuilder().setUserId(321).build()
+        val request = UserRetrievalServiceOuterClass.GetUserRequest.newBuilder().setUserId(321).build()
 
         // When
         val response = mockServiceResponseFactory.getResponseFor(request)
 
         // Then
-        val user = User.newBuilder().setUserId(321).build()
-        val expectedResponse = GetUserResponse.newBuilder().setUser(user).build()
+        val user = UserRetrievalServiceOuterClass.User.newBuilder().setUserId(321).build()
+        val expectedResponse = UserRetrievalServiceOuterClass.GetUserResponse.newBuilder().setUser(user).build()
         Assertions.assertEquals(expectedResponse, response)
     }
 
     @Test
     fun `it should resolve a response from declarative responses for the given gRPC GetUserRequest`() {
         // Given
-        val request = GetUserRequest.newBuilder().build()
+        val request = UserRetrievalServiceOuterClass.GetUserRequest.newBuilder().build()
 
         // When
         val response = mockServiceResponseFactory.getResponseFor(request)
 
         // Then
-        val user = User.newBuilder().setUserId(123).build()
-        val expectedResponse = GetUserResponse.newBuilder().setUser(user).build()
+        val user = UserRetrievalServiceOuterClass.User.newBuilder().setUserId(123).build()
+        val expectedResponse = UserRetrievalServiceOuterClass.GetUserResponse.newBuilder().setUser(user).build()
         Assertions.assertEquals(expectedResponse, response)
     }
 
     @Test
     fun `it should resolve a response for the given gRPC GetUsersRequest`() {
         // Given
-        val request = GetUsersRequest.getDefaultInstance()
+        val request = UserRetrievalServiceOuterClass.GetUsersRequest.getDefaultInstance()
 
         // When
         val response = mockServiceResponseFactory.getResponseFor(request)
@@ -175,9 +169,9 @@ class GrpcMockServiceResponseFactoryIntegrationTests {
 
     @Test
     fun `it should resolve a response from declarations for the given GRPC request`() {
-        val request = GetRateRequest.newBuilder().setSourceCurrency("USD").setTargetCurrency("TRY").build()
+        val request = CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD").setTargetCurrency("TRY").build()
         val response = mockServiceResponseFactory.getResponseFor(request)
-        val expectedResponse = GetRateResponse.newBuilder().setRate("1.00").build()
+        val expectedResponse = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("1.00").build()
         Assertions.assertEquals(expectedResponse, response)
     }
 }

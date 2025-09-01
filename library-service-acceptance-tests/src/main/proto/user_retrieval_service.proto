@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+option java_package = "com.example";
+
+package com.example;
+
+service UserRetrievalService {
+    rpc getUser(GetUserRequest) returns (GetUserResponse);
+}
+
+message GetUserRequest {
+    int64 userId = 2;
+}
+
+message GetUserResponse {
+    User user = 1;
+}
+
+message User {
+    int64 userId = 1;
+    string country  = 2;
+    string platform = 3;
+    string locale = 4;
+}
+
+message GetUsersRequest {
+}
+
+message GetUsersResponse {
+}
+
+message ServiceRequestContext {
+    User user = 1;
+}
+
+message GetTotalInstructorEarningRequest {
+
+}
+
+message GetSuppressedFeaturesRequest {
+
+}
+
+message GetSuppressedFeaturesResponse {
+
+}
+
+message FeatureVariantRequest {
+
+}
+
+message FeatureVariantResponse {
+
+}

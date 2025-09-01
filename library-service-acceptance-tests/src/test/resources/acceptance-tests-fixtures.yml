@@ -3,14 +3,14 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.services.exp.cas.configurationmanagementservice.v2.GetSuppressedFeaturesRequest
+          type: com.example.UserRetrievalServiceOuterClass$GetSuppressedFeaturesRequest
           response:
             status: "OK"
   - name: AnotherSampleGrpcIntegrationTest
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          type: com.example.UserRetrievalServiceOuterClass$GetUserRequest
           response:
             body:
               user:
@@ -19,7 +19,7 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          type: com.example.CurrencyServiceOuterClass$GetRateRequest
           predicate: "#request.sourceCurrency == 'USD' && #request.targetCurrency == 'TRY'"
           response:
             body:
@@ -28,14 +28,14 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          type: com.example.CurrencyServiceOuterClass$GetRateRequest
           predicate: "#request.sourceCurrency == 'USD' && #request.targetCurrency == 'TRY'"
           response:
             body:
               rate: "1.00"
       - request:
           protocol: grpc
-          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          type: com.example.UserRetrievalServiceOuterClass$GetUserRequest
           response:
             body:
               user:
@@ -102,7 +102,7 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.services.exp.cas.configurationservice.v2.FeatureVariantRequest
+          type: com.example.UserRetrievalServiceOuterClass$FeatureVariantRequest
           response:
             body:
               featureVariant:
