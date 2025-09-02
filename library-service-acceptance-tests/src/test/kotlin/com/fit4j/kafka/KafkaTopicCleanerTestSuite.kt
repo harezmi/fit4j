@@ -12,7 +12,7 @@ import org.springframework.test.context.TestPropertySource
 class KafkaTopicCleanerTestSuite {
     @Nested
     @AcceptanceTest
-    @TestPropertySource(properties = ["udemy.test.kafka.topicCleaner.enabled=true"])
+    @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=true"])
     @EmbeddedKafka
     @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     inner class KafkaTopicCleanerEnabledTest {
@@ -29,7 +29,7 @@ class KafkaTopicCleanerTestSuite {
 
     @Nested
     @AcceptanceTest
-    @TestPropertySource(properties = ["udemy.test.kafka.topicCleaner.enabled=false"])
+    @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=false"])
     @EmbeddedKafka
     @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     inner class KafkaTopicCleanerDisabledTest {

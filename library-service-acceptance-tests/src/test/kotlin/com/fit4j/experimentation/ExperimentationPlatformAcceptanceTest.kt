@@ -31,7 +31,7 @@ class ExperimentationPlatformAcceptanceTest {
             Assertions.assertEquals("value1", featureVariant.getVariableString("key",""))
         }
         //Thread.sleep(60_000)
-        // sleeping this amount of time causes com.udemy.services.exp.cas.configurationmanagementservice.v2.GetSuppressedFeaturesRequest
+        // sleeping this amount of time causes com.example.services.exp.cas.configurationmanagementservice.v2.GetSuppressedFeaturesRequest
         // to appear at the backend for which there is no training provided in the fixtures
     }
 }

@@ -12,9 +12,9 @@ import org.springframework.test.context.event.AfterTestClassEvent
 @com.fit4j.testcontainers.Testcontainers(definitions = ["redisContainerDefinition"])
 @AcceptanceTest
 class RedisDataPopulatorIntegrationTests {
-    @Value("\${udemy.test.redisContainerDefinition.host}")
+    @Value("\${fit4j.redisContainerDefinition.host}")
     private lateinit var redisHost: String
-    @Value("\${udemy.test.redisContainerDefinition.port}")
+    @Value("\${fit4j.redisContainerDefinition.port}")
     private lateinit var redisPort: Integer
 
     @TestConfiguration

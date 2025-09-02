@@ -15,7 +15,7 @@ open class EmbeddedKafkaContextCustomizer : ContextCustomizer {
         context.environment.propertySources.addAfter(
             "Inlined Test Properties",
             MapPropertySource(
-                "udemy-test-embedded-kafka-property-source",
+                "fit4j-embedded-kafka-property-source",
                 mapOf(
                     "spring.kafka.bootstrap-servers" to "\${spring.embedded.kafka.brokers}"
                 )

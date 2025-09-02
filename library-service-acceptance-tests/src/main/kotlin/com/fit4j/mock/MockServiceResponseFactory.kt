@@ -13,7 +13,7 @@ class MockServiceResponseFactory(
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     private fun isFixtureDrivenResponseGenerationEnabled(): Boolean {
-        return configurableEnvironment.getProperty("udemy.test.declerativeTestFixtureDrivenResponseGeneration.enabled", Boolean::class.java, false)
+        return configurableEnvironment.getProperty("fit4j.declerativeTestFixtureDrivenResponseGeneration.enabled", Boolean::class.java, false)
     }
 
     fun getResponseFor(request: Any?): Any? {

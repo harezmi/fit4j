@@ -5,7 +5,7 @@
     - 3306
   username: root
   password: root
-  databaseName: udemy_v1
+  databaseName: v1
   initScript: scripts/v1_init.sql
   env:
     - TZ: "America/Los_Angeles"

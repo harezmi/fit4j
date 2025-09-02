@@ -56,7 +56,7 @@ class TestKafkaAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(EmbeddedKafkaBroker::class)
-    @ConditionalOnProperty(name = ["udemy.test.kafka.topicCleaner.enabled"], havingValue = "true", matchIfMissing = false)
+    @ConditionalOnProperty(name = ["fit4j.kafka.topicCleaner.enabled"], havingValue = "true", matchIfMissing = false)
     fun kafkaTopicCleaner(kafkaBroker: EmbeddedKafkaBroker) : KafkaTopicCleaner {
         return KafkaTopicCleaner(kafkaBroker)
     }

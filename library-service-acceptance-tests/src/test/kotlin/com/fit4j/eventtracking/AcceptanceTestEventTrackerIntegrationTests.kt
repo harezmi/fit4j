@@ -26,8 +26,8 @@ class AcceptanceTestEventTrackerIntegrationTests {
         fun eventTracker(): EventTracker {
             val kafkaServers = configurableEnvironment.getProperty("spring.kafka.bootstrap-servers","localhost:9092")
             val schemaRegistryUrl = "http://" +
-                configurableEnvironment.getProperty("udemy.test.mockWebServer.host") + ":" +
-                configurableEnvironment.getProperty("udemy.test.mockWebServer.port")
+                configurableEnvironment.getProperty("fit4j.mockWebServer.host") + ":" +
+                configurableEnvironment.getProperty("fit4j.mockWebServer.port")
 
             return EventTrackerBuilder.getOrCreateEventTracker(
                 "test-service",

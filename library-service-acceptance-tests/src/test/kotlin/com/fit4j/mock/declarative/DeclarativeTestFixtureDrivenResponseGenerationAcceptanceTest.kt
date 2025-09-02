@@ -17,7 +17,7 @@ import org.springframework.test.context.TestPropertySource
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AcceptanceTest("classpath:declarative-test-fixture-driven-response-generation.yml")
 @TestPropertySource(properties = [
-    "udemy.test.declerativeTestFixtureDrivenResponseGeneration.enabled=true",
+    "fit4j.declerativeTestFixtureDrivenResponseGeneration.enabled=true",
     "grpc.client.userRetrievalService.address=in-process:\${grpc.server.inProcessName}",
     "grpc.client.currencyExchangeRateService.address=in-process:\${grpc.server.inProcessName}"
     ])

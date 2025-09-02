@@ -17,17 +17,17 @@ class AcceptanceTestContextCustomizer() : ContextCustomizer {
 
         val supplierMap = mutableMapOf<String, Supplier<*>>()
 
-        supplierMap.put("udemy.test.acceptanceTestClass.name") {
+        supplierMap.put("fit4j.acceptanceTestClass.name") {
             AcceptanceTestContextManager.getTestClassName()
         }
-        supplierMap.put("udemy.test.acceptanceTestClass.simpleName") {
+        supplierMap.put("fit4j.acceptanceTestClass.simpleName") {
             AcceptanceTestContextManager.getTestClassSimpleName()
         }
 
         context.parent = ParentApplicationContextFactory.parentApplicationContext
         context.environment.propertySources.addAfter(
             "Inlined Test Properties",
-            DynamicValuesPropertySource("udemy-test-acceptance-test-property-source",supplierMap)
+            DynamicValuesPropertySource("fit4j-test-property-source",supplierMap)
         )
     }
 }

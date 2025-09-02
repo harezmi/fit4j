@@ -38,9 +38,9 @@ class EmbeddedRedisContextCustomizer(private val embeddedRedis: EmbeddedRedis) :
         context.environment.propertySources.addAfter(
             "Inlined Test Properties",
             MapPropertySource(
-                "udemy-test-embedded-redis-property-source",
+                "fit4j-embedded-redis-property-source",
                 mapOf(
-                    "udemy.test.embeddedRedisServer.port" to redisServerPort
+                    "fit4j.embeddedRedisServer.port" to redisServerPort
                 )
             )
         )

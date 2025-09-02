@@ -14,9 +14,9 @@ import org.springframework.test.context.event.AfterTestClassEvent
 @AcceptanceTest
 class ElasticsearchDataPopulatorIntegrationTests {
 
-    @Value("\${udemy.test.elasticSearchContainerDefinition.host}")
+    @Value("\${fit4j.elasticSearchContainerDefinition.host}")
     private lateinit var elastisSearchHost: String
-    @Value("\${udemy.test.elasticSearchContainerDefinition.port}")
+    @Value("\${fit4j.elasticSearchContainerDefinition.port}")
     private lateinit var elasticSearchPort: Integer
 
     @TestConfiguration

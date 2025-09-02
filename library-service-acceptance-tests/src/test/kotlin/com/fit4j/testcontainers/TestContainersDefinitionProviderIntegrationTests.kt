@@ -33,14 +33,14 @@ class TestContainersDefinitionProviderIntegrationTests  {
         try {
             cd.startContainer()
             val container = cd.getContainer() as MySQLContainer<*>
-            Assertions.assertEquals("udemy_v1", cd.beanName)
+            Assertions.assertEquals("v1", cd.beanName)
             Assertions.assertEquals("mysql:8.0.37", cd.getImageName())
             Assertions.assertEquals(listOf(3306), container.getExposedPorts())
             Assertions.assertEquals("root", container.getUsername())
             Assertions.assertEquals("root", container.getPassword())
-            Assertions.assertEquals("udemy_v1", container.getDatabaseName())
+            Assertions.assertEquals("v1", container.getDatabaseName())
             Assertions.assertEquals(mapOf(
-                "MYSQL_DATABASE" to "udemy_v1",
+                "MYSQL_DATABASE" to "v1",
                 "MYSQL_PASSWORD" to "root",
                 "MYSQL_ROOT_PASSWORD" to "root",
                 "TZ" to "America/Los_Angeles"), container.getEnvMap())
@@ -49,14 +49,14 @@ class TestContainersDefinitionProviderIntegrationTests  {
             )
             Assertions.assertEquals(
                 mapOf(
-                    "udemy.test.udemy_v1.jdbcUrl" to container.getJdbcUrl(),
-                    "udemy.test.udemy_v1.username" to container.getUsername(),
-                    "udemy.test.udemy_v1.password" to container.getPassword(),
-                    "udemy.test.udemy_v1.firstMappedPort" to container.getFirstMappedPort(),
-                    "udemy.test.udemy_v1.host" to container.getHost(),
-                    "udemy.test.udemy_v1.hostName" to container.getHost(),
-                    "udemy.test.udemy_v1.hostname" to container.getHost(),
-                    "udemy.test.udemy_v1.port" to container.getFirstMappedPort()
+                    "fit4j.v1.jdbcUrl" to container.getJdbcUrl(),
+                    "fit4j.v1.username" to container.getUsername(),
+                    "fit4j.v1.password" to container.getPassword(),
+                    "fit4j.v1.firstMappedPort" to container.getFirstMappedPort(),
+                    "fit4j.v1.host" to container.getHost(),
+                    "fit4j.v1.hostName" to container.getHost(),
+                    "fit4j.v1.hostname" to container.getHost(),
+                    "fit4j.v1.port" to container.getFirstMappedPort()
                 ), cd.getPropertySource().source
             )
             Assertions.assertEquals(container.isShouldBeReused(),false)
@@ -69,14 +69,14 @@ class TestContainersDefinitionProviderIntegrationTests  {
         try {
             cd.startContainer()
             val container = cd.getContainer() as MySQLContainer<*>
-            Assertions.assertEquals("udemy_omega", cd.beanName)
+            Assertions.assertEquals("omega", cd.beanName)
             Assertions.assertEquals("mysql:8.0.37", cd.getImageName())
             Assertions.assertEquals(listOf(3306), container.getExposedPorts())
             Assertions.assertEquals("root", container.getUsername())
             Assertions.assertEquals("root", container.getPassword())
-            Assertions.assertEquals("udemy_omega_db", container.getDatabaseName())
+            Assertions.assertEquals("omega_db", container.getDatabaseName())
             Assertions.assertEquals(mapOf(
-                "MYSQL_DATABASE" to "udemy_omega_db",
+                "MYSQL_DATABASE" to "omega_db",
                 "MYSQL_PASSWORD" to "root",
                 "MYSQL_ROOT_PASSWORD" to "root",
                 "TZ" to "America/Los_Angeles"), container.getEnvMap())
@@ -85,14 +85,14 @@ class TestContainersDefinitionProviderIntegrationTests  {
             )
             Assertions.assertEquals(
                 mapOf(
-                    "udemy.test.udemy_omega.jdbcUrl" to container.getJdbcUrl(),
-                    "udemy.test.udemy_omega.username" to container.getUsername(),
-                    "udemy.test.udemy_omega.password" to container.getPassword(),
-                    "udemy.test.udemy_omega.firstMappedPort" to container.getFirstMappedPort(),
-                    "udemy.test.udemy_omega.host" to container.getHost(),
-                    "udemy.test.udemy_omega.hostName" to container.getHost(),
-                    "udemy.test.udemy_omega.hostname" to container.getHost(),
-                    "udemy.test.udemy_omega.port" to container.getFirstMappedPort()
+                    "fit4j.omega.jdbcUrl" to container.getJdbcUrl(),
+                    "fit4j.omega.username" to container.getUsername(),
+                    "fit4j.omega.password" to container.getPassword(),
+                    "fit4j.omega.firstMappedPort" to container.getFirstMappedPort(),
+                    "fit4j.omega.host" to container.getHost(),
+                    "fit4j.omega.hostName" to container.getHost(),
+                    "fit4j.omega.hostname" to container.getHost(),
+                    "fit4j.omega.port" to container.getFirstMappedPort()
                 ), cd.getPropertySource().source
             )
             Assertions.assertEquals(container.isShouldBeReused(),false)
@@ -110,11 +110,11 @@ class TestContainersDefinitionProviderIntegrationTests  {
             Assertions.assertEquals(listOf(6379), container.getExposedPorts())
             Assertions.assertEquals(
                 mapOf(
-                    "udemy.test.redis.host" to container.getHost(),
-                    "udemy.test.redis.hostName" to container.getHost(),
-                    "udemy.test.redis.hostname" to container.getHost(),
-                    "udemy.test.redis.firstMappedPort" to container.getFirstMappedPort(),
-                    "udemy.test.redis.port" to container.getFirstMappedPort()
+                    "fit4j.redis.host" to container.getHost(),
+                    "fit4j.redis.hostName" to container.getHost(),
+                    "fit4j.redis.hostname" to container.getHost(),
+                    "fit4j.redis.firstMappedPort" to container.getFirstMappedPort(),
+                    "fit4j.redis.port" to container.getFirstMappedPort()
                 ), cd.getPropertySource().source
             )
             Assertions.assertEquals(container.isShouldBeReused(),false)
@@ -142,11 +142,11 @@ class TestContainersDefinitionProviderIntegrationTests  {
                 ), container.getEnvMap())
             Assertions.assertEquals(
                 mapOf(
-                    "udemy.test.elastic-search.host" to container.getHost(),
-                    "udemy.test.elastic-search.hostName" to container.getHost(),
-                    "udemy.test.elastic-search.hostname" to container.getHost(),
-                    "udemy.test.elastic-search.port" to container.getFirstMappedPort(),
-                    "udemy.test.elastic-search.firstMappedPort" to container.getFirstMappedPort()
+                    "fit4j.elastic-search.host" to container.getHost(),
+                    "fit4j.elastic-search.hostName" to container.getHost(),
+                    "fit4j.elastic-search.hostname" to container.getHost(),
+                    "fit4j.elastic-search.port" to container.getFirstMappedPort(),
+                    "fit4j.elastic-search.firstMappedPort" to container.getFirstMappedPort()
                 ), cd.getPropertySource().source
             )
             Assertions.assertEquals(container.isShouldBeReused(),false)
@@ -164,9 +164,9 @@ class TestContainersDefinitionProviderIntegrationTests  {
             Assertions.assertEquals(listOf<Int>(), container.getExposedPorts())
             Assertions.assertEquals(
                 mapOf(
-                    "udemy.test.kafka-service-bus.host" to container.getHost(),
-                    "udemy.test.kafka-service-bus.hostName" to container.getHost(),
-                    "udemy.test.kafka-service-bus.hostname" to container.getHost()
+                    "fit4j.kafka-service-bus.host" to container.getHost(),
+                    "fit4j.kafka-service-bus.hostName" to container.getHost(),
+                    "fit4j.kafka-service-bus.hostname" to container.getHost()
                 ), cd.getPropertySource().source
             )
 
@@ -185,11 +185,11 @@ class TestContainersDefinitionProviderIntegrationTests  {
             Assertions.assertEquals(listOf(8000), container.getExposedPorts())
             Assertions.assertEquals(
                 mapOf(
-                    "udemy.test.dynamodb.host" to container.getHost(),
-                    "udemy.test.dynamodb.hostName" to container.getHost(),
-                    "udemy.test.dynamodb.hostname" to container.getHost(),
-                    "udemy.test.dynamodb.port" to container.getFirstMappedPort(),
-                    "udemy.test.dynamodb.firstMappedPort" to container.getFirstMappedPort()
+                    "fit4j.dynamodb.host" to container.getHost(),
+                    "fit4j.dynamodb.hostName" to container.getHost(),
+                    "fit4j.dynamodb.hostname" to container.getHost(),
+                    "fit4j.dynamodb.port" to container.getFirstMappedPort(),
+                    "fit4j.dynamodb.firstMappedPort" to container.getFirstMappedPort()
                 ), cd.getPropertySource().source
             )
 

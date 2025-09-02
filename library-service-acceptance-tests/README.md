@@ -1,4 +1,4 @@
-| <img src="udemy.svg" width="320" height="256"> | <h1>Acceptance Tests Library For Kotlin Services</h1> | <img src="accepted.png" width="320" height="256"> |
+|  | <h1>Acceptance Tests Library For Kotlin Services</h1> | <img src="accepted.png" width="320" height="256"> |
 |------------------------------------------------|-------------------------------------------------------|---------------------------------------------------|
 
 # Table of Contents
@@ -74,7 +74,7 @@ Here is a short list of the features provided by this library:
 * Embedded Redis support
 * Built-in Embedded Kafka broker configuration for Kafka message publishing and verification
 * Automatic tracing of Kafka messages published and consumed by your service
-* Built-in in-process gRPC Server configuration and automatic discovery of all GRPC endpoints available in Udemy protobuf library
+* Built-in in-process gRPC Server configuration and automatic discovery of all GRPC endpoints available in org's protobuf library
 * Automatic discovery of ServiceRequestContext and populating it while calling your gRPC endpoints
 * Built-in MockWebServer configuration for REST endpoints
 * EventTracker support for publishing and verifying event tracking events
@@ -82,7 +82,7 @@ Here is a short list of the features provided by this library:
 
 # How to Start Working with This Library?
 
-There is a separate [examples project](https://github.com/udemy/library-acceptance-tests-examples) which demonstrates the 
+There is a separate examples project which demonstrates the 
 usage of this library. There are various examples in that examples project to show how to write acceptance tests for 
 different scenarios. You can make use of example acceptance tests in those examples project to get an idea about how to 
 write acceptance tests for your service.
@@ -93,7 +93,7 @@ The **latest version** of the library is `3.0.17`. You can add the library depen
 file as follows.
 
 ```kotlin
-testImplementation("com.udemy.libraries.tests:library-service-acceptance-tests:3.0.17")
+testImplementation("com.fit4j:library-service-acceptance-tests:3.0.17")
 ```
 
 3.0.x releases of the library are Spring Boot 3.x compatible. If your service works with Spring Boot 2.x, then you should
@@ -294,14 +294,14 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.udemy.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
+          type: com.example.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
           predicate: "#request.sourceCurrency == 'USD' && #request.targetCurrency == 'TRY'"
           response:
             body:
               rate: "1.00"
       - request:
           protocol: grpc
-          type: com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
+          type: com.example.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
           response:
             body:
               user:
@@ -329,7 +329,7 @@ return responses programmatically within the acceptance test class via creating 
 import com.google.protobuf.Message
 import com.fit4j.AcceptanceTest
 import com.fit4j.grpc.GrpcResponseJsonBuilder
-import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
+import com.example.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -380,7 +380,7 @@ annotation to obtain a stub (as below) then you need to override client name pro
 `application-test.yml` or `application-acceptancetest.yml` files.
 
 ```kotlin
-import com.udemy.services.rpc.currency_exchange.v1.CurrencyExchangeRateServiceGrpc
+import com.example.services.rpc.currency_exchange.v1.CurrencyExchangeRateServiceGrpc
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.springframework.stereotype.Component
 
@@ -523,7 +523,7 @@ interface in the acceptance test configuration class, and prepare the response p
 import com.google.protobuf.Message
 import com.fit4j.AcceptanceTest
 import com.fit4j.grpc.GrpcResponseJsonBuilder
-import com.udemy.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
+import com.example.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -594,12 +594,12 @@ file of your service. They simply override monolith `hostname` and `port` proper
 with the `hostname` and `port` values of the mockwebserver.
 
 ```properties
-monolith.hostname=${udemy.test.mockWebServer.hostName}
-monolith.port=${udemy.test.mockWebServer.port}
+monolith.hostname=${fit4j.mockWebServer.hostName}
+monolith.port=${fit4j.mockWebServer.port}
 ``` 
 
 In case your service accesses a 3rd party service using Spring `RestTemplate`, you can similarly define request-response
-trainings in a similar way, and pass `udemy.test.mockWebServer.hostName` and `udemy.test.mockWebServer.port` properties
+trainings in a similar way, and pass `fit4j.mockWebServer.hostName` and `fit4j.mockWebServer.port` properties
 to the place where you perform your REST calls via `RestTemplate`.
 
 # How to Initiate Request Processing Flow in Your Service?
@@ -612,10 +612,10 @@ submitting a Kafka message.
 You can call a particular grpc endpoint of your service via a grpc stub instance injected into your test class as follows.
 
 ```kotlin
-import com.udemy.dto.credit.v1.Money
+import com.example.dto.credit.v1.Money
 import com.fit4j.AcceptanceTest
-import com.udemy.rpc.payments.checkout.credit.v1.CreditServiceGrpc
-import com.udemy.rpc.payments.checkout.credit.v1.ReserveCreditRequest
+import com.example.rpc.payments.checkout.credit.v1.CreditServiceGrpc
+import com.example.rpc.payments.checkout.credit.v1.ReserveCreditRequest
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -653,9 +653,9 @@ will detect it in the Spring container and use it while calling your gRPC endpoi
 
 ```kotlin
 import com.fit4j.AcceptanceTest
-import com.udemy.libraries.requestcontext.spring.RequestContextProvider
-import com.udemy.services.dto.user.UserOuterClass
-import com.udemy.services.requestcontext.v1.ServiceRequestContextOuterClass.ServiceRequestContext
+import com.fit4j.libraries.requestcontext.spring.RequestContextProvider
+import com.fit4j.services.dto.user.UserOuterClass
+import com.fit4j.services.requestcontext.v1.ServiceRequestContextOuterClass.ServiceRequestContext
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -742,7 +742,7 @@ message and verify it.
 
 ```kotlin
 import com.fit4j.helpers.BaseAcceptanceTest
-import com.udemy.rpc.payments.checkout.credit.v1beta1.CaptureCreditRequest
+import com.fit4j.rpc.payments.checkout.credit.v1beta1.CaptureCreditRequest
 import org.junit.jupiter.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.test.context.EmbeddedKafka
@@ -774,7 +774,7 @@ class SampleAcceptanceTest : BaseAcceptanceTest() {
 
 If you need to clean up the topics in between the tests or test classes, you can benefit from the `KafkaTopicCleaner` which
 deletes topics after each test method execution. It is disabled by default, you can enable it by setting the property
-`udemy.test.kafka.topicCleaner.enabled=true` in your `application-acceptancetest.properties` file.
+`fit4j.kafka.topicCleaner.enabled=true` in your `application-acceptancetest.properties` file.
 
 # How to Verify gRPC & REST Calls, Kafka Messages and EventTracking Events?
 
@@ -955,7 +955,7 @@ tests:
     fixtures:
         - request:
           protocol: grpc
-          type: com.udemy.services.exp.cas.configurationservice.v2.FeatureVariantRequest
+          type: com.example.services.exp.cas.configurationservice.v2.FeatureVariantRequest
           response:
           body:
           featureVariant:
@@ -1000,8 +1000,8 @@ example to get started.
     - 3306
   username: root
   password: root
-  databaseName: udemy_v1
-  initScript: scripts/udemy_v1_init.sql
+  databaseName: v1
+  initScript: scripts/v1_init.sql
   env:
     - TZ: "America/Los_Angeles"
   urlParam:
@@ -1040,12 +1040,12 @@ example to get started.
 You can inject **exposedProperties** into your `application.properties` file of your service as follows.
 
 ```properties
-spring.datasource.url=${udemy.test.mySQLContainerDefinition.jdbcUrl}
-spring.datasource.username=${udemy.test.mySQLContainerDefinition.username}
-spring.datasource.password=${udemy.test.mySQLContainerDefinition.password}
+spring.datasource.url=${fit4j.mySQLContainerDefinition.jdbcUrl}
+spring.datasource.username=${fit4j.mySQLContainerDefinition.username}
+spring.datasource.password=${fit4j.mySQLContainerDefinition.password}
 ```
 
-The format to access exposed properties is of form `udemy.test.<container-name>.<exposed-property-name>`.
+The format to access exposed properties is of form `fit4j.<container-name>.<exposed-property-name>`.
 
 The acceptance test library creates those containers  to be reused in case they are marked with `reuse: true` property.
 However, for reuse to work properly, developers need to enable it in their local environment by adding following property in
@@ -1148,7 +1148,7 @@ in your service with the embedded DynamoDB client.
 
 If you don't want to use Testcontainers to bootstrap Redis server, you have another choice, running redis embedded. You
 can use `@EmbeddedRedis` annotation on top of your acceptance test to enable it. By default, it runs on a random port, but
-you can change this through the annotation. The port on which Redis runs is exposed as `udemy.test.embeddedRedisServer.port`
+you can change this through the annotation. The port on which Redis runs is exposed as `fit4j.embeddedRedisServer.port`
 property in the ApplicationContext.
 
 # How to Work with Other Misc Stuff?
@@ -1178,7 +1178,7 @@ verifyEvent(
                     "published_at": ${timestamp(Date(123000))}
                 },
                 "payload": {
-                    "@type": "type.googleapis.com/udemy.dto.payments.attribution_post_purchase.refunds.v1.EntityChangeEventPayloadForRefund",
+                    "@type": "type.googleapis.com/fit4j.dto.payments.attribution_post_purchase.refunds.v1.EntityChangeEventPayloadForRefund",
                     "id": 123,
                     "issuerReference": "issuer-ref-123",
                     "userReference": 456,
@@ -1197,7 +1197,7 @@ is just infer the type of that protobuf object as you see in the example above.
 
 # How to Get More Help & Support?
 
-For any of your problems, feel free to contact with **kenan.sevindik@udemy.com** or **umut.erturk@udemy.com** from the
+For any of your problems, feel free to contact with **ksevindik@gmail.com** from the
 payments team as the current maintainers of this library, or drop a Slack message to the `#help-library-service-acceptance-tests` 
 channel. We will be more than happy to help you and work together to adopt this library and benefit from it in your services.
 
@@ -1239,7 +1239,7 @@ class of the particular acceptance test. For example;
 ```
 
 The rest will be handled by the acceptance test library itself. Your application code should be able to access the current
-context via Udemy request context library's `RequestContextProvider` class as usual.
+context via org's request context library's `RequestContextProvider` class as usual.
 
 
 **Q**: I am getting following error after adding library dependency to our `build.gradle.kts` file. What should I do for it?
@@ -1248,7 +1248,7 @@ context via Udemy request context library's `RequestContextProvider` class as us
 > Could not resolve all files for configuration ':testCompileProtoPath'.
 > Could not find io.confluent:kafka-avro-serializer:5.1.2.
 Required by:
-project : > com.udemy.libraries.tests:library-service-acceptance-tests:1.0.41 > com.udemy.libraries.eventtracking:eventtracker:1.2.1
+project : > com.example.libraries.tests:library-service-acceptance-tests:1.0.41 > com.example.libraries.eventtracking:eventtracker:1.2.1
 ```
 
 **A**:You need to add following repository definition into repositories block of the `build.gradle.kts` file.
@@ -1270,12 +1270,12 @@ written with those annotations. Here is a more detailed table that lists availab
 
 |                                                                                                                                                                                                                                          | @IntegrationTest | @AcceptanceTest | @RestControllerAcceptanceTest |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|-----------------|-------------------------------|
-| testClass FQN and simple names are exposed as an environment properties udemy.test.acceptanceTestClass.name, udemy.test.acceptanceTestClass.simpleName                                                                                   | Yes              | Yes             | Yes                           |
+| testClass FQN and simple names are exposed as an environment properties fit4j.acceptanceTestClass.name, fit4j.acceptanceTestClass.simpleName                                                                                             | Yes              | Yes             | Yes                           |
 | DynamoDBEmbedded is exposed as a Spring bean if @EmbeddedDynamoDB annotation is used in test class                                                                                                                                       | Yes              | Yes             | Yes                           |
 | spring.kafka.bootstrap-servers property is set if @EmbeddedKafka is used in test class                                                                                                                                                   | Yes              | Yes             | Yes                           |
-| EmbeddedRedisServer is exposed as a Spring bean along with its port as an environment property udemy.test.embeddedRedisServer.port if @EmbeddedRedis annotation is used in test class                                                    | Yes              | Yes             | Yes                           |
+| EmbeddedRedisServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedRedisServer.port if @EmbeddedRedis annotation is used in test class                                                         | Yes              | Yes             | Yes                           |
 | gRPC server is run in-process mode at random port along with in-process name is assigned random name and clients are enabled to access it through several alternative names inProcess, inProcessClient, inProcessClientForAcceptanceTest | Yes              | Yes             | Yes                           |
-| okhttp3 MockWebServer is exposed as a Spring bean along with its host and port values as environment properties udemy.test.mockWebServer.host, udemy.test.mockWebServer.port if it is available in test classpath                        | Yes              | Yes             | Yes                           |
+| okhttp3 MockWebServer is exposed as a Spring bean along with its host and port values as environment properties fit4j.mockWebServer.host, fit4j.mockWebServer.port if it is available in test classpath                                  | Yes              | Yes             | Yes                           |
 | Declarative Test Container support is enabled if @Testcontainers annotation is used in test class                                                                                                                                        | Yes              | Yes             | Yes                           |
 | Automatic ServiceRequestContext discovery and populating it into RequestContextProvider                                                                                                                                                  | Yes              | Yes             | Yes                           |
 | Events published to EventTracker are traced if EventTracker library is in classpath                                                                                                                                                      | No               | Yes             | Yes                           |
@@ -1284,7 +1284,7 @@ written with those annotations. Here is a more detailed table that lists availab
 | gRPC automatic service and type descriptor discovery capability is enabled                                                                                                                                                               | No               | Yes             | Yes                           |
 | Kafka message tracking capability is enabled                                                                                                                                                                                             | No               | Yes             | Yes                           |
 | Google JsonFormat Printer & Parser classes are exposed as Spring bean if they are in class path                                                                                                                                          | No               | Yes             | Yes                           |
-| Udemy SAS JWTProvider is replaced with an implementation which is capable of returning a test JWT token given as environment property udemy.test.jwt                                                                                     | No               | Yes             | Yes                           |
+| XXX SAS JWTProvider is replaced with an implementation which is capable of returning a test JWT token given as environment property fit4j.jwt                                                                                            | No               | Yes             | Yes                           |
 | Spring TestRestTemplate bean is enabled                                                                                                                                                                                                  | No               | No              | Yes                           |
 
 

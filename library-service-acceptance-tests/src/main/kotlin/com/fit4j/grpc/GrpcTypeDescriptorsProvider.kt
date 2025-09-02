@@ -14,7 +14,7 @@ class GrpcTypeDescriptorsProvider(private val applicationContext: ApplicationCon
         descriptors.addAll(explicitlyDefinedDescriptors)
 
         val scanDescriptorsEnabled = applicationContext.environment
-            .getProperty("udemy.test.grpc.scanDescriptorsEnabled","true").toBoolean()
+            .getProperty("fit4j.grpc.scanDescriptorsEnabled","true").toBoolean()
 
         if(scanDescriptorsEnabled) {
             val implicitlyScannedDescriptors = getImplicitlyScannedDescriptors()

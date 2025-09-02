@@ -10,7 +10,7 @@
         ackMode: MANUAL_IMMEDIATE
         groupId: sample-consumer-group-1
 - consumer:
-    topic: udemy-test-topic
+    topic: fit4j-test-topic
     containerFactory:
       consumerFactory:
         configs:

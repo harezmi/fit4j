@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value
 @AcceptanceTest
 @EmbeddedRedis
 class EmbeddedRedisServerIntegrationTests {
-    @Value("\${udemy.test.embeddedRedisServer.port}")
+    @Value("\${fit4j.embeddedRedisServer.port}")
     private lateinit var redisPort: Integer
     @Test
     fun `it should work`() {

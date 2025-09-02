@@ -28,9 +28,9 @@ class TestGrpcServiceDefinitionProvider(private val grpcClassScanner: GrpcClassS
 
     private fun resolveServiceNames() : List<String> {
         var serviceNames:MutableList<String> = mutableListOf()
-        val explicitServiceNameDefinitionExists = environment.containsProperty("udemy.test.grpc.bindableServices")
+        val explicitServiceNameDefinitionExists = environment.containsProperty("fit4j.grpc.bindableServices")
         if(explicitServiceNameDefinitionExists) {
-            val explicitServiceNames = environment.getProperty("udemy.test.grpc.bindableServices",List::class.java) as List<String>
+            val explicitServiceNames = environment.getProperty("fit4j.grpc.bindableServices",List::class.java) as List<String>
             serviceNames.addAll(explicitServiceNames)
         } else {
             serviceNames.addAll(resolveServiceNamesFromClasspath())
@@ -71,7 +71,7 @@ class TestGrpcServiceDefinitionProvider(private val grpcClassScanner: GrpcClassS
             val clazz = Class.forName(serviceName)
             val dynamicType: Class<*> = ByteBuddy()
                 .subclass(clazz)
-                .name("com.udemy.test.grpc.Sub${clazz.simpleName}")
+                .name("com.fit4j.grpc.Sub${clazz.simpleName}")
                 .make()
                 .load(this.javaClass.classLoader, ClassLoadingStrategy.Default.WRAPPER)
                 .loaded

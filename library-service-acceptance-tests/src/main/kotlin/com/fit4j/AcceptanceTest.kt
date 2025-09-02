@@ -11,7 +11,7 @@ import java.lang.annotation.Target
 
 @IntegrationTest
 @ActiveProfiles(value = ["test","acceptancetest"])
-@TestPropertySource(properties = ["udemy.test.isAcceptanceTestClass=true"])
+@TestPropertySource(properties = ["fit4j.isAcceptanceTestClass=true"])
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(AcceptanceTestExtension::class)

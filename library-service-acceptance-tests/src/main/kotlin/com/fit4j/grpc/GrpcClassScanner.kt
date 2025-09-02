@@ -46,7 +46,7 @@ class GrpcClassScanner(private val environment:Environment, private val classSca
     }
 
     private fun getPackagesToScan() : Array<String> {
-        val str = environment.getProperty("udemy.test.grpc.basePackages", "com.udemy.**")
+        val str = environment.getProperty("fit4j.grpc.basePackages", "com.example.**")
         return str.split(",").toTypedArray()
     }
 }

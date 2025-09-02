@@ -60,7 +60,7 @@ class TestService {
     @Autowired
     private lateinit var restTemplateBuilder: RestTemplateBuilder
 
-    @Value("\${udemy.test.mockWebServer.port}")
+    @Value("\${fit4j.mockWebServer.port}")
     private lateinit var port:Integer
 
     fun doWork() : CurrencyServiceOuterClass.GetRateResponse{

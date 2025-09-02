@@ -15,8 +15,8 @@ import java.lang.Thread.UncaughtExceptionHandler
 
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "expplatform", name = ["enabled"], havingValue = "true", matchIfMissing = false)
-@ConditionalOnClass(name=["com.udemy.libraries.exp.sdk.ConfigurationServiceClientBuilder",
-    "com.udemy.libraries.exp.sdk.ConfigurationManagementClientBuilder"])
+@ConditionalOnClass(name=["com.example.libraries.exp.sdk.ConfigurationServiceClientBuilder",
+    "com.example.libraries.exp.sdk.ConfigurationManagementClientBuilder"])
 @EnableOnAcceptanceTestClass
 class ExperimentationPlatformAutoConfiguration {
 

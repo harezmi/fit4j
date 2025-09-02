@@ -29,12 +29,12 @@ class MockWebServerContextCustomizer : ContextCustomizer {
         context.environment.propertySources.addAfter(
             "Inlined Test Properties",
             MapPropertySource(
-                "udemy-test-mock-web-server-property-source",
+                "fit4j-mock-web-server-property-source",
                 mapOf(
-                    "udemy.test.mockWebServer.hostName" to mockWebServer.hostName,
-                    "udemy.test.mockWebServer.hostname" to mockWebServer.hostName,
-                    "udemy.test.mockWebServer.host" to mockWebServer.hostName,
-                    "udemy.test.mockWebServer.port" to mockWebServer.port
+                    "fit4j.mockWebServer.hostName" to mockWebServer.hostName,
+                    "fit4j.mockWebServer.hostname" to mockWebServer.hostName,
+                    "fit4j.mockWebServer.host" to mockWebServer.hostName,
+                    "fit4j.mockWebServer.port" to mockWebServer.port
                 )
             )
         )

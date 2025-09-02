@@ -13,7 +13,7 @@ import java.lang.annotation.Target
 @Tag("IntegrationTest")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles(value = ["test"])
-@TestPropertySource(properties=["spring.main.allow-bean-definition-overriding=true","udemy.test.isIntegrationTestClass=true"])
+@TestPropertySource(properties=["spring.main.allow-bean-definition-overriding=true","fit4j.isIntegrationTestClass=true"])
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 annotation class IntegrationTest

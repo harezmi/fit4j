@@ -9,5 +9,5 @@ import java.lang.annotation.Target
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ConditionalOnProperty(name = ["udemy.test.isAcceptanceTestClass"], havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = ["fit4j.isAcceptanceTestClass"], havingValue = "true", matchIfMissing = false)
 annotation class EnableOnAcceptanceTestClass

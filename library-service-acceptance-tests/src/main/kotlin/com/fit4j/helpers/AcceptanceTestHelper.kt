@@ -17,10 +17,10 @@ class AcceptanceTestHelper {
     @Autowired
     lateinit var beans: AcceptanceTestHelperConfiguration
 
-    @Value("\${udemy.test.mockWebServer.hostName:localhost}")
+    @Value("\${fit4j.mockWebServer.hostName:localhost}")
     lateinit var mockWebServerHostName: String
 
-    @Value("\${udemy.test.mockWebServer.port:8080}")
+    @Value("\${fit4j.mockWebServer.port:8080}")
     lateinit var mockWebServerPort: Integer
 
     fun mockWebServerBaseUrl(): String {

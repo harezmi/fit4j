@@ -16,7 +16,7 @@ class GrpcContextCustomizer : ContextCustomizer {
         context.environment.propertySources.addAfter(
             "Inlined Test Properties",
             MapPropertySource(
-                "udemy-test-grpc-property-source",
+                "fit4j-grpc-property-source",
                 mapOf(
                     "grpc.server.port" to -1,
                     "grpc.server.enable-keep-alive" to false,

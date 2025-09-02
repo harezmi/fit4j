@@ -15,7 +15,7 @@ class TestSecurityAutoConfiguration {
     fun jwtProvider(environment: Environment): JWTProvider {
         return object : JWTProvider {
             override fun getJwt(): String {
-                return environment.getProperty("udemy.test.jwt","udemy_test_jwt_value")
+                return environment.getProperty("fit4j.jwt","test_jwt_value")
             }
         }
     }

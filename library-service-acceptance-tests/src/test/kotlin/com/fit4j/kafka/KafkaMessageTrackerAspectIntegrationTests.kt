@@ -40,11 +40,11 @@ class KafkaMessageTrackerAspectIntegrationTests {
         val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
         helper.beans.kafkaTemplate.sendDefault("foo",message)
 
-        val messagePublished = helper.beans.kafkaMessageTracker.getMessagesPublishedAt("udemy-test-topic").first()
+        val messagePublished = helper.beans.kafkaMessageTracker.getMessagesPublishedAt("fit4j-test-topic").first()
         Assertions.assertEquals(message, messagePublished.data)
         Assertions.assertEquals("foo", messagePublished.key)
 
-        val messageReceived = helper.beans.kafkaMessageTracker.getMessagesReceivedAt("udemy-test-topic").first()
+        val messageReceived = helper.beans.kafkaMessageTracker.getMessagesReceivedAt("fit4j-test-topic").first()
         Assertions.assertEquals(message, messageReceived.data)
         Assertions.assertEquals("foo", messageReceived.key)
     }

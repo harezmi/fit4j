@@ -92,22 +92,22 @@ open class MapBasedTestContainerDefinition(map:Map<String,Any>) : TestContainerD
     override fun getPropertySource(): PropertySource<*> {
         val properties = mutableMapOf<String,Any>()
         exposedProperties.forEach {
-            val key = "udemy.test.$beanName.$it"
+            val key = "fit4j.$beanName.$it"
             val methodName = "get${StringUtils.capitalize(it)}"
             val value = MethodUtils.invokeMethod(container,methodName)
             properties.put(key,value)
         }
-        properties.put("udemy.test.$beanName.host",container.getHost())
-        properties.put("udemy.test.$beanName.hostName",container.getHost())
-        properties.put("udemy.test.$beanName.hostname",container.getHost())
+        properties.put("fit4j.$beanName.host",container.getHost())
+        properties.put("fit4j.$beanName.hostName",container.getHost())
+        properties.put("fit4j.$beanName.hostname",container.getHost())
         try {
-            properties.put("udemy.test.$beanName.port", container.getFirstMappedPort())
-            properties.put("udemy.test.$beanName.firstMappedPort", container.getFirstMappedPort())
+            properties.put("fit4j.$beanName.port", container.getFirstMappedPort())
+            properties.put("fit4j.$beanName.firstMappedPort", container.getFirstMappedPort())
         } catch(ex:IllegalStateException) {
             // ignore
         }
 
-        return MapPropertySource("udemy-test-$beanName-property-source",properties)
+        return MapPropertySource("fit4j-$beanName-property-source",properties)
     }
 
     override fun getContainer(): GenericContainer<*> {
