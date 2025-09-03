@@ -844,37 +844,6 @@ expected state represented as JSON content.
 If you don't want to inherit from `BaseAcceptanceTest`, you can inject `AcceptanceTestHelper` bean directly into your
 test class and simply work with it.
 
-## Verify the Events Submitted to EventTracker for Publishing
-
-Acceptance Test Library automatically detectes if there is an `EventTracker` bean defined in the service and listens for
-the events submitted via `publishEventAsync` method of EventTracker. It tracks those events within its `AcceptanceTestEventTracker`
-bean, and you can access the published events and verify them within your test method. The `AcceptanceTestHelper` bean
-already exposes `AcceptanceTestEventTracker` bean so that you can access it and verify the published events.
-
-# How to Integrate with Experimentation Platform?
-
-The acceptance test library provides you with the ability to imitate the communication with the Experimentation Platform. As you
-may know `ExpPlatform` bean communicates using gRPC protocol, so all you need to do is to define the request-response trainings
-for your `ExpPlatform` calls in a declarative fashion. Here is an example.
-
-```yaml
-tests:
-  - name: ExperimentationPlatformAcceptanceTest
-    fixtures:
-        - request:
-          protocol: grpc
-          type: com.example.services.exp.cas.configurationservice.v2.FeatureVariantRequest
-          response:
-          body:
-          featureVariant:
-          data: |
-              {
-              "key": "value1"
-              }
-          isInExperiment: true
-          experimentIdList: [1,2,3]
-```
-
 # How to Work with TestContainers?
 
 The acceptance tests library provides you with the ability to run your service against a real database, Kafka broker, Redis etc.
@@ -1105,9 +1074,9 @@ is just infer the type of that protobuf object as you see in the example above.
 
 # How to Get More Help & Support?
 
-For any of your problems, feel free to contact with **ksevindik@gmail.com** from the
-payments team as the current maintainers of this library, or drop a Slack message to the `#help-library-service-acceptance-tests` 
-channel. We will be more than happy to help you and work together to adopt this library and benefit from it in your services.
+For any of your problems, feel free to contact with **ksevindik@gmail.com** from the payments team as the current 
+maintainer of this library. I will be more than happy to help you and work together to adopt this library and benefit 
+from it in your services.
 
 # FAQ
 
@@ -1123,47 +1092,6 @@ fixture definitions are defined in a YAML file, and they are read only once by t
 served to all test classes. This means that the Spring ApplicationContext is not recreated for each test class, and the
 test execution is faster and more memory efficient. Therefore, it is recommended to use declarative fixture definitions
 whenever possible.
-
-**Q**: How can I populate a `ServiceRequestContext` for my acceptance test?
-
-**A**: The acceptance test library has built-in support for preparing a `ServiceRequestContext` and propagate it all the way 
-to the server side during gRPC calls. All you need to define a bean of type `ServiceRequestContext` in the tets configuration
-class of the particular acceptance test. For example;
-
-```kotlin
-@TestConfiguration
-    class TestConfig {
-        @Bean
-        fun serviceRequestContext() : ServiceRequestContext {
-            return ServiceRequestContext.newBuilder()
-                .setUser(
-                    UserOuterClass.User.newBuilder().setUserId(123)
-                        .setCountry("US")
-                        .setPlatform("web")
-                        .setLocale("en_US")
-                ).build()
-        }
-    }
-```
-
-The rest will be handled by the acceptance test library itself. Your application code should be able to access the current
-context via org's request context library's `RequestContextProvider` class as usual.
-
-
-**Q**: I am getting following error after adding library dependency to our `build.gradle.kts` file. What should I do for it?
-
-```terminal
-> Could not resolve all files for configuration ':testCompileProtoPath'.
-> Could not find io.confluent:kafka-avro-serializer:5.1.2.
-Required by:
-project : > com.example.libraries.tests:library-service-acceptance-tests:1.0.41 > com.example.libraries.eventtracking:eventtracker:1.2.1
-```
-
-**A**:You need to add following repository definition into repositories block of the `build.gradle.kts` file.
-
-```kotlin
-maven(url = "https://packages.confluent.io/maven/")
-```
 
 **Q**: What is the difference between `@AcceptanceTest` and `@IntegrationTest` annotations?
 

@@ -1,6 +1,7 @@
 import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.google.protobuf.gradle.*
+import org.jetbrains.kotlin.metadata.ProtoBuf
 
 plugins {
 	`java-library`
@@ -94,22 +95,6 @@ java {
 	sourceCompatibility = JavaVersion.VERSION_17
 	targetCompatibility = JavaVersion.VERSION_17
 	withSourcesJar()
-}
-
-sourceSets {
-    test {
-        proto {
-        }
-        java {
-            setSrcDirs(
-                listOf(
-                    "build/generated/source/proto/test/grpckt",
-                    "build/generated/source/proto/test/grpc",
-                    "build/generated/source/proto/test/java"
-                )
-            )
-        }
-    }
 }
 
 protobuf {
