@@ -97,27 +97,3 @@ tests:
             headers:
               Content-Type: "application/json"
 
-
-  - name: ExperimentationPlatformAcceptanceTest
-    fixtures:
-      - request:
-          protocol: grpc
-          type: com.example.UserRetrievalServiceOuterClass$FeatureVariantRequest
-          response:
-            body:
-              featureVariant:
-                data: |
-                  {
-                    "key": "value1"
-                  }
-                isInExperiment: true
-                experimentIdList: [1,2,3]
-  - name: AcceptanceTestEventTrackerIntegrationTests
-    fixtures:
-      - request:
-          protocol: http
-          path: "/subjects/ChatResponseGenerated?deleted=false"
-          method: POST
-          response:
-            status: 201
-

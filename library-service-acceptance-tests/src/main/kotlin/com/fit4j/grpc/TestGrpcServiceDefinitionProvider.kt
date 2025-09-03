@@ -48,11 +48,10 @@ class TestGrpcServiceDefinitionProvider(private val grpcClassScanner: GrpcClassS
     }
 
     private fun resolveServiceNamesFromClasspath() : List<String> {
-        val classesToBeIncluded = grpcClassScanner.scanServiceDefinitionsFromClasspath()
+        val classesToBeIncluded = grpcClassScanner.scanServiceDefinitionsFromClasspath().map { it.className }.toSortedSet()
         val classNames = classesToBeIncluded
-                        .filter { !it.className.endsWith("CoroutineImplBase") }
-                        .filter { it.className.endsWith("ImplBase") }
-                        .map { it.className }
+                        .filter { !it.endsWith("CoroutineImplBase") }
+                        .filter { it.endsWith("ImplBase") }
         logger.debug("Total of ${classNames.size} classes found in the classpath to be included in grpc service mocking.")
         return classNames
     }

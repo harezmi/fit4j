@@ -3,7 +3,6 @@ package com.fit4j.helpers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.MessageLite
 import com.google.protobuf.util.JsonFormat
-import com.fit4j.eventtracking.AcceptanceTestEventTracker
 import com.fit4j.kafka.KafkaMessageTracker
 import com.fit4j.mock.MockServiceCallTracker
 import okhttp3.mockwebserver.MockWebServer
@@ -29,9 +28,6 @@ class AcceptanceTestHelperConfiguration {
 
     @Autowired(required = false)
     lateinit var kafkaMessageTracker: KafkaMessageTracker
-
-    @Autowired(required = false)
-    lateinit var acceptanceTestEventTracker: AcceptanceTestEventTracker
 
     @Autowired(required = false)
     lateinit var jsonProtoParser: JsonFormat.Parser

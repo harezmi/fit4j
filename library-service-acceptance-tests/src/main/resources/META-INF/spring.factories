@@ -6,18 +6,3 @@ org.springframework.test.context.ContextCustomizerFactory=\
   com.fit4j.context.EmbeddedKafkaContextCustomizerFactory,\
   com.fit4j.context.EmbeddedDynamoDBContextCustomizerFactory, \
   com.fit4j.context.EmbeddedRedisContextCustomizerFactory
-
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.fit4j.autoconfigure.TestScopeAutoConfiguration, \
-  com.fit4j.autoconfigure.IntegrationTestGrpcAutoConfiguration, \
-  com.fit4j.autoconfigure.TestGrpcAutoConfiguration, \
-  com.fit4j.autoconfigure.TestHttpAutoConfiguration, \
-  com.fit4j.autoconfigure.TestKafkaAutoConfiguration, \
-  com.fit4j.autoconfigure.TestMockAutoConfiguration, \
-  com.fit4j.autoconfigure.TestProtobufAutoConfiguration, \
-  com.fit4j.autoconfigure.TestSecurityAutoConfiguration, \
-  com.fit4j.autoconfigure.TestHelperAutoConfiguration, \
-  com.fit4j.autoconfigure.EventTrackerAutoConfiguration, \
-  com.fit4j.autoconfigure.ExperimentationPlatformAutoConfiguration, \
-  com.fit4j.autoconfigure.TestDynamoDBAutoConfiguration, \
-  com.fit4j.autoconfigure.TestFixtureAutoConfiguration
