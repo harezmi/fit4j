@@ -1,5 +1,5 @@
-|  | <h1>Acceptance Tests Library For Kotlin Services</h1> | <img src="accepted.png" width="320" height="256"> |
-|------------------------------------------------|-------------------------------------------------------|---------------------------------------------------|
+|  | <h1>Functional Integration Testing Library for Java</h1> | <img src="accepted.png" width="320" height="256"> |
+|------------------------------------------------|----------------------------------------------------------|---------------------------------------------------|
 
 # Table of Contents
 
@@ -43,10 +43,10 @@
 
 # What is This Library About?
 
-The acceptance test library helps you write functional integration tests for your Kotlin microservices. The scope of those
-tests usually aim to test the complete request-response flow of your microservice for a given endpoint. Therefore, those
-functional integration (aka acceptance) tests written to verify complete request-response flows could be regarded as the
-acceptance criteria of the service from the perspective of its clients.
+The Functional Integration Testing Library (fit4j) helps you write functional integration tests for your Java/Kotlin 
+microservices. The scope of those tests usually aim to test the complete request-response flow of your microservice for 
+a given endpoint. Therefore, those functional integration (aka acceptance) tests written to verify complete request-response 
+flows could be regarded as the acceptance criteria of the service from the perspective of its clients.
 
 The difference between functional integration tests and other types of integration tests is that functional integration
 tests contain almost no mock objects within the system boundary itself. The only mocked parts are the external boundaries,
@@ -57,9 +57,9 @@ It is sufficient to mock only these external boundaries so that they would respo
 
 This library greatly simplifies the mock setup and request-response training for these external boundaries, aside from providing
 you with the other necessary infrastructure, such as running your service against a real database (H2, MySQL, DynamoDB),
-Kafka broker, Redis, and ElasticSearch, to write and run your acceptance tests.
+Kafka broker, Redis, and ElasticSearch, to write and run your functional integration tests.
 
-While writing acceptance tests, the possible entry points for your service could be gRPC, REST, or Kafka controller layers.
+While writing functional integration tests, the possible entry points for your service could be gRPC, REST, or Kafka controller layers.
 With the help of this library, you can write tests to simulate handling requests from these entry points and verify the
 eventual response of your service. This way, you can verify the end-to-end functionality of your service, including any
 side effects that might be created around.
@@ -74,18 +74,15 @@ Here is a short list of the features provided by this library:
 * Embedded Redis support
 * Built-in Embedded Kafka broker configuration for Kafka message publishing and verification
 * Automatic tracing of Kafka messages published and consumed by your service
-* Built-in in-process gRPC Server configuration and automatic discovery of all GRPC endpoints available in org's protobuf library
-* Automatic discovery of ServiceRequestContext and populating it while calling your gRPC endpoints
+* Built-in in-process gRPC Server configuration and automatic discovery of all GRPC endpoints available
 * Built-in MockWebServer configuration for REST endpoints
-* EventTracker support for publishing and verifying event tracking events
-* Experimentation platform integration
 
 # How to Start Working with This Library?
 
 There is a separate examples project which demonstrates the 
-usage of this library. There are various examples in that examples project to show how to write acceptance tests for 
+usage of this library. There are various examples in that project to show you how to write functional integration tests for 
 different scenarios. You can make use of example acceptance tests in those examples project to get an idea about how to 
-write acceptance tests for your service.
+write functional integration tests for your service.
 
 ## Add the Library Dependency
 
@@ -93,24 +90,7 @@ The **latest version** of the library is `3.0.17`. You can add the library depen
 file as follows.
 
 ```kotlin
-testImplementation("com.fit4j:library-service-acceptance-tests:3.0.17")
-```
-
-3.0.x releases of the library are Spring Boot 3.x compatible. If your service works with Spring Boot 2.x, then you should
-better check the 2.0.x versions of the library. It also utilizes okhttp3 Mockwebserver dependency version 4.9.3 which
-automatically inherits from spring boot dependencies bom. If your service depends on earlier versions of Spring Boot,
-your service might be working with an older version of Mockwebserver which causes error during test run. In order to solve
-Mockwebserver related errors, define the following property in your service's `gradle.properties` file.
-
-```properties
-okhttp3.version=4.9.3
-```
-
-Due to eventtracking and experimentation platform related transitive dependencies, make sure that following repository definitions
-exist in your `build.gradle.kts` file.
-
-```kotlin
-maven(url = "https://packages.confluent.io/maven/")
+testImplementation("com.fit4j:fit4j:3.0.17")
 ```
 
 ## Create a Test Class
@@ -128,13 +108,13 @@ class SampleAcceptanceTest {
     }
 }
 ```
-The `@AcceptanceTest` annotation marks the test class as an acceptance test class. Acceptance test classes are basically
+The `@AcceptanceTest` annotation marks the test class as an FIT test class. FIT test classes are basically
 `@SpringBootTest` classes with some additional capability. It also activates `test` and `acceptancetest` profiles in
 your service and enable bean overriding capability of the Spring Container.
 
 ## Add the Necessary Configuration for Your Test Class
 
-Before proceeding with the sample configuration, let's also speak about the basic structure of any acceptance test method,
+Before proceeding with the sample configuration, let's also speak about the basic structure of any FIT test method,
 or any test method in general. A test method usually consists of 3 parts:
 1. **Arrange**: In this part, you prepare the test environment within which the test method will be run. This includes creating the necessary data in the database, setting up mock objects, training them etc.
 2. **Act**: In this part, you execute the code under test. This includes sending a request to your service, and let the service do the necessary processing, and produce the response.
@@ -170,87 +150,15 @@ this **Arrange** phase. Simply populating necessary data could either be done wi
 wait for the response. In the **Assert** phase, you verify the response from your service, fetch any data from the environment
 and verify them, verify the interactions with the external systems, published message payloads etc.
 
-## Inheriting from BaseAcceptanceTest Class
-
-The acceptance test library provides you with a `BaseAcceptanceTest` class that you can extend in your test class so that
-you can place each of those steps in their own methods aside from already written test method from which request submission
-is triggered.
-
-```kotlin
-import com.fit4j.helpers.BaseAcceptanceTest
-
-class SampleAcceptanceTest : BaseAcceptanceTest() {
-
-    override fun prepareForTestExecution() {
-        // perform your data population at this step
-    }
-
-    override fun submitNewRequest() {
-        // perform your request submission here
-    }
-
-    override fun waitForRequestProcessing() {
-        // employ a Thread sleep for a specific time period if necessary 
-        // before proceeding with the verification step
-    }
-
-    override fun verifyStateAfterExecution() {
-        // perform state verification after the execution of current request
-    }
-}
-```
-If we look at `BaseAcceptanceTest` class in detail, aside from `@AcceptanceTest` annotation it has, we can see that it also
-inherits from `ÀcceptanceTestTemplate` class, where all those steps are defined, and invoked from within its `runTestSteps()`
-method. `BaseAcceptanceTest` class also define a test method marked with `@Test` annotation, which is already calling this
-`runTestSteps()`method. The `BaseAcceptanceTest` class is completely for convenience purposes, your acceptance tests don't
-need to inherit from it. The aim here is just to provide you with a template with which you can separate those there main
-sections of your tests, and invoke them automatically without being required to write a test method either. You can also
-extend from `AcceptanceTestTemplate` class directly and define your own test method in your test class. If you inherit from
-`BaseAcceptanceTest` class, or `AcceptanceTestTemplate` class, mostly you will benefit from helper methods available for
-verification of messages/events, or entities created/updated, as well as verification of endpoint calls to check if they
-resulted without any unexpected errors.
-
-```kotlin
-import com.fit4j.helpers.AcceptanceTestTemplate
-import com.fit4j.AcceptanceTest
-import org.junit.jupiter.api.Test
-
-@AcceptanceTest
-class SampleAcceptanceTest : AcceptanceTestTemplate() {
-
-    override fun prepareForTestExecution() {
-        // perform your data population at this step
-    }
-
-    override fun submitNewRequest() {
-        // perform your request submission here
-    }
-
-    override fun waitForRequestProcessing() {
-        // employ a Thread sleep for a specific time period if necessary 
-        // before proceeding with the verification step
-    }
-
-    override fun verifyStateAfterExecution() {
-        // perform state verification after the execution of current request
-    }
-
-    @Test
-    fun `test something`() {
-        runTestSteps()
-    }
-}
-```
-
 # What is @IntegrationTest Annotation? What is It Used For?
 
-As we said before acceptance tests are actually functional integration tests, so this library's features are basically
+As we said before FIT tests are actually integration tests, so this library's features are basically
 founded on top of typical integration test concepts. `@IntegrationTest` annotation serves as a base annotation which
 enables some basic configuration and beans which are necessary for any kind of integration tests you already write in your
 services, such as configuring gRPC server as in process mode, enabling declarative testcontainer support etc. Our 
 `@AcceptanceTest` annotation already inherits from `@IntegrationTest` annotation as well. You can also use this annotation 
 in your already existing integration tests in order to get rid of verbose configurations you already made. Those tests are
-typically more fine-grained tests compared to acceptance tests in terms of the functionality they verify, such as verifying
+typically more fine-grained tests compared to FIT tests in terms of the functionality they verify, such as verifying
 only service - repository, or controller - service layer integrations etc.
 
 ```kotlin
