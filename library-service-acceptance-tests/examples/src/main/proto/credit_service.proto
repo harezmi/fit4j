@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_package = "com.example";
+
+package com.example;
+
+service CreditService {
+    rpc getInfo(GetInfoRequest) returns (GetInfoResponse);
+}
+
+message GetInfoRequest {
+    string refundRef = 1;
+}
+
+message GetInfoResponse {
+    int32 newRefundId = 1;
+}

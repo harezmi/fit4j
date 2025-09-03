@@ -1,4 +1,4 @@
-rootProject.name = "library-service-acceptance-tests"
+rootProject.name = "fit4j"
 
 pluginManagement {
     repositories {

@@ -1,0 +1,26 @@
+- document:
+    index: "test"
+    id: "1"
+    body:
+      name: "John Doe"
+      age: 25
+      email: "john.doe@example.com"
+- document:
+    index: "test"
+    id: "2"
+    body:
+      name: "Jane Doe"
+      age: 30
+      email: "jane.doe@example.com"
+- document:
+    index: "test"
+    id: "3"
+    body:
+      names:
+        - "John Doe"
+        - "Jane Doe"
+      labels:
+        - key1: "value1"
+          key2: "value2"
+        - key3: "value3"
+          key4: "value4"

@@ -1,0 +1,10 @@
+- container: org.testcontainers.containers.GenericContainer
+  name: redisContainerDefinition
+  image: redis:6.2.1
+  initScript: redis_initial_data.yml
+  exposedPorts:
+    - 6379
+  exposedProperties:
+    - host
+    - firstMappedPort
+  reuse: false

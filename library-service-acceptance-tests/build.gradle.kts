@@ -8,6 +8,7 @@ plugins {
 	kotlin("jvm") version "2.0.20"
 	kotlin("plugin.spring") version "2.0.20"
     id("com.google.protobuf") version "0.9.4"
+    id("maven-publish")
 }
 
 repositories {
@@ -115,6 +116,14 @@ protobuf {
                 id("grpc")
                 id("grpckt")
             }
+        }
+    }
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("mavenJava") {
+            from(components["java"])
         }
     }
 }
