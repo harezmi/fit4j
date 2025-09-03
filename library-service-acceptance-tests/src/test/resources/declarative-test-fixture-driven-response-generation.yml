@@ -17,7 +17,7 @@ tests:
           response:
             body:
               user:
-                user_id: 123
+                userId: 123
       - request:
           protocol: http
           path: "/test-1"

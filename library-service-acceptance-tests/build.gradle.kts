@@ -103,9 +103,9 @@ sourceSets {
         java {
             setSrcDirs(
                 listOf(
-                    "build/generated/source/proto/main/grpckt",
-                    "build/generated/source/proto/main/grpc",
-                    "build/generated/source/proto/main/java"
+                    "build/generated/source/proto/test/grpckt",
+                    "build/generated/source/proto/test/grpc",
+                    "build/generated/source/proto/test/java"
                 )
             )
         }
@@ -125,7 +125,7 @@ protobuf {
         }
     }
     generateProtoTasks {
-        ofSourceSet("main").forEach {
+        ofSourceSet("test").forEach {
             it.plugins {
                 id("grpc")
                 id("grpckt")

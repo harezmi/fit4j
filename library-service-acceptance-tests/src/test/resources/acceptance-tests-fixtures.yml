@@ -14,7 +14,7 @@ tests:
           response:
             body:
               user:
-                user_id: 123
+                userId: 123
   - name: SampleGrpcIntegrationTest
     fixtures:
       - request:
@@ -39,7 +39,7 @@ tests:
           response:
             body:
               user:
-                user_id: "#{@testFixtureData.variables.userId}"
+                userId: "#{@testFixtureData.variables.userId}"
   - name: HttpMockServiceResponseFactoryIntegrationTests
     fixtures:
       - request:
