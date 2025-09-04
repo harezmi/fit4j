@@ -1,5 +1,7 @@
 package com.fit4j.examples.grpc
 
+import com.example.CreditServiceGrpc
+import com.example.CreditServiceOuterClass
 import com.fit4j.AcceptanceTest
 import com.fit4j.grpc.GrpcResponseJsonBuilder
 import com.google.protobuf.Message
@@ -15,9 +17,6 @@ class GrpcExampleTestWithProgrammaticFixture {
     @GrpcClient("inProcessClientForAcceptanceTest")
     private lateinit var creditServiceBlockingStub: CreditServiceGrpc.CreditServiceBlockingStub
 
-    @GrpcClient("inProcessClientForAcceptanceTest")
-    private lateinit var refundServiceBlockingStub: RefundsReferenceServiceGrpc.RefundsReferenceServiceBlockingStub
-
 
     @TestConfiguration
     class TestConfig {
@@ -25,7 +24,7 @@ class GrpcExampleTestWithProgrammaticFixture {
         fun grpcResponseBuilder(): GrpcResponseJsonBuilder<Message> {
             return GrpcResponseJsonBuilder {
                 when (it) {
-                    is GetCapturedCreditAmountForGptRequest ->
+                    is CreditServiceOuterClass.GetCapturedCreditAmountForGptRequest ->
                         when (it.gatewayPaymentTransactionId) {
                             "123" -> {
                                 """
@@ -51,11 +50,10 @@ class GrpcExampleTestWithProgrammaticFixture {
                                 null
                             }
                         }
-                    is GetInfoRequest ->{
+                    is CreditServiceOuterClass.GetInfoRequest ->{
                         """
                             {
-                                "newRefundId": 789,
-                                "legacyRefundRequestId": 1000
+                                "newRefundId": 789
                             }
                             """.trimIndent()
                     }
@@ -69,14 +67,14 @@ class GrpcExampleTestWithProgrammaticFixture {
     @Test
     fun `should get captured credit amount for GPT with transaction id 123`() {
         val actualResponse = creditServiceBlockingStub.getCapturedCreditAmountForGpt(
-            GetCapturedCreditAmountForGptRequest.newBuilder()
+            CreditServiceOuterClass.GetCapturedCreditAmountForGptRequest.newBuilder()
                 .setGatewayPaymentTransactionId("123")
                 .build()
         )
 
-        val expectedResponse = GetCapturedCreditAmountForGptResponse.newBuilder()
+        val expectedResponse = CreditServiceOuterClass.GetCapturedCreditAmountForGptResponse.newBuilder()
             .setAmountMoney(
-                Money.newBuilder()
+                CreditServiceOuterClass.Money.newBuilder()
                     .setAmount("10.01")
                     .setCurrency("USD")
             )
@@ -89,14 +87,14 @@ class GrpcExampleTestWithProgrammaticFixture {
     @Test
     fun `should get captured credit amount for GPT with transaction id 456`() {
         val actualResponse = creditServiceBlockingStub.getCapturedCreditAmountForGpt(
-            GetCapturedCreditAmountForGptRequest.newBuilder()
+            CreditServiceOuterClass.GetCapturedCreditAmountForGptRequest.newBuilder()
                 .setGatewayPaymentTransactionId("456")
                 .build()
         )
 
-        val expectedResponse = GetCapturedCreditAmountForGptResponse.newBuilder()
+        val expectedResponse = CreditServiceOuterClass.GetCapturedCreditAmountForGptResponse.newBuilder()
             .setAmountMoney(
-                Money.newBuilder()
+                CreditServiceOuterClass.Money.newBuilder()
                     .setAmount("99.99")
                     .setCurrency("USD")
             )
@@ -108,15 +106,14 @@ class GrpcExampleTestWithProgrammaticFixture {
 
     @Test
     fun `should get refund refund info with transaction id 123`() {
-        val actualResponse = refundServiceBlockingStub.getInfo(
-            GetInfoRequest.newBuilder()
+        val actualResponse = creditServiceBlockingStub.getInfo(
+            CreditServiceOuterClass.GetInfoRequest.newBuilder()
                 .setRefundRef("666")
                 .build()
         )
 
-        val expectedResponse = GetInfoResponse.newBuilder()
+        val expectedResponse = CreditServiceOuterClass.GetInfoResponse.newBuilder()
             .setNewRefundId(789)
-            .setLegacyRefundRequestId(1000)
             .build()
 
         Assertions.assertEquals(expectedResponse, actualResponse)

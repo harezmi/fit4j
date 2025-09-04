@@ -3,6 +3,7 @@ import com.google.protobuf.gradle.*
 
 val springBootVersion : String by project
 val protobufJavaVersion : String by project
+val grpcVersion: String by project
 
 plugins {
     `java-library`
@@ -15,6 +16,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
     implementation("com.google.protobuf:protobuf-java:${protobufJavaVersion}")
     implementation("com.google.protobuf:protobuf-java-util:${protobufJavaVersion}")
+    implementation("io.grpc:grpc-api:${grpcVersion}")
+    implementation("io.grpc:grpc-stub:${grpcVersion}")
+    implementation("io.grpc:grpc-kotlin-stub:1.4.3")
+    implementation("io.grpc:grpc-protobuf:1.63.0")
 }
 
 java {
@@ -64,21 +69,42 @@ subprojects {
 }
 
 protobuf {
+    // Configure the Protobuf compiler (protoc)
     protoc {
-        artifact = "com.google.protobuf:protoc:3.17.3"
+        // This will download the correct protoc binary for your OS and architecture
+        artifact = "com.google.protobuf:protoc:3.21.2"
     }
+
+    // Configure the Protobuf plugins
     plugins {
+        // Specify the gRPC plugin
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.43.2"
+            // Use the correct platform-specific artifact for the gRPC code generator
+            artifact = "io.grpc:protoc-gen-grpc-java:1.63.0:osx-aarch_64"
         }
         id("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.1.0:jdk7@jar"
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.3:jdk8@jar"
         }
     }
+
+    // 👇 THIS IS THE MISSING BLOCK!
+    // It instructs the plugin to create and configure tasks for generating code.
     generateProtoTasks {
-        ofSourceSet("main").forEach {
-            it.plugins {
+        all().forEach { task ->
+            task.builtins {
+                // Generates the standard Java classes from .proto files
+                java {
+                    // This block can be empty, but it's required for the task to be created
+                }
+                // Generates the standard Kotlin classes from .proto files
+                kotlin {
+                    // This block can be empty as well
+                }
+            }
+            task.plugins {
+                // Applies the gRPC Java plugin to generate gRPC service stubs.
                 id("grpc")
+                // Applies the gRPC Kotlin plugin to generate Kotlin service stubs.
                 id("grpckt")
             }
         }

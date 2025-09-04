@@ -1,7 +1,9 @@
 package com.fit4j.examples.kafka
 
 
+import com.example.CreditServiceOuterClass
 import com.fit4j.AcceptanceTest
+import com.fit4j.helpers.AcceptanceTestHelper
 import com.google.protobuf.Message
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serializer
@@ -17,13 +19,16 @@ class KafkaExampleAcceptanceTest {
     @Autowired
     private lateinit var kafkaTemplate: KafkaTemplate<String, Message>
 
+    @Autowired
+    private lateinit var helper: AcceptanceTestHelper
+
     @Test
     fun `it should work`() {
-        val message = CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
+        val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
         kafkaTemplate.send("sample-topic-1", message)
 
         helper.verifyEvent(
-            CaptureCreditRequest::class, """
+            CreditServiceOuterClass.CaptureCreditRequest::class, """
             {
               "paymentAttemptId": "123"
             }
@@ -35,7 +40,7 @@ class KafkaExampleAcceptanceTest {
 
 class MessageDeserializer : Deserializer<Any> {
     override fun deserialize(topic: String, data: ByteArray?): Any {
-        return CaptureCreditRequest.parseFrom(data)
+        return CreditServiceOuterClass.CaptureCreditRequest.parseFrom(data)
     }
 }
 

@@ -14,10 +14,9 @@ class HttpConfig {
     fun createMonolithClient(retrofit: Retrofit) = retrofit.create(MonolithClient::class.java)
 
     @Bean
-    fun okHttpMonolithClient(jwtInterceptor: OkHttpMonolithJWTInterceptor): OkHttpClient {
+    fun okHttpMonolithClient(): OkHttpClient {
         return OkHttpClient
             .Builder()
-            .addInterceptor(jwtInterceptor)
             .build()
     }
 

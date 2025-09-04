@@ -3,7 +3,7 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.GetCapturedCreditAmountForGptRequest
+          type: com.example.CreditServiceOuterClass$GetCapturedCreditAmountForGptRequest
           predicate: "#request.gatewayPaymentTransactionId == '123'"
           response:
             body:
@@ -12,7 +12,7 @@ tests:
                 currency: "USD"
       - request:
           protocol: grpc
-          type: com.example.GetCapturedCreditAmountForGptRequest
+          type: com.example.CreditServiceOuterClass$GetCapturedCreditAmountForGptRequest
           predicate: "#request.gatewayPaymentTransactionId == '456'"
           response:
             body:
@@ -23,9 +23,8 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.GetInfoRequest
+          type: com.example.CreditServiceOuterClass$GetInfoRequest
           predicate: "#request.refundRef == '666'"
           response:
             body:
               newRefundId: 789
-              legacyRefundRequestId: 1000

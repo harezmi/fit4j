@@ -6,6 +6,7 @@ package com.example;
 
 service CreditService {
     rpc getInfo(GetInfoRequest) returns (GetInfoResponse);
+    rpc getCapturedCreditAmountForGpt(GetCapturedCreditAmountForGptRequest) returns (GetCapturedCreditAmountForGptResponse);
 }
 
 message GetInfoRequest {
@@ -14,4 +15,21 @@ message GetInfoRequest {
 
 message GetInfoResponse {
     int32 newRefundId = 1;
+}
+
+message GetCapturedCreditAmountForGptRequest {
+    string GatewayPaymentTransactionId = 1;
+}
+
+message GetCapturedCreditAmountForGptResponse {
+    Money amountMoney = 1;
+}
+
+message Money {
+    string amount = 1;
+    string currency = 2;
+}
+
+message CaptureCreditRequest {
+    string paymentAttemptId = 1;
 }

@@ -1,5 +1,6 @@
 package com.fit4j.examples.kafkatestcontainers
 
+import com.example.CreditServiceOuterClass
 import com.fit4j.AcceptanceTest
 import com.fit4j.helpers.AcceptanceTestHelper
 import com.fit4j.testcontainers.Testcontainers
@@ -19,10 +20,10 @@ class KafkaTestcontainersExampleAcceptanceTest {
 
     @Test
     fun `it should work`() {
-        val message = CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
+        val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
         helper.beans.kafkaTemplate.send("sample-topic-1", message)
         helper.verifyEvent(
-            CaptureCreditRequest::class, """
+            CreditServiceOuterClass.CaptureCreditRequest::class, """
             {
               "paymentAttemptId": "123"
             }
@@ -33,7 +34,7 @@ class KafkaTestcontainersExampleAcceptanceTest {
 
 class MessageDeserializer : Deserializer<Any> {
     override fun deserialize(topic: String, data: ByteArray?): Any {
-        return CaptureCreditRequest.parseFrom(data)
+        return CreditServiceOuterClass.CaptureCreditRequest.parseFrom(data)
     }
 }
 

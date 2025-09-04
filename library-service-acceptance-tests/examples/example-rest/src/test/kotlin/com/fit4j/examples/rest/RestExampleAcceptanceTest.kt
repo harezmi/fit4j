@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 
 @AcceptanceTest
 class RestExampleAcceptanceTest {
-    @Autowired
-    private lateinit var helper: AcceptanceTestHelper
 
     @Autowired
     private lateinit var monolithClient: MonolithClient
