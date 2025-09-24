@@ -1,5 +1,0 @@
-- container: org.testcontainers.containers.GenericContainer
-  name: dynamodb
-  image: amazon/dynamodb-local:1.13.6
-  exposedPorts:
-    - 8000
