@@ -4,7 +4,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.util.ReflectionUtils
-import java.util.UUID
+import java.util.*
 
 data class TestKafkaConsumerDefinition(
     val topicName: String,

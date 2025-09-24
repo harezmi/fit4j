@@ -1,7 +1,5 @@
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
+import com.google.protobuf.gradle.id
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import com.google.protobuf.gradle.*
-import org.jetbrains.kotlin.metadata.ProtoBuf
 
 plugins {
 	`java-library`
@@ -13,7 +11,6 @@ plugins {
 
 repositories {
 	mavenCentral()
-	maven(url = "https://packages.confluent.io/maven/")
 }
 
 dependencies {
@@ -27,7 +24,6 @@ dependencies {
 	val grpcVersion : String by project
 	val elasticSearchVersion: String by project
 	val redisVersion: String by project
-	val apacheAvroVersion: String by project
 
 	implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -58,7 +54,6 @@ dependencies {
 	implementation("org.elasticsearch.client:elasticsearch-rest-client:$elasticSearchVersion")
 	implementation("co.elastic.clients:elasticsearch-java:$elasticSearchVersion")
 	implementation("redis.clients:jedis:$redisVersion")
-	implementation("org.apache.avro:avro:$apacheAvroVersion")
 	implementation("com.github.codemonstur:embedded-redis:1.4.3")
 
 	implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.2.0")

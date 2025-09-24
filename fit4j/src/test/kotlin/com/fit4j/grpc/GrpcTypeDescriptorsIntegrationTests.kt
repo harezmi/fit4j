@@ -3,10 +3,10 @@ package com.fit4j.grpc
 import com.example.CreditServiceOuterClass
 import com.example.CurrencyServiceOuterClass
 import com.example.PaymentTransactionServiceOuterClass
-import com.google.protobuf.Any
-import com.google.protobuf.Descriptors
 import com.fit4j.AcceptanceTest
 import com.fit4j.helpers.AcceptanceTestHelper
+import com.google.protobuf.Any
+import com.google.protobuf.Descriptors
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

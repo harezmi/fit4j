@@ -4,7 +4,7 @@ import com.fit4j.mock.declarative.ExpressionResolver
 import com.fit4j.mock.declarative.TestFixture
 import com.fit4j.mock.declarative.TestFixturePredicate
 import okhttp3.mockwebserver.RecordedRequest
-import java.util.Locale
+import java.util.*
 
 data class HttpTestFixture(
     val requestPath: String? = null,

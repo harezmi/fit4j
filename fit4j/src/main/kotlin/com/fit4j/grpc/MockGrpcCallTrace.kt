@@ -1,8 +1,8 @@
 package com.fit4j.grpc
 
-import com.google.protobuf.MessageLite
 import com.fit4j.mock.CallTrace
 import com.fit4j.mock.CallTraceFactory
+import com.google.protobuf.MessageLite
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 

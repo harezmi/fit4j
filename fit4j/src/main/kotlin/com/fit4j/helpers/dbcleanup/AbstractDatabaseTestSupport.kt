@@ -1,6 +1,5 @@
 package com.fit4j.helpers.dbcleanup
 
-import javax.sql.DataSource
 import org.h2.tools.Server
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
@@ -8,6 +7,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils
 import org.springframework.test.context.event.annotation.AfterTestMethod
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
+import javax.sql.DataSource
 
 abstract class AbstractDatabaseTestSupport : DatabaseTestSupport {
 

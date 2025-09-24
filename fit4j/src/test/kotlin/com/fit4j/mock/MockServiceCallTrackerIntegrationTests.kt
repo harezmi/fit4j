@@ -1,10 +1,10 @@
 package com.fit4j.mock
 
-import com.google.protobuf.MessageLite
 import com.fit4j.AcceptanceTest
 import com.fit4j.grpc.MockGrpcCallTrace
 import com.fit4j.http.HttpRequestContext
 import com.fit4j.http.MockWebCallTrace
+import com.google.protobuf.MessageLite
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import okhttp3.Headers

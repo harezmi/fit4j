@@ -1,8 +1,8 @@
 package com.fit4j.grpc
 
-import com.google.protobuf.Message
 import com.fit4j.mock.declarative.TestFixture
 import com.fit4j.mock.declarative.TestFixturePredicate
+import com.google.protobuf.Message
 
 data class GrpcTestFixture(
     val requestType: Class<*> = Message::class.java,

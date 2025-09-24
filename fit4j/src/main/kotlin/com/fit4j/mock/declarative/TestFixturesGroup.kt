@@ -1,11 +1,11 @@
 package com.fit4j.mock.declarative
 
-import com.google.protobuf.Message
 import com.fit4j.grpc.GrpcResponseJsonBuilder
 import com.fit4j.grpc.GrpcTestFixture
 import com.fit4j.http.HttpResponseJsonBuilder
 import com.fit4j.http.HttpTestFixture
 import com.fit4j.http.clone
+import com.google.protobuf.Message
 import okhttp3.mockwebserver.RecordedRequest
 
 data class TestFixturesGroup(val name:String, val primaryTestFixtures:List<TestFixture>)

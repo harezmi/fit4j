@@ -4,12 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fit4j.EnableOnAcceptanceTestClass
 import com.fit4j.grpc.RawJsonContentToGrpcResponseConverter
 import com.fit4j.http.RawJsonContentToHttpResponseConverter
-import com.fit4j.mock.declarative.DeclarativeTestFixtureBuilder
-import com.fit4j.mock.declarative.DeclarativeTestFixtureDrivenServiceResponseProvider
-import com.fit4j.mock.declarative.DeclarativeTestFixtureProvider
-import com.fit4j.mock.declarative.ExpressionResolver
-import com.fit4j.mock.declarative.JsonContentExpressionResolver
-import com.fit4j.mock.declarative.PredicateEvaluator
+import com.fit4j.mock.declarative.*
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean

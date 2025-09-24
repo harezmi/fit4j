@@ -2,15 +2,7 @@ package com.fit4j.mock.declarative
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.BooleanNode
-import com.fasterxml.jackson.databind.node.DecimalNode
-import com.fasterxml.jackson.databind.node.DoubleNode
-import com.fasterxml.jackson.databind.node.FloatNode
-import com.fasterxml.jackson.databind.node.IntNode
-import com.fasterxml.jackson.databind.node.LongNode
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.ShortNode
+import com.fasterxml.jackson.databind.node.*
 
 class JsonContentExpressionResolver(val objectMapper: ObjectMapper, val expressionResolver: ExpressionResolver) {
     fun resolveExpressions(jsonContent: String, request:Any?=null): String {

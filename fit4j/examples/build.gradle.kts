@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.google.protobuf.gradle.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val springBootVersion : String by project
 val protobufJavaVersion : String by project

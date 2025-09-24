@@ -1,13 +1,7 @@
 package com.fit4j.autoconfigure
 
 import com.fit4j.EnableOnAcceptanceTestClass
-import com.fit4j.kafka.KafkaTopicCleaner
-import com.fit4j.kafka.KafkaMessageTracker
-import com.fit4j.kafka.KafkaMessageTrackerAspect
-import com.fit4j.kafka.TestKafkaConsumerConfigurer
-import com.fit4j.kafka.TestKafkaConsumerDefinition
-import com.fit4j.kafka.TestKafkaConsumerDefinitionProvider
-import com.fit4j.kafka.TestMessageListener
+import com.fit4j.kafka.*
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean

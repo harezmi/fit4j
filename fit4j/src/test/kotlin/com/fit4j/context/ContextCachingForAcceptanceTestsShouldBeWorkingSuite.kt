@@ -1,13 +1,7 @@
 package com.fit4j.context
 
 import com.fit4j.AcceptanceTest
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.ClassOrderer
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestClassOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.TestPropertySource

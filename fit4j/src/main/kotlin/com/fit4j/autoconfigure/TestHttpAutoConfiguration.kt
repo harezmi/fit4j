@@ -2,13 +2,7 @@ package com.fit4j.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fit4j.EnableOnAcceptanceTestClass
-import com.fit4j.http.DefaultHttpResponseProvider
-import com.fit4j.http.HttpResponseJsonBuilder
-import com.fit4j.http.HttpTestFixtureBuilder
-import com.fit4j.http.MockResponseJsonConverter
-import com.fit4j.http.MockWebCallTraceFactory
-import com.fit4j.http.MockWebServerDispatcher
-import com.fit4j.http.RawJsonContentToHttpResponseConverter
+import com.fit4j.http.*
 import com.fit4j.mock.MockServiceCallTracker
 import com.fit4j.mock.MockServiceResponseFactory
 import com.fit4j.mock.declarative.DeclarativeTestFixtureProvider

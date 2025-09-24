@@ -1,8 +1,8 @@
 package com.fit4j.mock.declarative
 
-import com.google.protobuf.Message
 import com.fit4j.grpc.RawJsonContentToGrpcResponseConverter
 import com.fit4j.http.RawJsonContentToHttpResponseConverter
+import com.google.protobuf.Message
 import okhttp3.mockwebserver.RecordedRequest
 
 class DeclarativeTestFixtureDrivenServiceResponseProvider(

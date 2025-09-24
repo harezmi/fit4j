@@ -1,12 +1,7 @@
 package com.fit4j.helper
 
 import com.fit4j.AcceptanceTest
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.ClassOrderer
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestClassOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 

@@ -6,7 +6,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.env.MapPropertySource
 import org.springframework.test.context.ContextCustomizer
 import org.springframework.test.context.MergedContextConfiguration
-import java.util.UUID
+import java.util.*
 
 class GrpcContextCustomizer : ContextCustomizer {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)

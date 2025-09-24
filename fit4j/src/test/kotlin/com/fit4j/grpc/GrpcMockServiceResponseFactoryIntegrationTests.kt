@@ -3,11 +3,11 @@ package com.fit4j.grpc
 import com.example.AutoComplete
 import com.example.CurrencyServiceOuterClass
 import com.example.UserRetrievalServiceOuterClass
-import com.google.protobuf.Message
-import com.google.protobuf.StringValue
 import com.fit4j.AcceptanceTest
 import com.fit4j.mock.MockServiceResponseFactory
 import com.fit4j.mock.MockServiceResponseProvider
+import com.google.protobuf.Message
+import com.google.protobuf.StringValue
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import org.junit.jupiter.api.Assertions

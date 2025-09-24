@@ -1,8 +1,8 @@
 package com.fit4j.autoconfigure
 
-import com.google.protobuf.util.JsonFormat
 import com.fit4j.EnableOnAcceptanceTestClass
 import com.fit4j.grpc.GrpcTypeDescriptorsProvider
+import com.google.protobuf.util.JsonFormat
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.context.annotation.Bean

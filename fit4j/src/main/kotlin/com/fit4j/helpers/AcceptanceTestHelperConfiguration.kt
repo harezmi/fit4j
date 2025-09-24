@@ -1,10 +1,10 @@
 package com.fit4j.helpers
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.protobuf.MessageLite
-import com.google.protobuf.util.JsonFormat
 import com.fit4j.kafka.KafkaMessageTracker
 import com.fit4j.mock.MockServiceCallTracker
+import com.google.protobuf.MessageLite
+import com.google.protobuf.util.JsonFormat
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration

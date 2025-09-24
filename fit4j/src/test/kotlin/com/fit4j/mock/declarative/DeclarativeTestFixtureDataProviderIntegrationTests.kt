@@ -2,12 +2,12 @@ package com.fit4j.mock.declarative
 
 import com.example.CurrencyServiceOuterClass
 import com.example.UserRetrievalServiceOuterClass
-import com.google.rpc.Code
 import com.fit4j.AcceptanceTest
 import com.fit4j.grpc.GrpcTestFixture
 import com.fit4j.grpc.GrpcTestFixtureResponse
 import com.fit4j.http.HttpTestFixture
 import com.fit4j.http.HttpTestFixtureResponse
+import com.google.rpc.Code
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions

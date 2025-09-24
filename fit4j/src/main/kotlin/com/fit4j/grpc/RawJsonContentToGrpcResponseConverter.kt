@@ -2,9 +2,9 @@ package com.fit4j.grpc
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.fit4j.mock.declarative.JsonContentExpressionResolver
 import com.google.protobuf.Message
 import com.google.protobuf.util.JsonFormat
-import com.fit4j.mock.declarative.JsonContentExpressionResolver
 import io.grpc.Status
 import io.grpc.Status.Code
 import io.grpc.StatusRuntimeException

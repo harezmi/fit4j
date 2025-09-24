@@ -1,11 +1,7 @@
 package com.fit4j.http
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fit4j.mock.declarative.DeclarativeTestFixtureBuilder
-import com.fit4j.mock.declarative.ExpressionResolver
-import com.fit4j.mock.declarative.PredicateEvaluator
-import com.fit4j.mock.declarative.TestFixture
-import com.fit4j.mock.declarative.TestFixturePredicate
+import com.fit4j.mock.declarative.*
 
 class HttpTestFixtureBuilder(
     private val objectMapper: ObjectMapper,

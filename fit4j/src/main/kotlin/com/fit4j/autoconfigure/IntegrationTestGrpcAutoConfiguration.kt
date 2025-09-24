@@ -2,7 +2,6 @@ package com.fit4j.autoconfigure
 
 import com.fit4j.EnableOnIntegrationTestClass
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration
-import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer
 import net.devh.boot.grpc.server.serverfactory.InProcessGrpcServerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter

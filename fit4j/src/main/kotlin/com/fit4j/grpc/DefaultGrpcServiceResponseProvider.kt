@@ -1,8 +1,8 @@
 package com.fit4j.grpc
 
-import com.google.protobuf.Message
 import com.fit4j.mock.MockServiceResponseProvider
 import com.fit4j.mock.declarative.DeclarativeTestFixtureProvider
+import com.google.protobuf.Message
 import jakarta.annotation.PostConstruct
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
