@@ -14,4 +14,4 @@ import java.lang.annotation.Target
 @TestPropertySource(properties=["spring.main.allow-bean-definition-overriding=true","fit4j.isIntegrationTestClass=true"])
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-annotation class IT
+annotation class IT(val webEnvironment : SpringBootTest.WebEnvironment = SpringBootTest.WebEnvironment.MOCK)
