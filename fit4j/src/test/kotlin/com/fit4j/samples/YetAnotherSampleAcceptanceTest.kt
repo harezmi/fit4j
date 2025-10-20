@@ -1,6 +1,6 @@
 package com.fit4j.samples
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import com.fit4j.helpers.AcceptanceTestHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -9,7 +9,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 
 
-@AcceptanceTest
+@FIT
 @EmbeddedKafka(partitions = 1)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class YetAnotherSampleAcceptanceTest {

@@ -1,6 +1,6 @@
 package com.fit4j.testcontainers
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -11,7 +11,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.test.context.event.AfterTestClassEvent
 import org.testcontainers.junit.jupiter.Testcontainers
 
-@AcceptanceTest
+@FIT
 @Testcontainers
 @Disabled
 class TestContainersContextCustomizerWithAnnotationIntegrationTests  {

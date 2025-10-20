@@ -1,6 +1,6 @@
 package com.fit4j.kafka
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,7 +11,7 @@ import org.springframework.test.context.TestPropertySource
 
 class KafkaTopicCleanerTestSuite {
     @Nested
-    @AcceptanceTest
+    @FIT
     @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=true"])
     @EmbeddedKafka
     @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -28,7 +28,7 @@ class KafkaTopicCleanerTestSuite {
     }
 
     @Nested
-    @AcceptanceTest
+    @FIT
     @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=false"])
     @EmbeddedKafka
     @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)

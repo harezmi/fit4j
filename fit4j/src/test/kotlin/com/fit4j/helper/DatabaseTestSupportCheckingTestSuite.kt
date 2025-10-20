@@ -1,6 +1,6 @@
 package com.fit4j.helper
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 class DatabaseTestSupportCheckingTestSuite {
     @Nested
     @Order(1)
-    @AcceptanceTest
+    @FIT
     inner class FirstTest {
 
         @Autowired
@@ -24,7 +24,7 @@ class DatabaseTestSupportCheckingTestSuite {
 
     @Nested
     @Order(2)
-    @AcceptanceTest
+    @FIT
     inner class SecondTest {
 
         @Autowired

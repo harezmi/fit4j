@@ -1,8 +1,8 @@
 package com.fit4j.mock.declarative
 
 import com.example.CurrencyServiceOuterClass
-import com.fit4j.AcceptanceTest
-import com.fit4j.AcceptanceTestFixture
+import com.fit4j.FIT
+import com.fit4j.FixtureForFIT
 import com.fit4j.mock.MockServiceResponseFactory
 import okhttp3.Headers
 import okhttp3.mockwebserver.MockResponse
@@ -18,13 +18,13 @@ import java.net.Socket
 /**
  * We have repeated the same test twice to ensure that the test fixtures are cleaned up between tests.
  */
-@AcceptanceTest("classpath:test-fixture-group-state-cleanup-fixtures.yml")
+@FIT("classpath:test-fixture-group-state-cleanup-fixtures.yml")
 class TestFixtureGroupStateCleanupIntegrationTest {
     @Autowired
     lateinit var mockServiceResponseFactory: MockServiceResponseFactory
 
     @Test
-    @AcceptanceTestFixture("test-fixture-1")
+    @FixtureForFIT("test-fixture-1")
     fun `should should reset http fixtures and return a list of test fixtures 1`() {
         val request = createWebRequest("/test-1")
         val actualResponse1 = mockServiceResponseFactory.getResponseFor(request) as MockResponse
@@ -56,7 +56,7 @@ class TestFixtureGroupStateCleanupIntegrationTest {
     }
 
     @Test
-    @AcceptanceTestFixture("test-fixture-1")
+    @FixtureForFIT("test-fixture-1")
     fun `should should reset http fixtures and return a list of test fixtures 2`() {
         val request = createWebRequest("/test-1")
         val actualResponse1 = mockServiceResponseFactory.getResponseFor(request) as MockResponse
@@ -97,7 +97,7 @@ class TestFixtureGroupStateCleanupIntegrationTest {
     }
 
     @Test
-    @AcceptanceTestFixture("test-fixture-1")
+    @FixtureForFIT("test-fixture-1")
     fun `should should reset grpc fixtures and return a list of test fixtures 1`() {
         val request = createGrpcRequest()
 
@@ -119,7 +119,7 @@ class TestFixtureGroupStateCleanupIntegrationTest {
     }
 
     @Test
-    @AcceptanceTestFixture("test-fixture-1")
+    @FixtureForFIT("test-fixture-1")
     fun `should should reset grpc fixtures and return a list of test fixtures 2`() {
         val request = createGrpcRequest()
 

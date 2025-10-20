@@ -1,6 +1,6 @@
 package com.fit4j.http
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import com.fit4j.mock.MockServiceResponseFactory
 import okhttp3.Headers
 import okhttp3.mockwebserver.MockResponse
@@ -15,7 +15,7 @@ import org.springframework.core.Ordered
 import org.springframework.test.context.event.annotation.AfterTestMethod
 import java.net.Socket
 
-@AcceptanceTest
+@FIT
 class HttpMockServiceResponseFactoryIntegrationTests {
     @Autowired
     private lateinit var testFixture: TestFixtureData

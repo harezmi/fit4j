@@ -2,13 +2,13 @@ package com.fit4j.testcontainers
 
 import co.elastic.clients.elasticsearch.core.CreateRequest
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ResourceLoader
 
-@AcceptanceTest
+@FIT
 class ElasticsearchDocumentProviderIntegrationTests {
     @Autowired
     private lateinit var resourceLoader: ResourceLoader

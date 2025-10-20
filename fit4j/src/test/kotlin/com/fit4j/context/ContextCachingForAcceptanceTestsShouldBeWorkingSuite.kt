@@ -1,6 +1,6 @@
 package com.fit4j.context
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -10,7 +10,7 @@ import org.springframework.test.context.TestPropertySource
 class ContextCachingForAcceptanceTestsShouldBeWorkingSuite {
     @Nested
     @Order(1)
-    @AcceptanceTest
+    @FIT
     inner class FirstTest {
         @Autowired
         private lateinit var applicationContext: ApplicationContext
@@ -25,7 +25,7 @@ class ContextCachingForAcceptanceTestsShouldBeWorkingSuite {
 
     @Nested
     @Order(2)
-    @AcceptanceTest
+    @FIT
     inner class SecondTest {
 
         @Autowired
@@ -40,7 +40,7 @@ class ContextCachingForAcceptanceTestsShouldBeWorkingSuite {
 
     @Nested
     @Order(3)
-    @AcceptanceTest
+    @FIT
     @TestPropertySource(properties = ["foo=bar"])
     inner class ThirdTest {
 

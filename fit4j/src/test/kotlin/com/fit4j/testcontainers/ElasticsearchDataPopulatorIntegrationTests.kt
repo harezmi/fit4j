@@ -1,7 +1,7 @@
 package com.fit4j.testcontainers
 
 import co.elastic.clients.elasticsearch.core.GetRequest
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -11,7 +11,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.test.context.event.AfterTestClassEvent
 
 @com.fit4j.testcontainers.Testcontainers(definitions = ["elasticSearchContainerDefinition"])
-@AcceptanceTest
+@FIT
 class ElasticsearchDataPopulatorIntegrationTests {
 
     @Value("\${fit4j.elasticSearchContainerDefinition.host}")

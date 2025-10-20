@@ -1,6 +1,6 @@
 package com.fit4j.context
 
-import com.fit4j.IntegrationTest
+import com.fit4j.IT
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.test.context.ContextConfigurationAttributes
 import org.springframework.test.context.ContextCustomizer
@@ -23,7 +23,7 @@ abstract class AbstractContextCustomizerFactory : ContextCustomizerFactory {
     private fun isIntegrationTest(testClass: Class<*>): Boolean {
         val foundAnnotation = AnnotatedElementUtils.findMergedAnnotation(
             testClass,
-            IntegrationTest::class.java
+            IT::class.java
         )
         return foundAnnotation != null
     }

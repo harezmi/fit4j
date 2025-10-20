@@ -1,6 +1,6 @@
 package com.fit4j.testcontainers
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -10,7 +10,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.test.context.event.AfterTestClassEvent
 
 @com.fit4j.testcontainers.Testcontainers(definitions = ["redisContainerDefinition"])
-@AcceptanceTest
+@FIT
 class RedisDataPopulatorIntegrationTests {
     @Value("\${fit4j.redisContainerDefinition.host}")
     private lateinit var redisHost: String

@@ -1,7 +1,7 @@
 package com.fit4j.mock.declarative
 
-import com.fit4j.AcceptanceTest
-import com.fit4j.AcceptanceTestFixture
+import com.fit4j.FIT
+import com.fit4j.FixtureForFIT
 import com.fit4j.http.HttpTestFixture
 import com.fit4j.http.HttpTestFixtureResponse
 import org.hamcrest.MatcherAssert
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-@AcceptanceTest("classpath:method-level-test-fixtures.yml")
+@FIT("classpath:method-level-test-fixtures.yml")
 class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
 
     @Autowired
@@ -20,7 +20,7 @@ class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
     lateinit var expressionResolver: ExpressionResolver
 
     @Test
-    @AcceptanceTestFixture("test-fixture-1")
+    @FixtureForFIT("test-fixture-1")
     fun `should return a list of test fixtures`() {
         val testFixturesGroup = declarativeTestFixtureProvider.getTestFixturesForCurrentTest()
         Assertions.assertNotNull(testFixturesGroup)
@@ -33,7 +33,7 @@ class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
     }
 
     @Test
-    @AcceptanceTestFixture("test-fixture-1")
+    @FixtureForFIT("test-fixture-1")
     fun `should return a list of test fixtures from a common fixture in yml`() {
         val testFixturesGroup = declarativeTestFixtureProvider.getTestFixturesForCurrentTest()
         Assertions.assertNotNull(testFixturesGroup)
@@ -46,7 +46,7 @@ class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
     }
 
     @Test
-    @AcceptanceTestFixture("test-fixture-3")
+    @FixtureForFIT("test-fixture-3")
     fun `should throw IllegalStateException when fixture not found in yml`() {
         Assertions.assertThrows(IllegalStateException::class.java) { declarativeTestFixtureProvider.getTestFixturesForCurrentTest() }
     }

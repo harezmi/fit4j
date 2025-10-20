@@ -1,6 +1,6 @@
 package com.fit4j.kafka
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
@@ -13,7 +13,7 @@ import org.springframework.kafka.listener.ContainerProperties.AckMode
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.util.ReflectionTestUtils
 
-@AcceptanceTest
+@FIT
 @TestPropertySource(properties = ["kafka.topic.name=sample-topic-1"])
 class KafkaConsumersYamlFileLoadIntegrationTests {
 

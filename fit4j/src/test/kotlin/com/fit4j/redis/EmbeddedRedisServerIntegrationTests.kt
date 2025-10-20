@@ -1,13 +1,13 @@
 package com.fit4j.redis
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import com.fit4j.testcontainers.RedisConnectionProperties
 import com.fit4j.testcontainers.RedisDataPopulator
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 
-@AcceptanceTest
+@FIT
 @EmbeddedRedis
 class EmbeddedRedisServerIntegrationTests {
     @Value("\${fit4j.embeddedRedisServer.port}")

@@ -7,8 +7,8 @@ import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
 
 
-@AcceptanceTest
+@FIT
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-annotation class RestControllerAcceptanceTest
+annotation class RestInFIT

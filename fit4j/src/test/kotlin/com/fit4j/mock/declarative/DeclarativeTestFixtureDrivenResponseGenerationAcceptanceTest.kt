@@ -4,8 +4,8 @@ import com.example.CurrencyServiceGrpc
 import com.example.CurrencyServiceOuterClass
 import com.example.UserRetrievalServiceGrpc
 import com.example.UserRetrievalServiceOuterClass
-import com.fit4j.AcceptanceTest
-import com.fit4j.AcceptanceTestFixture
+import com.fit4j.FIT
+import com.fit4j.FixtureForFIT
 import com.fit4j.helpers.AcceptanceTestHelper
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AcceptanceTest("classpath:declarative-test-fixture-driven-response-generation.yml")
+@FIT("classpath:declarative-test-fixture-driven-response-generation.yml")
 @TestPropertySource(properties = [
     "fit4j.declerativeTestFixtureDrivenResponseGeneration.enabled=true",
     "grpc.client.userRetrievalService.address=in-process:\${grpc.server.inProcessName}",
@@ -33,7 +33,7 @@ class DeclarativeTestFixtureDrivenResponseGenerationAcceptanceTest {
     private lateinit var helper: AcceptanceTestHelper
 
     @Test
-    @AcceptanceTestFixture("it should return responses from test fixture yml")
+    @FixtureForFIT("it should return responses from test fixture yml")
     fun `it should return responses from test fixture yml`() {
 
         val getRateRequest1 = CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD")

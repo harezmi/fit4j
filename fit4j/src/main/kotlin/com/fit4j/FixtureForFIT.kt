@@ -7,4 +7,4 @@ import java.lang.annotation.Target
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-annotation class AcceptanceTestFixture(val name: String)
+annotation class FixtureForFIT(val name: String)

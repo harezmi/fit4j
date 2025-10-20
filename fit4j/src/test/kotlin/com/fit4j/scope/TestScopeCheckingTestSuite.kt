@@ -1,6 +1,6 @@
 package com.fit4j.scope
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import
 class TestScopeCheckingTestSuite {
     @Nested
     @Order(1)
-    @AcceptanceTest
+    @FIT
     @Import(TestConfig::class)
     inner class FirstAcceptanceTest {
         @Autowired
@@ -25,7 +25,7 @@ class TestScopeCheckingTestSuite {
 
     @Nested
     @Order(2)
-    @AcceptanceTest
+    @FIT
     @Import(TestConfig::class)
     inner class SecondAcceptanceTest {
 

@@ -1,6 +1,6 @@
 package com.fit4j.testcontainers
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContext
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 
-@AcceptanceTest
+@FIT
 class TestContainersDefinitionProviderIntegrationTests  {
 
     @Autowired

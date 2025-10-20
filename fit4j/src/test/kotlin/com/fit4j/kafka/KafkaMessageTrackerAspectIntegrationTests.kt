@@ -1,7 +1,7 @@
 package com.fit4j.kafka
 
 import com.example.CreditServiceOuterClass
-import com.fit4j.AcceptanceTest
+import com.fit4j.FIT
 import com.fit4j.helpers.AcceptanceTestHelper
 import com.google.protobuf.Message
 import org.junit.jupiter.api.Assertions
@@ -13,7 +13,7 @@ import org.springframework.test.context.TestPropertySource
 
 @EmbeddedKafka
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@AcceptanceTest
+@FIT
 @TestPropertySource(properties = ["spring.kafka.producer.value-serializer=com.fit4j.kafka.MessageSerializer"])
 class KafkaMessageTrackerAspectIntegrationTests {
 
