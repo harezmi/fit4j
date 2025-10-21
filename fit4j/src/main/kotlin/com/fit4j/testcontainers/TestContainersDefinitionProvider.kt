@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext
 import org.yaml.snakeyaml.Yaml
 
 class TestContainersDefinitionProvider(private val applicationContext: ApplicationContext,
-                                       private val resourcePath:String="classpath:acceptance-tests-test-containers.yml") {
+                                       private val resourcePath:String="classpath:fit4j-test-containers.yml") {
 
     private var testContainerDefinitions: List<TestContainerDefinition>
 

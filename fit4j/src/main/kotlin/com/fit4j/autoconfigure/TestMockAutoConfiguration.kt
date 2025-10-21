@@ -1,6 +1,6 @@
 package com.fit4j.autoconfigure
 
-import com.fit4j.EnableOnAcceptanceTestClass
+import com.fit4j.EnableOnFIT
 import com.fit4j.context.ApplicationContextLifecycleListener
 import com.fit4j.mock.CallTraceFactory
 import com.fit4j.mock.MockServiceCallTracker
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.core.env.ConfigurableEnvironment
 
 @AutoConfiguration
-@EnableOnAcceptanceTestClass
+@EnableOnFIT
 class TestMockAutoConfiguration {
     @Bean
     fun applicationContextLifecycleListener() : ApplicationContextLifecycleListener {

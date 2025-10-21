@@ -11,7 +11,7 @@
     * [Create a Test Class](#create-a-test-class)
     * [Add the Necessary Configuration for Your Test Class](#add-the-necessary-configuration-for-your-test-class)
     * [Inheriting from BaseAcceptanceTest Class](#inheriting-from-baseacceptancetest-class)
-- [What is @IntegrationTest Annotation? What is It Used For?](#what-is-integrationtest-annotation-what-is-it-used-for)
+- [What is @IT Annotation? What is It Used For?](#what-is-integrationtest-annotation-what-is-it-used-for)
 - [How to Define Request-Response Trainings for External Services?](#how-to-define-request-response-trainings-for-external-services)
     * [Define Request-Response Trainings for External gRPC Endpoints](#define-request-response-trainings-for-external-grpc-endpoints)
         + [How the gRPC Communication is Redirected to the Mock gRPC Server?](#how-the-grpc-communication-is-redirected-to-the-mock-grpc-server)
@@ -96,10 +96,10 @@ testImplementation("com.fit4j:fit4j:3.0.17")
 ## Create a Test Class
 
 ```kotlin
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import org.junit.jupiter.api.Test
 
-@AcceptanceTest
+@FIT
 class SampleAcceptanceTest {
 
     @Test
@@ -108,7 +108,7 @@ class SampleAcceptanceTest {
     }
 }
 ```
-The `@AcceptanceTest` annotation marks the test class as an FIT test class. FIT test classes are basically
+The `@FIT` annotation marks the test class as an FIT test class. FIT test classes are basically
 `@SpringBootTest` classes with some additional capability. It also activates `test` and `acceptancetest` profiles in
 your service and enable bean overriding capability of the Spring Container.
 
@@ -123,11 +123,11 @@ or any test method in general. A test method usually consists of 3 parts:
 You can add an inner class to your test class and mark it with the `@TestConfiguration` annotation as follows.
 
 ```kotlin
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import org.springframework.boot.test.context.TestConfiguration
 import org.junit.jupiter.api.Test
 
-@AcceptanceTest
+@FIT
 class SampleAcceptanceTest {
     
     @TestConfiguration
@@ -150,13 +150,13 @@ this **Arrange** phase. Simply populating necessary data could either be done wi
 wait for the response. In the **Assert** phase, you verify the response from your service, fetch any data from the environment
 and verify them, verify the interactions with the external systems, published message payloads etc.
 
-# What is @IntegrationTest Annotation? What is It Used For?
+# What is @IT Annotation? What is It Used For?
 
 As we said before FIT tests are actually integration tests, so this library's features are basically
-founded on top of typical integration test concepts. `@IntegrationTest` annotation serves as a base annotation which
+founded on top of typical integration test concepts. `@IT` annotation serves as a base annotation which
 enables some basic configuration and beans which are necessary for any kind of integration tests you already write in your
 services, such as configuring gRPC server as in process mode, enabling declarative testcontainer support etc. Our 
-`@AcceptanceTest` annotation already inherits from `@IntegrationTest` annotation as well. You can also use this annotation 
+`@FIT` annotation already inherits from `@IT` annotation as well. You can also use this annotation 
 in your already existing integration tests in order to get rid of verbose configurations you already made. Those tests are
 typically more fine-grained tests compared to FIT tests in terms of the functionality they verify, such as verifying
 only service - repository, or controller - service layer integrations etc.
@@ -165,7 +165,7 @@ only service - repository, or controller - service layer integrations etc.
 import com.fit4j.IntegrationTest
 import org.junit.jupiter.api.Test
 
-@IntegrationTest
+@IT
 class SampleIntegrationTest {
     @Test
     fun `it should work`() {
@@ -173,7 +173,7 @@ class SampleIntegrationTest {
     }
 }
 ```
-The following are the features that are enabled when you employ `@IntegrationTest` annotation in your ordinary integration
+The following are the features that are enabled when you employ `@IT` annotation in your ordinary integration
 tests:
 
 * activating `test` profile, and enabling bean definition override in Spring ApplicationContext
@@ -235,14 +235,14 @@ return responses programmatically within the acceptance test class via creating 
 
 ```kotlin
 import com.google.protobuf.Message
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.grpc.GrpcResponseJsonBuilder
 import com.example.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
-@AcceptanceTest
+@FIT
 class SampleAcceptanceTest {
     
     @TestConfiguration
@@ -407,11 +407,11 @@ In the above example, the body part is written as a SpEL expression, and it refe
 which is defined in the `PaymentGrpcServiceAcceptanceTests` test class as below.
 
 ```kotlin
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
-@AcceptanceTest
+@FIT
 class PaymentGrpcServiceAcceptanceTests {
     @TestConfiguration
     class TestConfig {
@@ -429,14 +429,14 @@ interface in the acceptance test configuration class, and prepare the response p
 
 ```kotlin
 import com.google.protobuf.Message
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.grpc.GrpcResponseJsonBuilder
 import com.example.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
-@AcceptanceTest
+@FIT
 class SampleAcceptanceTest {
     
     @TestConfiguration
@@ -521,14 +521,14 @@ You can call a particular grpc endpoint of your service via a grpc stub instance
 
 ```kotlin
 import com.example.dto.credit.v1.Money
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.example.rpc.payments.checkout.credit.v1.CreditServiceGrpc
 import com.example.rpc.payments.checkout.credit.v1.ReserveCreditRequest
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-@AcceptanceTest
+@FIT
 class SampleAcceptanceTest {
     @GrpcClient("inProcessClientForAcceptanceTest")
     private lateinit var grpcClient:CreditServiceGrpc.CreditServiceBlockingStub
@@ -560,7 +560,7 @@ create and initialize a `ServiceRequestContext` object with the necessary values
 will detect it in the Spring container and use it while calling your gRPC endpoints.
 
 ```kotlin
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.libraries.requestcontext.spring.RequestContextProvider
 import com.fit4j.services.dto.user.UserOuterClass
 import com.fit4j.services.requestcontext.v1.ServiceRequestContextOuterClass.ServiceRequestContext
@@ -568,7 +568,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
-@AcceptanceTest
+@FIT
 class SampleAcceptanceTest {
 
     @TestConfiguration
@@ -595,7 +595,7 @@ class SampleAcceptanceTest {
 
 ## Calling REST Endpoints of Your Service
 
-`@SpringBootTest` annotation which is inherited by `@AcceptanceTest` annotation by default creates a MOCK WebEnvironment. 
+`@SpringBootTest` annotation which is inherited by `@FIT` annotation by default creates a MOCK WebEnvironment. 
 In the MOCK web environment, the Spring Boot application context is started but the web server itself is not. Instead of 
 starting a real server, a mock server environment is created using Spring’s `MockMvc` framework. This setup is actually 
 enough for all acceptance test scenarios unless your service has REST endpoints, and you would like to test them via a 
@@ -852,11 +852,11 @@ on top of your test class.
 
 ```kotlin
 import org.testcontainers.junit.jupiter.Testcontainers
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import org.junit.jupiter.api.Test
 
 @Testcontainers
-@AcceptanceTest
+@FIT
 class SampleAcceptanceTest {
 
   @Test
@@ -946,7 +946,7 @@ so it is  just enough to place the `@com.fit4j.testcontainers.Testcontainers` an
 test class.
 
 ```kotlin
-@AcceptanceTest
+@FIT
 @com.fit4j.testcontainers.Testcontainers(definitions = ["redisContainerDefinition"])
 class TestContainersWithSelectiveRegistrationIntegrationTests {
     
@@ -1093,18 +1093,18 @@ served to all test classes. This means that the Spring ApplicationContext is not
 test execution is faster and more memory efficient. Therefore, it is recommended to use declarative fixture definitions
 whenever possible.
 
-**Q**: What is the difference between `@AcceptanceTest` and `@IntegrationTest` annotations?
+**Q**: What is the difference between `@FIT` and `@IT` annotations?
 
-**A**: `@IntegrationTest` annotation just enables several configuration properties and infrastructural beans that are useful or
+**A**: `@IT` annotation just enables several configuration properties and infrastructural beans that are useful or
 necessary for ordinary integration tests which try to verify interactions among several components such as interaction between
 gRPC controller and service layers, or interactions between service and repository layers etc. Those configuration properties
-and infrastructural beans are also provides a basis for the acceptance tests written with `@AcceptanceTest` or 
+and infrastructural beans are also provides a basis for the acceptance tests written with `@FIT` or 
 `@RestControllerAcceptanceTest` annotations. Those acceptance test annotations enable full acceptance test environment such
 as programmatic and declarative request-response trainings support, sync call and async message tracking etc, which are not
-available when `@IntegrationTest` annotation is used. Here is the complete list of features that are available for tests
+available when `@IT` annotation is used. Here is the complete list of features that are available for tests
 written with those annotations. Here is a more detailed table that lists available functionalities with each annotation.
 
-|                                                                                                                                                                                                                                          | @IntegrationTest | @AcceptanceTest | @RestControllerAcceptanceTest |
+|                                                                                                                                                                                                                                          | @IT | @FIT | @RestControllerAcceptanceTest |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|-----------------|-------------------------------|
 | testClass FQN and simple names are exposed as an environment properties fit4j.acceptanceTestClass.name, fit4j.acceptanceTestClass.simpleName                                                                                             | Yes              | Yes             | Yes                           |
 | DynamoDBEmbedded is exposed as a Spring bean if @EmbeddedDynamoDB annotation is used in test class                                                                                                                                       | Yes              | Yes             | Yes                           |

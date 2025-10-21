@@ -10,7 +10,7 @@ class DatabaseTestSupportCheckingTestSuite {
     @Nested
     @Order(1)
     @FIT
-    inner class FirstTest {
+    inner class FirstFIT {
 
         @Autowired
         private lateinit var jdbcTemplate: JdbcTemplate
@@ -25,7 +25,7 @@ class DatabaseTestSupportCheckingTestSuite {
     @Nested
     @Order(2)
     @FIT
-    inner class SecondTest {
+    inner class SecondFIT {
 
         @Autowired
         private lateinit var jdbcTemplate: JdbcTemplate

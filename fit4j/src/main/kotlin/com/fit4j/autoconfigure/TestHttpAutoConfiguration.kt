@@ -1,7 +1,7 @@
 package com.fit4j.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fit4j.EnableOnAcceptanceTestClass
+import com.fit4j.EnableOnFIT
 import com.fit4j.http.*
 import com.fit4j.mock.MockServiceCallTracker
 import com.fit4j.mock.MockServiceResponseFactory
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean
 
 @AutoConfiguration
 @ConditionalOnClass(MockWebServer::class)
-@EnableOnAcceptanceTestClass
+@EnableOnFIT
 class TestHttpAutoConfiguration {
 
     @Bean

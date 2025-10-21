@@ -1,13 +1,13 @@
 package com.fit4j.autoconfigure
 
-import com.fit4j.EnableOnAcceptanceTestClass
+import com.fit4j.EnableOnFIT
 import com.fit4j.scope.TestScope
 import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.annotation.Bean
 
 @AutoConfiguration
-@EnableOnAcceptanceTestClass
+@EnableOnFIT
 class TestScopeAutoConfiguration {
     companion object {
         @Bean

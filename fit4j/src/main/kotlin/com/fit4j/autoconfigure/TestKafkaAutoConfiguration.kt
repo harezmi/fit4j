@@ -1,6 +1,6 @@
 package com.fit4j.autoconfigure
 
-import com.fit4j.EnableOnAcceptanceTestClass
+import com.fit4j.EnableOnFIT
 import com.fit4j.kafka.*
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -16,7 +16,7 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker
 @AutoConfigureAfter(KafkaAutoConfiguration::class)
 @ConditionalOnBean(KafkaListenerEndpointRegistry::class)
 @ConditionalOnProperty(name = ["spring.kafka.bootstrap-servers"])
-@EnableOnAcceptanceTestClass
+@EnableOnFIT
 class TestKafkaAutoConfiguration {
     @Bean
     fun kafkaMessageTracker() : KafkaMessageTracker {

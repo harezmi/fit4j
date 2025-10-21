@@ -1,7 +1,7 @@
 package com.fit4j.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fit4j.EnableOnAcceptanceTestClass
+import com.fit4j.EnableOnFIT
 import com.fit4j.grpc.RawJsonContentToGrpcResponseConverter
 import com.fit4j.http.RawJsonContentToHttpResponseConverter
 import com.fit4j.mock.declarative.*
@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 
 @AutoConfiguration
-@EnableOnAcceptanceTestClass
+@EnableOnFIT
 class TestFixtureAutoConfiguration {
 
     @Bean

@@ -1,6 +1,6 @@
 package com.fit4j.autoconfigure
 
-import com.fit4j.EnableOnAcceptanceTestClass
+import com.fit4j.EnableOnFIT
 import com.fit4j.grpc.GrpcTypeDescriptorsProvider
 import com.google.protobuf.util.JsonFormat
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean
 
 @AutoConfiguration
 @ConditionalOnClass(JsonFormat::class)
-@EnableOnAcceptanceTestClass
+@EnableOnFIT
 class TestProtobufAutoConfiguration {
     @Bean
     fun jsonProtoParser(typeRegistry: JsonFormat.TypeRegistry): JsonFormat.Parser {

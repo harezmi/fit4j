@@ -11,7 +11,7 @@ import org.springframework.util.backoff.FixedBackOff
 import org.yaml.snakeyaml.Yaml
 
 class TestKafkaConsumerDefinitionProvider(private val applicationContext: ApplicationContext,
-                                          private val resourcePath:String="classpath:acceptance-tests-kafka-consumers.yml") {
+                                          private val resourcePath:String="classpath:fit4j-kafka-consumers.yml") {
 
     private lateinit var testKafkaConsumerDefinitions: List<TestKafkaConsumerDefinition>
 

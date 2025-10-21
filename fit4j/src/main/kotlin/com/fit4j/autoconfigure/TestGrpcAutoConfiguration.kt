@@ -1,7 +1,7 @@
 package com.fit4j.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fit4j.EnableOnAcceptanceTestClass
+import com.fit4j.EnableOnFIT
 import com.fit4j.grpc.*
 import com.fit4j.helpers.ClassScanner
 import com.fit4j.mock.MockServiceCallTracker
@@ -21,7 +21,7 @@ import org.springframework.context.support.GenericApplicationContext
 @AutoConfiguration
 @AutoConfigureAfter(IntegrationTestGrpcAutoConfiguration::class)
 @ConditionalOnBean(InProcessGrpcServerFactory::class)
-@EnableOnAcceptanceTestClass
+@EnableOnFIT
 class TestGrpcAutoConfiguration {
 
     @Bean

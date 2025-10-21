@@ -1,6 +1,6 @@
 package com.fit4j.annotation
 
-import com.fit4j.context.AcceptanceTestExtension
+import com.fit4j.context.Fit4JTestExtension
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -21,7 +21,7 @@ annotation class IT(val webEnvironment : SpringBootTest.WebEnvironment = SpringB
 @TestPropertySource(properties = ["fit4j.isFunctionalIntegrationTestClass=true"])
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(AcceptanceTestExtension::class)
+@ExtendWith(Fit4JTestExtension::class)
 annotation class FIT(val fixtureFilePath: String = "", val webEnvironment: SpringBootTest.WebEnvironment = SpringBootTest.WebEnvironment.MOCK)
 
 @Target(ElementType.METHOD)

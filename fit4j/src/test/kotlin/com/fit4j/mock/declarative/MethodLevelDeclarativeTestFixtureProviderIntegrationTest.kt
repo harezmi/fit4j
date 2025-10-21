@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-@FIT("classpath:method-level-test-fixtures.yml")
+@FIT("classpath:method-level-fixtures.yml")
 class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
 
     @Autowired
@@ -52,7 +52,7 @@ class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
     }
 
     @Test
-    fun `should work without @AcceptanceTestFixture annotation`() {
+    fun `should work without @FITFixture annotation`() {
         val testFixturesGroup = declarativeTestFixtureProvider.getTestFixturesForCurrentTest()
         Assertions.assertEquals("*",testFixturesGroup?.name)
     }

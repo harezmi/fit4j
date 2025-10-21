@@ -13,7 +13,7 @@ class TestScopeCheckingTestSuite {
     @Order(1)
     @FIT
     @Import(TestConfig::class)
-    inner class FirstAcceptanceTest {
+    inner class FirstFIT {
         @Autowired
         private lateinit var testBean: TestBean
 
@@ -27,7 +27,7 @@ class TestScopeCheckingTestSuite {
     @Order(2)
     @FIT
     @Import(TestConfig::class)
-    inner class SecondAcceptanceTest {
+    inner class SecondFIT {
 
         @Autowired
         private lateinit var testBean: TestBean

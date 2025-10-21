@@ -15,7 +15,7 @@ class KafkaTopicCleanerTestSuite {
     @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=true"])
     @EmbeddedKafka
     @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-    inner class KafkaTopicCleanerEnabledTest {
+    inner class KafkaTopicCleanerEnabledFIT {
         @Autowired
         private lateinit var applicationContext: ApplicationContext
 
@@ -32,7 +32,7 @@ class KafkaTopicCleanerTestSuite {
     @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=false"])
     @EmbeddedKafka
     @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-    inner class KafkaTopicCleanerDisabledTest {
+    inner class KafkaTopicCleanerDisabledFIT {
         @Autowired
         private lateinit var applicationContext: ApplicationContext
 

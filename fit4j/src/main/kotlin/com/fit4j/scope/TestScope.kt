@@ -1,6 +1,6 @@
 package com.fit4j.scope
 
-import com.fit4j.context.AcceptanceTestContextManager
+import com.fit4j.context.Fit4JTestContextManager
 import org.springframework.beans.factory.ObjectFactory
 import org.springframework.beans.factory.config.Scope
 
@@ -9,7 +9,7 @@ class TestScope : Scope {
     private val destructionCallbacks = mutableMapOf<String, MutableMap<String, Runnable>>()
 
     private fun getCurrentTestId(): String {
-        return AcceptanceTestContextManager.getTestClassSimpleName() + "." + AcceptanceTestContextManager.getTestMethodName()
+        return Fit4JTestContextManager.getTestClassSimpleName() + "." + Fit4JTestContextManager.getTestMethodName()
     }
 
     override fun get(name: String, objectFactory: ObjectFactory<*>): Any {

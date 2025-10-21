@@ -2,7 +2,7 @@ package com.fit4j.mock.declarative
 
 import com.fit4j.annotation.FIT
 import com.fit4j.annotation.FixtureForFIT
-import com.fit4j.context.AcceptanceTestContextManager
+import com.fit4j.context.Fit4JTestContextManager
 import org.springframework.context.ApplicationContext
 import org.springframework.core.annotation.AnnotationUtils
 import org.springframework.test.context.event.annotation.AfterTestMethod
@@ -10,7 +10,7 @@ import org.yaml.snakeyaml.Yaml
 
 class DeclarativeTestFixtureProvider(private val applicationContext: ApplicationContext,
                                      declarativeTestFixtureBuilders: List<DeclarativeTestFixtureBuilder>,
-                                     resourcePath: String = "classpath:acceptance-tests-fixtures.yml"
+                                     resourcePath: String = "classpath:fit4j-fixtures.yml"
 ) {
 
     private var defaultTestFixturesMap: MutableMap<String, TestFixturesGroup> = mutableMapOf()
@@ -104,12 +104,12 @@ class DeclarativeTestFixtureProvider(private val applicationContext: Application
     }
 
     fun getTestFixturesForCurrentTest() : TestFixturesGroup? {
-        val clazz = AcceptanceTestContextManager.getTestClass()
+        val clazz = Fit4JTestContextManager.getTestClass()
         if(clazz != null) {
             val fixtureFilePath = AnnotationUtils.findAnnotation(clazz, FIT::class.java)?.fixtureFilePath
             if (!fixtureFilePath.isNullOrEmpty()) {
                 val testFixtureMap = loadTestFixtureMap(fixtureFilePath)
-                val testMethod = AcceptanceTestContextManager.getTestMethod() ?:
+                val testMethod = Fit4JTestContextManager.getTestMethod() ?:
                     throw IllegalStateException("Test method not found within current test class ${clazz.simpleName}")
                 val testFixtureAnnotation = AnnotationUtils.findAnnotation(testMethod, FixtureForFIT::class.java)
                 if(testFixtureAnnotation != null) {

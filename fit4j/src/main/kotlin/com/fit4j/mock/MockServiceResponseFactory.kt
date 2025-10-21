@@ -1,6 +1,6 @@
 package com.fit4j.mock
 
-import com.fit4j.context.AcceptanceTestContextManager
+import com.fit4j.context.Fit4JTestContextManager
 import com.fit4j.mock.declarative.DeclarativeTestFixtureDrivenServiceResponseProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,7 +24,7 @@ class MockServiceResponseFactory(
             response = obtainResponseFromMockServiceResponseProviders(request)
         }
         if(response == null) {
-            if(request!=null) AcceptanceTestContextManager.addFailedCall(request)
+            if(request!=null) Fit4JTestContextManager.addFailedCall(request)
 
             throw MockResponseUnavailableException("No response for the input type :${request?.javaClass?.name}. " +
                     "Probably forgotten to prepare one for it within the test fixture configuration")

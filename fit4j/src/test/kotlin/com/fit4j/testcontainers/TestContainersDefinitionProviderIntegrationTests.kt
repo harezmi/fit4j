@@ -17,7 +17,7 @@ class TestContainersDefinitionProviderIntegrationTests  {
     @Test
     fun `it should load given sample testcontainers yaml file`() {
         val provider = TestContainersDefinitionProvider(applicationContext,
-            "classpath:acceptance-tests-test-containers-sample.yml")
+            "classpath:fit4j-test-containers-sample.yml")
         val containers  = provider.getTestContainerDefinitions()
 
         Assertions.assertEquals(6, containers.size)
