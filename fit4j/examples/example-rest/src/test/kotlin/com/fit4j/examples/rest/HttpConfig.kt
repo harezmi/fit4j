@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Configuration
 class HttpConfig {
     @Bean
-    fun createMonolithClient(retrofit: Retrofit) = retrofit.create(MonolithClient::class.java)
+    fun createMonolithClient(retrofit: Retrofit) = retrofit.create(ExampleRestClient::class.java)
 
     @Bean
     fun okHttpMonolithClient(): OkHttpClient {

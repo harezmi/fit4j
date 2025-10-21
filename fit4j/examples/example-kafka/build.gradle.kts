@@ -4,5 +4,5 @@ dependencies{
     // dependencies for the project in addition to parent project dependencies
     testImplementation("org.springframework.kafka:spring-kafka")
     testImplementation("org.springframework.kafka:spring-kafka-test")
-    testImplementation("com.google.protobuf:protobuf-java:$protobufJavaVersion")
+    testImplementation("com.google.protobuf:protobuf-java:3.21.2")
 }

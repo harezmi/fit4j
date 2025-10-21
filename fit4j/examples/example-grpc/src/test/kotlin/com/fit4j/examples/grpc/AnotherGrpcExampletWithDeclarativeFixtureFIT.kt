@@ -2,13 +2,13 @@ package com.fit4j.examples.grpc
 
 import com.example.CreditServiceGrpc
 import com.example.CreditServiceOuterClass
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-@AcceptanceTest
-class AnotherGrpcExampleAcceptanceTestWithDeclarativeFixture  {
+@FIT
+class AnotherGrpcExampletWithDeclarativeFixtureFIT  {
 
     @GrpcClient("inProcessClientForAcceptanceTest")
     private lateinit var creditServiceBlockingStub: CreditServiceGrpc.CreditServiceBlockingStub

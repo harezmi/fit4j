@@ -1,5 +1,5 @@
 tests:
-  - name: RestExampleAcceptanceTest
+  - name: RestExampleFIT
     fixtures:
       - request:
           protocol: http

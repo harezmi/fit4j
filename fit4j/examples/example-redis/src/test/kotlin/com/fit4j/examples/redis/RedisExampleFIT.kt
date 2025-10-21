@@ -1,6 +1,6 @@
 package com.fit4j.examples.redis
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.testcontainers.RedisConnectionProperties
 import com.fit4j.testcontainers.RedisDataPopulator
 import com.fit4j.testcontainers.Testcontainers
@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 
 @Testcontainers(definitions = ["redisContainerDefinition"])
-@AcceptanceTest
-class RedisExampleAcceptanceTest {
+@FIT
+class RedisExampleFIT {
     @Value("\${fit4j.redisContainerDefinition.host}")
     private lateinit var redisHost: String
     @Value("\${fit4j.redisContainerDefinition.port}")

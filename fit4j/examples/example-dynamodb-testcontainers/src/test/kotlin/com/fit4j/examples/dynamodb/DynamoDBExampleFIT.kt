@@ -14,33 +14,23 @@ import com.amazonaws.services.dynamodbv2.model.SSEType
 import com.amazonaws.services.dynamodbv2.model.StreamSpecification
 import com.amazonaws.services.dynamodbv2.model.StreamViewType
 import com.amazonaws.services.dynamodbv2.model.Tag
-import com.fit4j.AcceptanceTest
-import com.fit4j.dynamodb.EmbeddedDynamoDB
+import com.fit4j.annotation.FIT
+import com.fit4j.testcontainers.Testcontainers
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
 
-@EmbeddedDynamoDB
-@AcceptanceTest
-class DynamodbExampleAcceptanceTest {
 
+@Testcontainers(definitions = ["dynamodb"])
+@FIT
+class DynamoDBExampleFIT {
     @Autowired
     private lateinit var amazonDynamoDB: AmazonDynamoDB
 
     @Autowired
     private lateinit var dynamoDBMapper: DynamoDBMapper
-
-    @TestConfiguration
-    class TestConfig {
-        @Bean
-        fun dynamoDBMapper(amazonDynamoDB: AmazonDynamoDB): DynamoDBMapper {
-            return DynamoDBMapper(amazonDynamoDB)
-        }
-    }
 
     @BeforeEach
     fun setUp() {

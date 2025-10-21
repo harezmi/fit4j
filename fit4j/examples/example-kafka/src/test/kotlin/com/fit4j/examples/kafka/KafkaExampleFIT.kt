@@ -2,7 +2,7 @@ package com.fit4j.examples.kafka
 
 
 import com.example.CreditServiceOuterClass
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.helpers.AcceptanceTestHelper
 import com.google.protobuf.Message
 import org.apache.kafka.common.serialization.Deserializer
@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
 
-@AcceptanceTest
+@FIT
 @EmbeddedKafka
-class KafkaExampleAcceptanceTest {
+class KafkaExampleFIT {
 
     @Autowired
     private lateinit var kafkaTemplate: KafkaTemplate<String, Message>

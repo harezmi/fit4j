@@ -1,7 +1,7 @@
 package com.fit4j.examples.kafkatestcontainers
 
 import com.example.CreditServiceOuterClass
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.helpers.AcceptanceTestHelper
 import com.fit4j.testcontainers.Testcontainers
 import com.google.protobuf.Message
@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired
 
 
 @Testcontainers(definitions = ["kafka-service-bus"])
-@AcceptanceTest
-class KafkaTestcontainersExampleAcceptanceTest {
+@FIT
+class KafkaTestcontainersExampleFIT {
 
     @Autowired
     private lateinit var helper: AcceptanceTestHelper

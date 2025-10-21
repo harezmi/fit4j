@@ -1,14 +1,14 @@
 package com.fit4j.examples.h2
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 
-@AcceptanceTest
-class H2ExampleAcceptanceTest {
+@FIT
+class H2ExampleFIT {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 

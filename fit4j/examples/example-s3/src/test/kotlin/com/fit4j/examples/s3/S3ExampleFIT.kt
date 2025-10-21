@@ -1,6 +1,6 @@
 package com.fit4j.examples.s3
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.testcontainers.TestContainerDefinition
 import com.fit4j.testcontainers.Testcontainers
 import org.junit.jupiter.api.Assertions
@@ -19,9 +19,9 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.io.BufferedInputStream
 
-@AcceptanceTest
+@FIT
 @Testcontainers(definitions = ["localstackContainerDefinition"])
-class S3ExampleAcceptanceTest {
+class S3ExampleFIT {
     @Autowired
     private lateinit var s3Client: S3Client
 

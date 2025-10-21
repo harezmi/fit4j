@@ -1,68 +1,18 @@
 package com.fit4j.examples.grpc
 
+
 import com.example.CreditServiceGrpc
 import com.example.CreditServiceOuterClass
-import com.fit4j.AcceptanceTest
-import com.fit4j.grpc.GrpcResponseJsonBuilder
-import com.google.protobuf.Message
+import com.fit4j.annotation.FIT
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
 
-@AcceptanceTest
-class GrpcExampleTestWithProgrammaticFixture {
+@FIT
+class GrpcExampleWithDeclarativeFixtureFIT  {
 
     @GrpcClient("inProcessClientForAcceptanceTest")
     private lateinit var creditServiceBlockingStub: CreditServiceGrpc.CreditServiceBlockingStub
-
-
-    @TestConfiguration
-    class TestConfig {
-        @Bean
-        fun grpcResponseBuilder(): GrpcResponseJsonBuilder<Message> {
-            return GrpcResponseJsonBuilder {
-                when (it) {
-                    is CreditServiceOuterClass.GetCapturedCreditAmountForGptRequest ->
-                        when (it.gatewayPaymentTransactionId) {
-                            "123" -> {
-                                """
-                                    {
-                                        "amountMoney": {
-                                            "amount": "10.01",
-                                            "currency": "USD"
-                                        }
-                                    }
-                                                """.trimIndent()
-                            }
-                            "456" -> {
-                                """
-                                    {
-                                        "amountMoney": {
-                                            "amount": "99.99",
-                                            "currency": "USD"
-                                        }
-                                    }
-                                                """.trimIndent()
-                            }
-                            else -> {
-                                null
-                            }
-                        }
-                    is CreditServiceOuterClass.GetInfoRequest ->{
-                        """
-                            {
-                                "newRefundId": 789
-                            }
-                            """.trimIndent()
-                    }
-                    else -> null
-                }
-            }
-        }
-    }
-
 
     @Test
     fun `should get captured credit amount for GPT with transaction id 123`() {
@@ -119,5 +69,6 @@ class GrpcExampleTestWithProgrammaticFixture {
         Assertions.assertEquals(expectedResponse, actualResponse)
     }
 
-
 }
+
+

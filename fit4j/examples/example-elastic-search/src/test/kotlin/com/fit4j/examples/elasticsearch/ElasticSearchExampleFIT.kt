@@ -1,7 +1,7 @@
 package com.fit4j.examples.elasticsearch
 
 import co.elastic.clients.elasticsearch.core.GetRequest
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.testcontainers.ElasticsearchConnectionProperties
 import com.fit4j.testcontainers.ElasticsearchDataPopulator
 import org.junit.jupiter.api.Assertions
@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.testcontainers.junit.jupiter.Testcontainers
 
 @Testcontainers
-@AcceptanceTest
-class ElasticSearchExampleAcceptanceTest {
+@FIT
+class ElasticSearchExampleFIT {
 
     @Value("\${fit4j.elasticSearchContainerDefinition.host}")
     private lateinit var elastisSearchHost: String

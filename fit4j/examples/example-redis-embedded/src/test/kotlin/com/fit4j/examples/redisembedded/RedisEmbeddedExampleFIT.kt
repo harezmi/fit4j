@@ -1,6 +1,6 @@
 package com.fit4j.examples.redisembedded
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.redis.EmbeddedRedis
 import com.fit4j.testcontainers.RedisConnectionProperties
 import com.fit4j.testcontainers.RedisDataPopulator
@@ -11,8 +11,8 @@ import redis.clients.jedis.Jedis
 
 
 @EmbeddedRedis
-@AcceptanceTest
-class RedisEmbeddedExampleAcceptanceTest {
+@FIT
+class RedisEmbeddedExampleFIT {
 
     @Value("\${fit4j.embeddedRedisServer.port}")
     private lateinit var redisPort: Integer

@@ -1,13 +1,13 @@
 package com.fit4j.examples.basic
 
-import com.fit4j.AcceptanceTest
+import com.fit4j.annotation.FIT
 import com.fit4j.helpers.AcceptanceTestHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-@AcceptanceTest
-class SampleAcceptanceTest {
+@FIT
+class SampleFIT {
 
     @Autowired
     private lateinit var acceptanceTestHelper: AcceptanceTestHelper

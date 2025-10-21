@@ -1,7 +1,6 @@
 package com.fit4j.examples.mysql
 
-import com.fit4j.AcceptanceTest
-import com.fit4j.helpers.dbcleanup.DatabaseTestSupportForH2
+import com.fit4j.annotation.FIT
 import com.fit4j.helpers.dbcleanup.DatabaseTestSupportForMysql
 import com.fit4j.testcontainers.Testcontainers
 import org.hamcrest.MatcherAssert
@@ -13,8 +12,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.jdbc.core.JdbcTemplate
 
 @Testcontainers(definitions = ["mySQLContainerDefinition"])
-@AcceptanceTest
-class MysqlExampleAcceptanceTest {
+@FIT
+class MysqlExampleFIT {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
