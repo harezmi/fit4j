@@ -2,7 +2,7 @@ package com.fit4j.grpc
 
 import com.example.UserRetrievalServiceGrpc
 import com.example.UserRetrievalServiceOuterClass
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

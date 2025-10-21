@@ -1,6 +1,6 @@
 package com.fit4j.http
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

@@ -3,7 +3,7 @@ package com.fit4j.grpc
 import com.example.CreditServiceOuterClass
 import com.example.CurrencyServiceOuterClass
 import com.example.PaymentTransactionServiceOuterClass
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import com.fit4j.helpers.AcceptanceTestHelper
 import com.google.protobuf.Any
 import com.google.protobuf.Descriptors

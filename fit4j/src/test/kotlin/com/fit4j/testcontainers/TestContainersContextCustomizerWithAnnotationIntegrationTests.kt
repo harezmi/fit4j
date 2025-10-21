@@ -1,6 +1,6 @@
 package com.fit4j.testcontainers
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

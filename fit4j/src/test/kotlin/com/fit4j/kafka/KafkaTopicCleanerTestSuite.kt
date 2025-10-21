@@ -1,6 +1,6 @@
 package com.fit4j.kafka
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

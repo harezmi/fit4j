@@ -1,8 +1,8 @@
 package com.fit4j.mock.declarative
 
 import com.example.CurrencyServiceOuterClass
-import com.fit4j.FIT
-import com.fit4j.FixtureForFIT
+import com.fit4j.annotation.FIT
+import com.fit4j.annotation.FixtureForFIT
 import com.fit4j.mock.MockServiceResponseFactory
 import okhttp3.Headers
 import okhttp3.mockwebserver.MockResponse

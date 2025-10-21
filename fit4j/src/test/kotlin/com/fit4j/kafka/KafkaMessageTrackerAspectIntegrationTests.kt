@@ -1,7 +1,7 @@
 package com.fit4j.kafka
 
 import com.example.CreditServiceOuterClass
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import com.fit4j.helpers.AcceptanceTestHelper
 import com.google.protobuf.Message
 import org.junit.jupiter.api.Assertions

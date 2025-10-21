@@ -3,7 +3,7 @@ package com.fit4j.grpc
 import com.example.AutoComplete
 import com.example.CurrencyServiceOuterClass
 import com.example.UserRetrievalServiceOuterClass
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import com.fit4j.mock.MockServiceResponseFactory
 import com.fit4j.mock.MockServiceResponseProvider
 import com.google.protobuf.Message

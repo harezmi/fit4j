@@ -1,7 +1,7 @@
 package com.fit4j.mock.declarative
 
-import com.fit4j.FIT
-import com.fit4j.FixtureForFIT
+import com.fit4j.annotation.FIT
+import com.fit4j.annotation.FixtureForFIT
 import com.fit4j.context.AcceptanceTestContextManager
 import org.springframework.context.ApplicationContext
 import org.springframework.core.annotation.AnnotationUtils

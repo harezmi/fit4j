@@ -2,7 +2,7 @@ package com.fit4j.mock.declarative
 
 import com.example.CurrencyServiceOuterClass
 import com.example.UserRetrievalServiceOuterClass
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import com.fit4j.grpc.GrpcTestFixture
 import com.fit4j.grpc.GrpcTestFixtureResponse
 import com.fit4j.http.HttpTestFixture

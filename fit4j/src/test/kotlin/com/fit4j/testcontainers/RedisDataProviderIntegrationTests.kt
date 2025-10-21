@@ -1,6 +1,6 @@
 package com.fit4j.testcontainers
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test

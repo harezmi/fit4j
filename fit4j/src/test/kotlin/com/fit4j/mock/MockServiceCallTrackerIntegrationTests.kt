@@ -1,6 +1,6 @@
 package com.fit4j.mock
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import com.fit4j.grpc.MockGrpcCallTrace
 import com.fit4j.http.HttpRequestContext
 import com.fit4j.http.MockWebCallTrace

@@ -1,7 +1,7 @@
 package com.fit4j.mock
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import com.fit4j.mock.declarative.ExpressionResolver
 import com.fit4j.mock.declarative.JsonContentExpressionResolver
 import org.junit.jupiter.api.Assertions

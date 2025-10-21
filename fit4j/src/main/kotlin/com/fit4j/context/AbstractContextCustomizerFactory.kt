@@ -1,6 +1,6 @@
 package com.fit4j.context
 
-import com.fit4j.IT
+import com.fit4j.annotation.IT
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.test.context.ContextConfigurationAttributes
 import org.springframework.test.context.ContextCustomizer

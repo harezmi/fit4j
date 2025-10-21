@@ -1,6 +1,6 @@
 package com.fit4j.kafka
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers

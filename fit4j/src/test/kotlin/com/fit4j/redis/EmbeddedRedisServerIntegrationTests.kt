@@ -1,6 +1,6 @@
 package com.fit4j.redis
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import com.fit4j.testcontainers.RedisConnectionProperties
 import com.fit4j.testcontainers.RedisDataPopulator
 import org.junit.jupiter.api.Assertions

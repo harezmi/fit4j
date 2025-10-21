@@ -1,6 +1,6 @@
 package com.fit4j.http
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import com.fit4j.mock.MockServiceResponseFactory
 import okhttp3.Headers
 import okhttp3.mockwebserver.MockResponse

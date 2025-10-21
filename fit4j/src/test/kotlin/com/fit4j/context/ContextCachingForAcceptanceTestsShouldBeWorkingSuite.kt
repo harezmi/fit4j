@@ -1,6 +1,6 @@
 package com.fit4j.context
 
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext

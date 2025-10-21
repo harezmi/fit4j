@@ -2,7 +2,7 @@ package com.fit4j.grpc
 
 import com.example.CurrencyServiceGrpc
 import com.example.CurrencyServiceOuterClass
-import com.fit4j.FIT
+import com.fit4j.annotation.FIT
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
