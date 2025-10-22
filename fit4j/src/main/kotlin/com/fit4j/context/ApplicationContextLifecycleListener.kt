@@ -36,7 +36,7 @@ class ApplicationContextLifecycleListener {
         val startTime = contextStartTimesMap.get(applicationContext.hashCode())
         val endTime = System.currentTimeMillis()
         val duration = (endTime - startTime!!) / 1000.0
-        val testName = applicationContext.environment.getProperty("fit4j.acceptanceTestClass.simpleName", "Unknown")
+        val testName = applicationContext.environment.getProperty("fit4j.testClass.simpleName", "Unknown")
         logger.debug("Acceptance test ${testName} executed for $duration seconds")
     }
 

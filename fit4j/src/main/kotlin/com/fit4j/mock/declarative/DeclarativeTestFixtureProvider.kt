@@ -123,7 +123,7 @@ class DeclarativeTestFixtureProvider(private val applicationContext: Application
                 }
             }
         }
-        val testName = applicationContext.environment.getProperty("fit4j.acceptanceTestClass.simpleName") ?: return null
+        val testName = applicationContext.environment.getProperty("fit4j.testClass.simpleName") ?: return null
         return this.getTestFixtures(testName)
     }
 

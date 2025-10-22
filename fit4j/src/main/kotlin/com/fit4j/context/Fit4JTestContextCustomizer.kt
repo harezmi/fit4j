@@ -17,10 +17,10 @@ class Fit4JTestContextCustomizer() : ContextCustomizer {
 
         val supplierMap = mutableMapOf<String, Supplier<*>>()
 
-        supplierMap.put("fit4j.acceptanceTestClass.name") {
+        supplierMap.put("fit4j.testClass.name") {
             Fit4JTestContextManager.getTestClassName()
         }
-        supplierMap.put("fit4j.acceptanceTestClass.simpleName") {
+        supplierMap.put("fit4j.testClass.simpleName") {
             Fit4JTestContextManager.getTestClassSimpleName()
         }
 
