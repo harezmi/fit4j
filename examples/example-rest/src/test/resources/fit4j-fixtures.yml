@@ -1,0 +1,18 @@
+tests:
+  - name: RestExampleFIT
+    fixtures:
+      - request:
+          protocol: http
+          path: "/hello"
+          response:
+            status: 200
+            body:
+              message: "Hello, John!"
+      - request:
+          protocol: http
+          path: "/bye"
+          predicate: "#request.method == 'POST'"
+          response:
+            status: 200
+            body:
+              message: "Bye, Joe!"
