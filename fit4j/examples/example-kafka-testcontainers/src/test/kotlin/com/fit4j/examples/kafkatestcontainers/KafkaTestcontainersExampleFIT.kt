@@ -2,7 +2,7 @@ package com.fit4j.examples.kafkatestcontainers
 
 import com.example.CreditServiceOuterClass
 import com.fit4j.annotation.FIT
-import com.fit4j.helpers.AcceptanceTestHelper
+import com.fit4j.helper.FitHelper
 import com.fit4j.testcontainers.Testcontainers
 import com.google.protobuf.Message
 import org.apache.kafka.common.serialization.Deserializer
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 class KafkaTestcontainersExampleFIT {
 
     @Autowired
-    private lateinit var helper: AcceptanceTestHelper
+    private lateinit var helper: FitHelper
 
     @Test
     fun `it should work`() {

@@ -3,7 +3,7 @@ package com.fit4j.examples.kafka
 
 import com.example.CreditServiceOuterClass
 import com.fit4j.annotation.FIT
-import com.fit4j.helpers.AcceptanceTestHelper
+import com.fit4j.helper.FitHelper
 import com.google.protobuf.Message
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serializer
@@ -20,7 +20,7 @@ class KafkaExampleFIT {
     private lateinit var kafkaTemplate: KafkaTemplate<String, Message>
 
     @Autowired
-    private lateinit var helper: AcceptanceTestHelper
+    private lateinit var helper: FitHelper
 
     @Test
     fun `it should work`() {

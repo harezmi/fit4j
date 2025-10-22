@@ -1,7 +1,7 @@
 package com.fit4j.examples.basic
 
 import com.fit4j.annotation.FIT
-import com.fit4j.helpers.AcceptanceTestHelper
+import com.fit4j.helper.FitHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,15 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired
 class SampleFIT {
 
     @Autowired
-    private lateinit var acceptanceTestHelper: AcceptanceTestHelper
+    private lateinit var helper: FitHelper
 
     @Test
     fun `example test`() {
-        Assertions.assertNotNull(acceptanceTestHelper)
+        Assertions.assertNotNull(helper)
     }
 
     @Test
     fun `another example test`() {
-        Assertions.assertNotNull(acceptanceTestHelper)
+        Assertions.assertNotNull(helper)
     }
 }

@@ -1,7 +1,7 @@
 package com.fit4j.examples.mysql
 
 import com.fit4j.annotation.FIT
-import com.fit4j.helpers.dbcleanup.DatabaseTestSupportForMysql
+import com.fit4j.helper.dbcleanup.DatabaseTestSupportForMysql
 import com.fit4j.testcontainers.Testcontainers
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
