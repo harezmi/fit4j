@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_package = "com.example.fit4j.grpc";
+
+package com.example;
+
+service FooGrpcService {
+  rpc getFooListResponse(GetFooListGrpcRequest) returns (GetFooListGrpcResponse);
+  rpc getFooByIdResponse(GetFooByIdRequest) returns (GetFooByIdResponse);
+}
+
+message GetFooListGrpcRequest {
+}
+
+message GetFooListGrpcResponse {
+  repeated Foo fooList = 1;
+}
+
+message GetFooByIdRequest {
+  int64 id = 1;
+}
+
+message GetFooByIdResponse {
+  Foo foo = 1;
+}
+
+message Foo {
+  int64 id = 1;
+  string name = 2;
+}

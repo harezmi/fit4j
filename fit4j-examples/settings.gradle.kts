@@ -1,4 +1,4 @@
-rootProject.name = "examples"
+rootProject.name = "fit4j-examples"
 
 dependencyResolutionManagement {
 	repositories {
