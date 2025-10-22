@@ -6,7 +6,7 @@ import com.example.UserRetrievalServiceGrpc
 import com.example.UserRetrievalServiceOuterClass
 import com.fit4j.annotation.FIT
 import com.fit4j.annotation.FixtureForFIT
-import com.fit4j.helpers.FitHelper
+import com.fit4j.helper.FitHelper
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

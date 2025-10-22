@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
 @FIT
-class TestContainersContextCustomizerWithoutAnnotationIntegrationTests  {
+class TestContainersContextCustomizerWithoutAnnotationFIT  {
 
 
     @Autowired(required = false)

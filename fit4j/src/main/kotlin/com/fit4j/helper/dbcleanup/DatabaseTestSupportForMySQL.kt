@@ -1,4 +1,4 @@
-package com.fit4j.helpers.dbcleanup
+package com.fit4j.helper.dbcleanup
 
 import org.springframework.jdbc.core.JdbcTemplate
 

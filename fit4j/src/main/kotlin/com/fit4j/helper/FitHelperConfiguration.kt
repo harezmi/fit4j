@@ -1,4 +1,4 @@
-package com.fit4j.helpers
+package com.fit4j.helper
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fit4j.kafka.KafkaMessageTracker

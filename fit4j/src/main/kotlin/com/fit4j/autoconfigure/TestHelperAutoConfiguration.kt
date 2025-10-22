@@ -1,11 +1,11 @@
 package com.fit4j.autoconfigure
 
 import com.fit4j.EnableOnFIT
-import com.fit4j.helpers.FitHelper
-import com.fit4j.helpers.FitHelperConfiguration
-import com.fit4j.helpers.dbcleanup.DatabaseTestSupport
-import com.fit4j.helpers.dbcleanup.DatabaseTestSupportForH2
-import com.fit4j.helpers.dbcleanup.DatabaseTestSupportForMysql
+import com.fit4j.helper.FitHelper
+import com.fit4j.helper.FitHelperConfiguration
+import com.fit4j.helper.dbcleanup.DatabaseTestSupport
+import com.fit4j.helper.dbcleanup.DatabaseTestSupportForH2
+import com.fit4j.helper.dbcleanup.DatabaseTestSupportForMysql
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean
 class TestHelperAutoConfiguration(private val applicationContext: ApplicationContext) {
 
     @Bean
-    fun acceptanceTestHelper(): FitHelper {
+    fun fitHelper(): FitHelper {
         return FitHelper()
     }
 

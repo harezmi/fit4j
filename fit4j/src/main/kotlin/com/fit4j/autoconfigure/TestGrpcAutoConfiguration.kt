@@ -3,7 +3,7 @@ package com.fit4j.autoconfigure
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fit4j.EnableOnFIT
 import com.fit4j.grpc.*
-import com.fit4j.helpers.ClassScanner
+import com.fit4j.helper.ClassScanner
 import com.fit4j.mock.MockServiceCallTracker
 import com.fit4j.mock.MockServiceResponseFactory
 import com.fit4j.mock.declarative.DeclarativeTestFixtureProvider

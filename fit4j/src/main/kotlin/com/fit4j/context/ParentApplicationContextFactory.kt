@@ -1,6 +1,6 @@
 package com.fit4j.context
 
-import com.fit4j.helpers.ClassScanner
+import com.fit4j.helper.ClassScanner
 import org.springframework.beans.factory.support.BeanDefinitionBuilder
 import org.springframework.context.support.GenericApplicationContext
 

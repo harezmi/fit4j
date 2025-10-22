@@ -1,7 +1,7 @@
 package com.fit4j.http
 
 import com.fit4j.annotation.FIT
-import com.fit4j.helpers.FitHelper
+import com.fit4j.helper.FitHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

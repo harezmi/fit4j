@@ -649,7 +649,7 @@ messages to be consumed by your service via the `KafkaTemplate` instance accessi
 message and verify it.
 
 ```kotlin
-import com.fit4j.helpers.BaseAcceptanceTest
+import com.fit4j.helper.BaseAcceptanceTest
 import com.fit4j.rpc.payments.checkout.credit.v1beta1.CaptureCreditRequest
 import org.junit.jupiter.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
@@ -751,7 +751,7 @@ corresponding message instance.
 
 ### Verify Published or Consumed Kafka Messages
 
-A bean of type `com.fit4j.helpers.AcceptanceTestHelper` is already available if your test class
+A bean of type `com.fit4j.helper.AcceptanceTestHelper` is already available if your test class
 inherits from `BaseAcceptanceTest` and it provides several convenience `verifyEntity` and `verifyEvent` methods for 
 verification of JPA entities and Kafka messages.
 

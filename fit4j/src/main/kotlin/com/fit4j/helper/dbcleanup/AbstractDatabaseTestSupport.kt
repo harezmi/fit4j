@@ -1,4 +1,4 @@
-package com.fit4j.helpers.dbcleanup
+package com.fit4j.helper.dbcleanup
 
 import org.h2.tools.Server
 import org.springframework.beans.factory.annotation.Autowired

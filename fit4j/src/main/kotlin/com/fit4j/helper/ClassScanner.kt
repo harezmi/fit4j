@@ -1,4 +1,4 @@
-package com.fit4j.helpers
+package com.fit4j.helper
 
 import org.springframework.context.ApplicationContext
 import org.springframework.core.env.PropertyResolver

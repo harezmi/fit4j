@@ -4,7 +4,7 @@ import com.example.CreditServiceOuterClass
 import com.example.CurrencyServiceOuterClass
 import com.example.PaymentTransactionServiceOuterClass
 import com.fit4j.annotation.FIT
-import com.fit4j.helpers.FitHelper
+import com.fit4j.helper.FitHelper
 import com.google.protobuf.Any
 import com.google.protobuf.Descriptors
 import org.junit.jupiter.api.Assertions

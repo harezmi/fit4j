@@ -1,4 +1,4 @@
-package com.fit4j.helpers
+package com.fit4j.helper
 
 import com.fasterxml.jackson.databind.type.TypeFactory
 import com.google.protobuf.Message

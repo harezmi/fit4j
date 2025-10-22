@@ -9,7 +9,7 @@ import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 
 @FIT
-class TestContainersDefinitionProviderIntegrationTests  {
+class TestContainersDefinitionProviderFIT  {
 
     @Autowired
     private lateinit var applicationContext: ApplicationContext

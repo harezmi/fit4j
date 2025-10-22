@@ -1,6 +1,6 @@
 package com.fit4j.grpc
 
-import com.fit4j.helpers.ClassScanner
+import com.fit4j.helper.ClassScanner
 import com.google.protobuf.GeneratedMessageV3
 import io.grpc.BindableService
 import net.devh.boot.grpc.server.service.GrpcService

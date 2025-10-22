@@ -1,4 +1,4 @@
-package com.fit4j.samples
+package com.fit4j.sample
 
 import com.fit4j.annotation.FIT
 import org.junit.jupiter.api.Assertions
