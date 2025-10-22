@@ -10,7 +10,7 @@
 jsconfig.json
 
 # IntelliJ stuff
-.idea
+.idea/
 *.iml
 *.swp
 *.sublime-workspace
