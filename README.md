@@ -85,11 +85,11 @@ write functional integration tests for your service.
 
 ## Add the Library Dependency
 
-The **latest version** of the library is `3.0.17`. You can add the library dependency to your service's `build.gradle.kts`
+The **latest version** of the library is `1.0.0-SNAPSHOT`. You can add the library dependency to your service's `build.gradle.kts`
 file as follows.
 
 ```kotlin
-testImplementation("com.fit4j:fit4j:3.0.17")
+testImplementation("com.fit4j:fit4j:1.0.0-SNAPSHOT")
 ```
 
 ## Create a Test Class
