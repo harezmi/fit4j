@@ -1,7 +1,7 @@
 package com.fit4j.examples.kafka
 
 
-import com.example.CreditServiceOuterClass
+import com.example.fit4j.grpc.FooGrpcService
 import com.fit4j.annotation.FIT
 import com.fit4j.helper.FitHelper
 import com.google.protobuf.Message
@@ -24,13 +24,14 @@ class KafkaExampleFIT {
 
     @Test
     fun `it should work`() {
-        val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
-        kafkaTemplate.send("sample-topic-1", message)
+        val message = FooGrpcService.Foo.newBuilder().setId(123).setName("Foo").build()
+        kafkaTemplate.send("sample-topic-1", message).get()
 
         helper.verifyEvent(
-            CreditServiceOuterClass.CaptureCreditRequest::class, """
+            FooGrpcService.Foo::class, """
             {
-              "paymentAttemptId": "123"
+              "id": 123,
+              "name":"Foo"
             }
         """.trimIndent()
         )
@@ -40,7 +41,7 @@ class KafkaExampleFIT {
 
 class MessageDeserializer : Deserializer<Any> {
     override fun deserialize(topic: String, data: ByteArray?): Any {
-        return CreditServiceOuterClass.CaptureCreditRequest.parseFrom(data)
+        return FooGrpcService.Foo.parseFrom(data)
     }
 }
 

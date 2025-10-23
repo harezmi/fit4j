@@ -1,6 +1,6 @@
 package com.fit4j.examples.kafkatestcontainers
 
-import com.example.CreditServiceOuterClass
+import com.example.fit4j.grpc.FooGrpcService
 import com.fit4j.annotation.FIT
 import com.fit4j.helper.FitHelper
 import com.fit4j.testcontainers.Testcontainers
@@ -20,12 +20,14 @@ class KafkaTestcontainersExampleFIT {
 
     @Test
     fun `it should work`() {
-        val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
-        helper.beans.kafkaTemplate.send("sample-topic-1", message)
+        val message = FooGrpcService.Foo.newBuilder().setId(123).setName("Foo").build()
+        helper.beans.kafkaTemplate.send("sample-topic-1", message).get()
+
         helper.verifyEvent(
-            CreditServiceOuterClass.CaptureCreditRequest::class, """
+            FooGrpcService.Foo::class, """
             {
-              "paymentAttemptId": "123"
+              "id": 123,
+              "name":"Foo"
             }
         """.trimIndent()
         )
@@ -34,7 +36,7 @@ class KafkaTestcontainersExampleFIT {
 
 class MessageDeserializer : Deserializer<Any> {
     override fun deserialize(topic: String, data: ByteArray?): Any {
-        return CreditServiceOuterClass.CaptureCreditRequest.parseFrom(data)
+        return FooGrpcService.Foo.parseFrom(data)
     }
 }
 

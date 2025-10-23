@@ -3,28 +3,28 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.CreditServiceOuterClass$GetCapturedCreditAmountForGptRequest
-          predicate: "#request.gatewayPaymentTransactionId == '123'"
+          type: com.example.fit4j.grpc.FooGrpcService$GetFooByIdRequest
+          predicate: "#request.id == 123"
           response:
             body:
-              amountMoney:
-                amount: 10.01
-                currency: "USD"
+              foo:
+                id: 123
+                name: "Foo1"
       - request:
           protocol: grpc
-          type: com.example.CreditServiceOuterClass$GetCapturedCreditAmountForGptRequest
-          predicate: "#request.gatewayPaymentTransactionId == '456'"
+          type: com.example.fit4j.grpc.FooGrpcService$GetFooByIdRequest
+          predicate: "#request.id == 456"
           response:
             body:
-              amountMoney:
-                amount: 99.99
-                currency: "USD"
+              foo:
+                id: 456
+                name: "Foo2"
   - name: "*"
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.CreditServiceOuterClass$GetInfoRequest
-          predicate: "#request.refundRef == '666'"
+          type: com.example.fit4j.grpc.FooGrpcService$GetFooNameByIdRequest
+          predicate: "#request.id == 123"
           response:
             body:
-              newRefundId: 789
+              name: "Foo"
