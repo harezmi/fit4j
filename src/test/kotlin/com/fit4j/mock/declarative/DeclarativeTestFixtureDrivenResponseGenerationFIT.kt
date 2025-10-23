@@ -31,13 +31,13 @@ class DeclarativeTestFixtureDrivenResponseGenerationFIT {
     @FixtureForFIT("it should return responses from test fixture yml")
     fun `it should return responses from test fixture yml`() {
 
-        val getRateRequest1 = TestGrpc.GetAgeRequest.getDefaultInstance()
-        val getRateResponse1 = fooGrpcService.getAgeRequest(getRateRequest1)
-        Assertions.assertEquals(10,getRateResponse1.age)
+        val getAgeRequest1 = TestGrpc.GetAgeRequest.getDefaultInstance()
+        val getAgeResponse1 = fooGrpcService.getAgeRequest(getAgeRequest1)
+        Assertions.assertEquals(10,getAgeResponse1.age)
 
-        val getRateRequest2 = TestGrpc.GetAgeRequest.getDefaultInstance()
-        val getRateResponse2 = fooGrpcService.getAgeRequest(getRateRequest2)
-        Assertions.assertEquals(20,getRateResponse2.age)
+        val getAgeRequest2 = TestGrpc.GetAgeRequest.getDefaultInstance()
+        val getAgeResponse2 = fooGrpcService.getAgeRequest(getAgeRequest2)
+        Assertions.assertEquals(20,getAgeResponse2.age)
 
 
         val request = TestGrpc.GetFooByIdRequest.newBuilder().setId(123).build()

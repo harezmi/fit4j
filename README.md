@@ -264,21 +264,18 @@ annotation to obtain a stub (as below) then you need to override client name pro
 `application-test.yml` file.
 
 ```kotlin
-import com.example.services.rpc.currency_exchange.v1.CurrencyExchangeRateServiceGrpc
-import net.devh.boot.grpc.client.inject.GrpcClient
-import org.springframework.stereotype.Component
 
 @Component
-class CurrencyExchangeRateServiceAdapter {
-    @GrpcClient("currencyExchangeRateService")
-    private lateinit var currencyExchangeRateService: CurrencyExchangeRateServiceGrpc.CurrencyExchangeRateServiceBlockingStub
+class FooServiceAdapter {
+    @GrpcClient("inProcess")
+    private lateinit var fooGrpcService: FooServiceGrpc.FooServiceBlockingStub
 }
 ```
 
 ```properties
 grpc:
   client:
-    currencyExchangeRateService:
+    fooGrpcService:
       address: in-process:${grpc.server.inProcessName}
 ```
 ## Define Request-Response Trainings for External HTTP/REST Endpoints

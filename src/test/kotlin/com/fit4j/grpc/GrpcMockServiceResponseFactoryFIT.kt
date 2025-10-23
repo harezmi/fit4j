@@ -139,7 +139,7 @@ class GrpcMockServiceResponseFactoryFIT {
     }
 
     @Test
-    fun `it should resolve a response from declarative responses for the given gRPC GetUserRequest`() {
+    fun `it should resolve a response from declarative responses for the given gRPC GetFooByIdRequest`() {
         // Given
         val request = TestGrpc.GetFooByIdRequest.getDefaultInstance()
 
@@ -153,7 +153,7 @@ class GrpcMockServiceResponseFactoryFIT {
     }
 
     @Test
-    fun `it should resolve a response for the given gRPC GetUsersRequest`() {
+    fun `it should resolve a response for the given gRPC GetFooListGrpcRequest`() {
         // Given
         val request = TestGrpc.GetFooListGrpcRequest.newBuilder().setMayFail(true).build()
 
