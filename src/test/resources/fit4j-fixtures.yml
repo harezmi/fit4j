@@ -53,13 +53,13 @@ tests:
 
       - request:
           protocol: http
-          path: "/foo/#{@testFixtureData.variables.userId}"
+          path: "/foo/#{@testFixtureData.variables.fooId}"
           response:
             status: 200
 
       - request:
           protocol: http
-          path: "/foo?user_id=#{@testFixtureData.variables.userId}"
+          path: "/foo?id=#{@testFixtureData.variables.fooId}"
           response:
             status: 200
 

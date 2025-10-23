@@ -27,7 +27,7 @@ class HttpMockServiceResponseFactoryFIT {
         val variables: Variables
     )
 
-    data class Variables(val userId: Int)
+    data class Variables(val fooId: Int)
 
     @TestConfiguration
     class TestConfig {
@@ -109,7 +109,7 @@ class HttpMockServiceResponseFactoryFIT {
     @Test
     fun `it should resolve a response for the given HTTP GET request to path foo and path parameter`() {
         // Given
-        val request = createWebRequest("/foo/${testFixture.variables.userId}")
+        val request = createWebRequest("/foo/${testFixture.variables.fooId}")
 
         // When
         val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse
@@ -121,7 +121,7 @@ class HttpMockServiceResponseFactoryFIT {
     @Test
     fun `it should resolve a response for the given HTTP GET request to path foo and query parameter`() {
         // Given
-        val request = createWebRequest("/foo?user_id=${testFixture.variables.userId}")
+        val request = createWebRequest("/foo?id=${testFixture.variables.fooId}")
 
         // When
         val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse

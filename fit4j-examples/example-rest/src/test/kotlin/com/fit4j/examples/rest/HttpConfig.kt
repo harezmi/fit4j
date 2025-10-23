@@ -11,21 +11,21 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Configuration
 class HttpConfig {
     @Bean
-    fun createMonolithClient(retrofit: Retrofit) = retrofit.create(ExampleRestClient::class.java)
+    fun createExampleRestClient(retrofit: Retrofit) = retrofit.create(ExampleRestClient::class.java)
 
     @Bean
-    fun okHttpMonolithClient(): OkHttpClient {
+    fun okHttpExampleRestClient(): OkHttpClient {
         return OkHttpClient
             .Builder()
             .build()
     }
 
     @Bean
-    fun retrofit(okHttpMonolithClient: OkHttpClient, httpProperties: HttpProperties): Retrofit {
+    fun retrofit(okHttpExampleRestClient: OkHttpClient, httpProperties: HttpProperties): Retrofit {
         return Retrofit.Builder()
             .baseUrl("${httpProperties.protocol}://${httpProperties.hostname}:${httpProperties.port}")
             .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpMonolithClient)
+            .client(okHttpExampleRestClient)
             .build()
     }
 }

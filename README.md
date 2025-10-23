@@ -44,7 +44,7 @@ flows could be regarded as the acceptance criteria of the service from the persp
 
 The difference between functional integration tests and other types of integration tests is that functional integration
 tests contain almost no mock objects within the system boundary itself. The only mocked parts are the external boundaries,
-in this case, gRPC or REST endpoints of other internal microservices, monoliths, or any other third-party external systems.
+in this case, gRPC or REST endpoints of other internal microservices, or any other third-party external systems.
 It is sufficient to mock only these external boundaries so that they would respond according to the current request flow being tested.
 
 # Why Should You Use This Library in Your Service?
@@ -179,16 +179,14 @@ tests:
 
 # How to Define Request-Response Trainings for External Services?
 
-Your microservice might have several external service dependencies. Those dependencies could be other internal microservices,
-the monolith, or any other 3rd party services.
+Your microservice might have several external service dependencies. Those dependencies could be other internal microservices, 
+or any other 3rd party services. In case of internal microservice dependencies, your service might be communicating synchronously 
+with them using either REST or gRPC, so you can define the request-response trainings for those service calls in a declarative fashion.
 
 ## Define Request-Response Trainings for External gRPC Endpoints
 
-In case of internal microservice dependencies, your service might be communicating with them mostly using gRPC, so you can
-define the request-response trainings for those grpc service calls in a declarative fashion. For example, let's assume that
-your service hits `getRate` and `getUser` grpc endpoints of currency exchange and user retrieval services, so you can define
-the following request-response trainings in a file called `fit4j-fixtures.yml` in your test classpath for
-those endpoint calls respectively.
+The following example shows how to define grpc request-response trainings in your services through the file `fit4j-fixtures.yml` 
+in your test classpath.
 
 ```yaml
 tests:
@@ -196,20 +194,12 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.rpc.currency_exchange.v1.CurrencyExchangeService$GetRateRequest
-          predicate: "#request.sourceCurrency == 'USD' && #request.targetCurrency == 'TRY'"
+          type: com.example.FooGrpcService$GetFooByIdRequest
+          predicate: "#request.id == 123"
           response:
             body:
-              rate: "1.00"
-      - request:
-          protocol: grpc
-          type: com.example.services.retrieval.user.v1.UserRetrievalServiceOuterClass$GetUserRequest
-          response:
-            body:
-              user:
-                userId: "#{#request.userId}"
-                name: "John Doe"
-                country: US
+              id: 123
+              name: "Foo1"
 ```
 
 Current request object is provided to the predicate expression as `#request` variable. You can write SpEL expressions as 
@@ -218,8 +208,8 @@ the same block will be returned. The predicate is optional, unless it is provide
 request of the same type. You can write SpEL expressions in other parts of the declarative test fixtures, for example in
 the body part as well. The current `request` object is already exposed within the evaluation context. Indeed, the full SpEL 
 functionality is available here, so for example you can even refer to Spring managed beans within those SpEL expressions 
-aside from accessing the current request object. In the above example, you already notice that `ùserId`attribute value
-will be obtained via evaluating `#{#request.userId}` SpEL expression. As you may have already noticed, you need to write
+aside from accessing the current request object. In the above example, you already notice that `fooId`attribute value
+will be obtained via evaluating `#{#request.fooId}` SpEL expression. As you may have already noticed, you need to write
 the expression within `#{}` here. In the `predicate` attribute this is not necessary, as the whole `predicate`attribute
 value is regarded as SpEL expression itself.
 
@@ -228,14 +218,6 @@ return responses programmatically within the test class via creating a bean from
 `com.fit4j.grpc.GrpcResponseJsonBuilder` interface as follows.
 
 ```kotlin
-import com.google.protobuf.Message
-import com.fit4j.annotation.FIT
-import com.fit4j.grpc.GrpcResponseJsonBuilder
-import com.example.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
-import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-
 @FIT
 class SampleFIT {
     
@@ -244,7 +226,7 @@ class SampleFIT {
         @Bean
         fun grpcResponseJsonBuilder(): GrpcResponseJsonBuilder<Message> {
             return GrpcResponseJsonBuilder {
-                if (it is GetUsersRequest  && it.userIdsList.contains(123) ) {
+                if (it is GetFooByIdRequest) {
                     """
                         throw {
                             "status": "PERMISSION_DENIED"
@@ -267,7 +249,7 @@ class SampleFIT {
 
 It is just enough to define the bean with type `GrpcResponseJsonBuilder` in the test configuration class and within its `build`
 method you can inspect the current request and return the response accordingly. In the above example, if the current
-request contains a particular `userId` value, then the service is trained to throw an exception with the status
+request contains a particular `fooId` value, then the service is trained to throw an exception with the status
 `"PERMISSION_DENIED"`. The order of those request-response training evaluations is that first the `GrpcResponseJsonBuilder`
 bean is asked for an answer, then if it returns null the `fit4j-fixtures.yml` yml file is queried. If there is
 no answer found either of those two places, your test will fail while stating you are expected to train for that particular
@@ -301,81 +283,69 @@ grpc:
 ```
 ## Define Request-Response Trainings for External HTTP/REST Endpoints
 
-In case your service hits some REST endpoints of the monolith or any other service, you will need to provide request-response
+In case your service hits some REST endpoints of any other service, you will need to provide request-response
 trainings for those calls as well. Let's assume you have already defined an interface to access those REST endpoints using
 the Retrofit Library in your service codebase as follows.
 
 ```kotlin
-interface MonolithClient {
-    @POST("internal-api-2.0/payouts/acl/premium-instructor-info/")
-    fun getPremiumInstructorInfo(@Body piiByIdsDto: PiiByIdsDto): Call<Map<String, PremiumInstructorInfo>>
+interface ExampleRestClient {
+    @POST("/hello")
+    fun sayHello(@Body helloRequest: ExampleRestRequest): Call<ExampleRestResponse>
 
-    @POST("internal-api-2.0/payouts/acl/jpmorgan-method-batch/")
-    fun getJpmorganPayoutMethods(@Body piiByStatementsDto: PiiByStatementsDto): Call<Map<Long, JpmorganPayoutMethodInfo>>
+    @POST("/bye")
+    fun sayBye(@Body byeRequest: ExampleRestRequest): Call<ExampleRestResponse>
 }
 
+@EnableConfigurationProperties(HttpProperties::class)
 @Configuration
 class HttpConfig {
     @Bean
-    fun createMonolithClient(retrofit: Retrofit) = retrofit.create(MonolithClient::class.java)
+    fun createExampleRestClient(retrofit: Retrofit) = retrofit.create(ExampleRestClient::class.java)
 
     @Bean
-    fun okHttpMonolithClient(jwtInterceptor: OkHttpMonolithJWTInterceptor): OkHttpClient {
+    fun okHttpExampleRestClient(): OkHttpClient {
         return OkHttpClient
             .Builder()
-            .addInterceptor(jwtInterceptor)
             .build()
     }
 
     @Bean
-    fun retrofit(okHttpMonolithClient: OkHttpClient, httpProperties: HttpProperties): Retrofit {
+    fun retrofit(okHttpExampleRestClient: OkHttpClient, httpProperties: HttpProperties): Retrofit {
         return Retrofit.Builder()
             .baseUrl("${httpProperties.protocol}://${httpProperties.hostname}:${httpProperties.port}")
             .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpMonolithClient)
+            .client(okHttpExampleRestClient)
             .build()
     }
 }
 
-@ConstructorBinding
-@ConfigurationProperties("monolith")
+@ConfigurationProperties("externalService")
 data class HttpProperties(val protocol:String="http", val hostname:String="localhost", val port:Int=8080) {
 }
 ```
 
-Then you can prepare the following request-response trainings for those REST endpoints for your acceptance tests either
+Then you can prepare the following request-response trainings for those REST endpoints for your FITs either
 in declarative way or programmatically.
 
 ```yml
 tests:
-  - name: MonthlyPayoutCreationFIT
+  - name: RestExampleFIT
     fixtures:
       - request:
           protocol: http
-          path: "/internal-api-2.0/payouts/acl/premium-instructor-info/"
+          path: "/hello"
           response:
             status: 200
             body:
-              456:
-                id: 456
-                user_id: 456
-                active_payment_method_type: "paypal_payout_method"
-                active_payment_method_id: "789"
+              message: "Hello, John!"
       - request:
           protocol: http
-          path: "/internal-api-2.0/payouts/acl/jpmorgan-method-batch/"
+          path: "/bye"
           predicate: "#request.method == 'POST'"
           response:
             status: 200
             body:
-              789:
-                id: 100
-                status: "OK"
-                is_active: "true"
-                account_alias_id: "test account alias id"
-                email: "test@email.com"
-                country_id: "US"
-                last_4_digit: "7890"
+              message: "Bye, Joe!"
 ```
 
 The above example shows how it can be done in declarative fashion within `fit4j-fixtures.yml` file.
@@ -387,22 +357,21 @@ Again you can write SpEL expressions in any place of your HTTP test fixtures sim
 
 ```yaml
 tests:
-  - name: PaymentGrpcServiceFIT
+  - name: RestExampleFIT
     fixtures:
       - request:
           protocol: http
-          path: "/v1/payment_intents"
-          predicate: "#request.method == 'POST' && #request.body == 'confirm=true&amount=1199&customer=cus_123'"
+          path: "/hello"
           response:
-            status: 201
-            body: "#{@testFixtureCreator.STRIPE_CREATE_PAYMENT_INTENT_RESPONSE}"
+            status: 200
+            body: "#{@testFixtureCreator.EXAMPLE_RESPONSE}"
 ```
 In the above example, the body part is written as a SpEL expression, and it refers to a Spring managed bean `testFixtureCreator`
-which is defined in the `PaymentGrpcServiceFIT` test class as below.
+which is defined in the `RestExampleFIT` test class as below.
 
 ```kotlin
 @FIT
-class SampleFIT {
+class RestExampleFIT {
     @TestConfiguration
     class TestConfig {
         @Bean
@@ -420,50 +389,50 @@ interface in the test configuration class, and prepare the response programmatic
 ```kotlin
 @FIT
 class SampleFIT {
-    
+
     @TestConfiguration
     class TestConfig {
         @Bean
-        fun httpResponseBuilder(): HttpResponseJsonBuilder {
-            return HttpResponseJsonBuilder {
-                when (it.path) {
-                    "/internal-api-2.0/payouts/acl/premium-instructor-info/" -> {
-                        if (it.body.toString().contains("457")) {
-                          val body =
-                            """
-                              {
-                                  "456": {
-                                      "id": 456,
-                                      "user_id": 456,
-                                      "active_payment_method_type": "paypal_payout_method",
-                                      "active_payment_method_id": "789"
-                                      }
-                              }
-                              """.trimIndent()
-                          """
-                              {
-                                  "status": 200,
-                                  "body": $body
-                              }
-                          """.trimIndent()
-                        } else {
-                          val body =
-                            """
-                              {
-                                  "456": {
-                                      "id": 456,
-                                      "user_id": 456,
-                                      "active_payment_method_type": "paypal_payout_method",
-                                      "active_payment_method_id": "789"
-                                      }   
-                              }
-                              """.trimIndent()
-                          """
-                              {
-                                  "status": 200,
-                                  "body": $body
-                              }
-                          """.trimIndent()
+        fun grpcResponseBuilder(): GrpcResponseJsonBuilder<Message> {
+            return GrpcResponseJsonBuilder {
+                when (it) {
+                    is FooGrpcService.GetFooByIdRequest ->
+                        when (it.id) {
+                            123.toLong() -> {
+                                """
+                                    {
+                                        "foo": {
+                                            "id":123,
+                                            "name":"Foo1"
+                                        }
+                                    }
+                                                """.trimIndent()
+                            }
+                            456.toLong() -> {
+                                """
+                                    {
+                                        "foo": {
+                                            "id":456,
+                                            "name":"Foo2"
+                                        }
+                                    }
+                                                """.trimIndent()
+                            }
+                            else -> {
+                                null
+                            }
+                        }
+                    is FooGrpcService.GetFooNameByIdRequest ->{
+                        when(it.id) {
+                            123.toLong() -> {
+                                """
+                                {
+                                    "name": "Foo"
+                                }
+                                """.trimIndent()
+                            } else -> {
+                            null
+                        }
                         }
                     }
                     else -> null
@@ -480,12 +449,12 @@ class SampleFIT {
 ```
 
 You need to define the following properties in your `application-test.yml`
-file of your service. They simply override monolith `hostname` and `port` properties of `HttpProperties` configuration
+file of your service. They simply override externalService `hostname` and `port` properties of `HttpProperties` configuration
 with the `hostname` and `port` values of the mockwebserver.
 
 ```properties
-monolith.hostname=${fit4j.mockWebServer.hostName}
-monolith.port=${fit4j.mockWebServer.port}
+externalService.hostname=${fit4j.mockWebServer.hostName}
+externalService.port=${fit4j.mockWebServer.port}
 ``` 
 
 In case your service accesses a 3rd party service using Spring `RestTemplate`, you can similarly define request-response
@@ -593,7 +562,7 @@ class SampleFIT {
       val message = Foo.newBuilder().setId(123).setName("Foo").build()
       helper.beans.kafkaTemplate.send("foo-create-topic", message).get()
 
-      helper.beans.kafkaMessageTracker.waitForProcessing(CaptureCreditRequest::class)
+      helper.beans.kafkaMessageTracker.waitForProcessing(Foo::class)
 
       val foo = fooRepository.findById(123)
       Assertions.assertNotNull(foo)
@@ -935,12 +904,6 @@ verifyEvent(
             """.trimIndent()
         )
 ```
-
-# How to Get More Help & Support?
-
-For any of your problems, feel free to contact with **ksevindik@gmail.com** from the payments team as the current 
-maintainer of this library. I will be more than happy to help you and work together to adopt this library and benefit 
-from it in your services.
 
 # FAQ
 
