@@ -9,88 +9,78 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.CurrencyServiceOuterClass$GetRateRequest
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
           response:
             body:
-              rate: "1.00"
+              age: 10
       - request:
           protocol: grpc
-          type: com.example.UserRetrievalServiceOuterClass$GetUserRequest
+          type: com.example.fit4j.grpc.TestGrpc$GetFooByIdRequest
           response:
             body:
-              user:
-                user_id: "#{@testFixture.variables.userId}"
+              foo:
+                id: "#{@testFixture.variables.fooId}"
       - request:
           protocol: http
-          path: "/internal-api-2.0/payouts/acl/email/"
+          path: "/foo"
           response:
             status: 200
       - request:
           protocol: http
-          path: "/internal-api-2.0/payouts/acl/paypal-method/210"
+          path: "/foo/123"
           response:
             status: 200
             body:
-              id: 210
-              status: "active"
-              is_active: "true"
-              email: "a@b"
-              country_id: "US"
-              payer_id: "111"
+              id: 123
+              name: "Foo"
   - name: test2
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.UserRetrievalServiceOuterClass$GetTotalInstructorEarningRequest
-          predicate: "#request.year > 2019"
+          type: com.example.fit4j.grpc.TestGrpc$GetFooListGrpcRequest
+          predicate: "#request.mayFail == true"
           response:
             status: "UNAVAILABLE"
       - request:
           protocol: http
-          path: "/v1/payments/payouts"
+          path: "/foo/123"
           predicate: "#request.method == 'GET'"
           response:
             status: 200
             body:
-              batch_header:
-                sender_batch_header:
-                  email_subject: "a@b"
-                  sender_batch_id: "12"
-                  recipient_type: "PAYPAL_ID"
-                payout_batch_id: "13"
-                batch_status: "SUCCESS"
+              id: 123
+              name: "Foo"
       - <<: *common_fixtures
 
   - name: test3
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.CurrencyServiceOuterClass$GetRateRequest
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
           responses:
             - body:
-                rate: "1.00"
+                age: 10
             - status: "UNAVAILABLE"
       - request:
           protocol: http
-          path: "/internal-api-2.0/payouts/acl/paypal-method/210"
+          path: "/foo/123"
           responses:
             - status: 200
               body:
-                id: 210
-                status: "active"
-                is_active: "true"
-                email: "a@b"
-                country_id: "US"
-                payer_id: "111"
+                id: 123
+                name: "Foo"
             - status: 404
   - name: "*"
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.UserRetrievalServiceOuterClass$GetTotalInstructorEarningRequest
+          type: com.example.fit4j.grpc.TestGrpc$GetFooListGrpcRequest
           response:
             body:
-              amount:
-                value: "100.00"
-              statementCount: 1
+              fooList:
+                - id: 123
+                  name: "Foo1"
+                - id: 456
+                  name: "Foo2"
+
 

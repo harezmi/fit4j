@@ -13,11 +13,11 @@ tests:
               body: "Success"
       - request:
           protocol: grpc
-          type: com.example.CurrencyServiceOuterClass$GetRateRequest
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
           responses:
             - body:
-                rate: "1.00"
+                age: 10
             - body:
-                rate: "2.00"
+                age: 20
             - body:
-                rate: "3.00"
+                age: 30

@@ -1,6 +1,6 @@
 package com.fit4j.kafka
 
-import com.example.CreditServiceOuterClass
+import com.example.fit4j.grpc.TestGrpc
 import com.fit4j.annotation.FIT
 import com.fit4j.helper.FitHelper
 import com.google.protobuf.Message
@@ -23,11 +23,12 @@ class KafkaMessageTrackerAspectFIT {
 
     @Test
     fun `it should identify topic to which message sent`() {
-        val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
+        val foo = TestGrpc.Foo.newBuilder().setId(123).setName("Foo").build()
+        val message = TestGrpc.FooCreatedEvent.newBuilder().setFoo(foo).build()
         helper.beans.kafkaTemplate.send("sample-topic-1",message)
 
-        val event = helper.getEvent(CreditServiceOuterClass.CaptureCreditRequest::class)
-        Assertions.assertEquals("123", event?.paymentAttemptId)
+        val event = helper.getEvent(TestGrpc.FooCreatedEvent::class)
+        Assertions.assertEquals(123, event?.foo!!.id)
         val messagePublished = helper.beans.kafkaMessageTracker.getMessagesPublishedAt("sample-topic-1").first()
         Assertions.assertEquals(message, messagePublished.data)
 
@@ -37,7 +38,8 @@ class KafkaMessageTrackerAspectFIT {
 
     @Test
     fun `it should identify default topic to which message sent`() {
-        val message = CreditServiceOuterClass.CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
+        val foo = TestGrpc.Foo.newBuilder().setId(123).setName("Foo").build()
+        val message = TestGrpc.FooCreatedEvent.newBuilder().setFoo(foo).build()
         helper.beans.kafkaTemplate.sendDefault("foo",message)
 
         val messagePublished = helper.beans.kafkaMessageTracker.getMessagesPublishedAt("fit4j-test-topic").first()
@@ -50,9 +52,9 @@ class KafkaMessageTrackerAspectFIT {
     }
 }
 
-class CaptureCreditRequestDeserializer : MessageDeserializer() {
+class FooCreatedEventDeserializer : MessageDeserializer() {
     override fun parseFrom(data: ByteArray?): Message {
-        return CreditServiceOuterClass.CaptureCreditRequest.parseFrom(data)
+        return TestGrpc.FooCreatedEvent.parseFrom(data)
     }
 }
 

@@ -1,6 +1,6 @@
 package com.fit4j.mock.declarative
 
-import com.example.CurrencyServiceOuterClass
+import com.example.fit4j.grpc.TestGrpc
 import com.fit4j.annotation.FIT
 import com.fit4j.annotation.FixtureForFIT
 import com.fit4j.mock.MockServiceResponseFactory
@@ -107,10 +107,10 @@ class TestFixtureGroupStateCleanupFIT {
         val actualResponse4 = mockServiceResponseFactory.getResponseFor(request)
 
 
-        val expectedResponse1 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("1.00").build()
-        val expectedResponse2 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("2.00").build()
-        val expectedResponse3 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("3.00").build()
-        val expectedResponse4 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("3.00").build()
+        val expectedResponse1 = TestGrpc.GetAgeResponse.newBuilder().setAge(10).build()
+        val expectedResponse2 = TestGrpc.GetAgeResponse.newBuilder().setAge(20).build()
+        val expectedResponse3 = TestGrpc.GetAgeResponse.newBuilder().setAge(30).build()
+        val expectedResponse4 = TestGrpc.GetAgeResponse.newBuilder().setAge(30).build()
 
         Assertions.assertEquals(expectedResponse1, actualResponse1)
         Assertions.assertEquals(expectedResponse2, actualResponse2)
@@ -129,10 +129,10 @@ class TestFixtureGroupStateCleanupFIT {
         val actualResponse4 = mockServiceResponseFactory.getResponseFor(request)
 
 
-        val expectedResponse1 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("1.00").build()
-        val expectedResponse2 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("2.00").build()
-        val expectedResponse3 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("3.00").build()
-        val expectedResponse4 = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("3.00").build()
+        val expectedResponse1 = TestGrpc.GetAgeResponse.newBuilder().setAge(10).build()
+        val expectedResponse2 = TestGrpc.GetAgeResponse.newBuilder().setAge(20).build()
+        val expectedResponse3 = TestGrpc.GetAgeResponse.newBuilder().setAge(30).build()
+        val expectedResponse4 = TestGrpc.GetAgeResponse.newBuilder().setAge(30).build()
 
         Assertions.assertEquals(expectedResponse1, actualResponse1)
         Assertions.assertEquals(expectedResponse2, actualResponse2)
@@ -140,8 +140,8 @@ class TestFixtureGroupStateCleanupFIT {
         Assertions.assertEquals(expectedResponse4, actualResponse4)
     }
 
-    private fun createGrpcRequest(): CurrencyServiceOuterClass.GetRateRequest =
-        CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD").setTargetCurrency("TRY").build()
+    private fun createGrpcRequest(): TestGrpc.GetAgeRequest =
+        TestGrpc.GetAgeRequest.getDefaultInstance()
 
     private fun createWebRequest(path: String, method: String = "GET", body: String? = null): RecordedRequest {
         val buffer = Buffer()

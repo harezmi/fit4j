@@ -1,9 +1,8 @@
 package com.fit4j.mock.declarative
 
-import com.example.CurrencyServiceGrpc
-import com.example.CurrencyServiceOuterClass
-import com.example.UserRetrievalServiceGrpc
-import com.example.UserRetrievalServiceOuterClass
+
+import com.example.fit4j.grpc.FooGrpcServiceGrpc
+import com.example.fit4j.grpc.TestGrpc
 import com.fit4j.annotation.FIT
 import com.fit4j.annotation.FixtureForFIT
 import com.fit4j.helper.FitHelper
@@ -18,16 +17,12 @@ import org.springframework.test.context.TestPropertySource
 @FIT("classpath:declarative-response-generation-fixture.yml")
 @TestPropertySource(properties = [
     "fit4j.declerativeTestFixtureDrivenResponseGeneration.enabled=true",
-    "grpc.client.userRetrievalService.address=in-process:\${grpc.server.inProcessName}",
-    "grpc.client.currencyExchangeRateService.address=in-process:\${grpc.server.inProcessName}"
+    "grpc.client.testGrpcService.address=in-process:\${grpc.server.inProcessName}"
     ])
 class DeclarativeTestFixtureDrivenResponseGenerationFIT {
 
-    @GrpcClient("currencyExchangeRateService")
-    private lateinit var currencyExchangeRateService: CurrencyServiceGrpc.CurrencyServiceBlockingStub
-
-    @GrpcClient("userRetrievalService")
-    private lateinit var userRetrievalService: UserRetrievalServiceGrpc.UserRetrievalServiceBlockingStub
+    @GrpcClient("testGrpcService")
+    private lateinit var fooGrpcService: FooGrpcServiceGrpc.FooGrpcServiceBlockingStub
 
     @Autowired
     private lateinit var helper: FitHelper
@@ -36,20 +31,18 @@ class DeclarativeTestFixtureDrivenResponseGenerationFIT {
     @FixtureForFIT("it should return responses from test fixture yml")
     fun `it should return responses from test fixture yml`() {
 
-        val getRateRequest1 = CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD")
-            .setTargetCurrency("TRY").build()
-        val getRateResponse1 = currencyExchangeRateService.getRate(getRateRequest1)
-        Assertions.assertEquals("1.00",getRateResponse1.rate)
+        val getRateRequest1 = TestGrpc.GetAgeRequest.getDefaultInstance()
+        val getRateResponse1 = fooGrpcService.getAgeRequest(getRateRequest1)
+        Assertions.assertEquals(10,getRateResponse1.age)
 
-        val getRateRequest2 = CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD")
-            .setTargetCurrency("TRY").build()
-        val getRateResponse2 = currencyExchangeRateService.getRate(getRateRequest2)
-        Assertions.assertEquals("2.00",getRateResponse2.rate)
+        val getRateRequest2 = TestGrpc.GetAgeRequest.getDefaultInstance()
+        val getRateResponse2 = fooGrpcService.getAgeRequest(getRateRequest2)
+        Assertions.assertEquals(20,getRateResponse2.age)
 
 
-        val request = UserRetrievalServiceOuterClass.GetUserRequest.newBuilder().setUserId(123L).build()
-        val response = userRetrievalService.getUser(request)
-        Assertions.assertEquals(123L,response.user.userId)
+        val request = TestGrpc.GetFooByIdRequest.newBuilder().setId(123).build()
+        val response = fooGrpcService.getFooByIdResponse(request)
+        Assertions.assertEquals(123L,response.foo.id)
 
         val httpResponse1= helper.beans.restTemplate.getForEntity("${helper.mockWebServerBaseUrl()}/test-1",Void::class.java)
 

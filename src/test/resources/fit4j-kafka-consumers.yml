@@ -4,7 +4,7 @@
       consumerFactory:
         configs:
           - key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          - value.deserializer: com.fit4j.kafka.CaptureCreditRequestDeserializer
+          - value.deserializer: com.fit4j.kafka.FooCreatedEventDeserializer
           - auto.offset.reset: earliest
       containerProperties:
         ackMode: MANUAL_IMMEDIATE
@@ -15,7 +15,7 @@
       consumerFactory:
         configs:
           - key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          - value.deserializer: com.fit4j.kafka.CaptureCreditRequestDeserializer
+          - value.deserializer: com.fit4j.kafka.FooCreatedEventDeserializer
           - auto.offset.reset: earliest
       containerProperties:
         ackMode: MANUAL_IMMEDIATE
