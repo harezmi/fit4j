@@ -1,5 +1,4 @@
-|  | <h1>Functional Integration Testing Library for Java</h1> | <img src="accepted.png" width="320" height="256"> |
-|------------------------------------------------|----------------------------------------------------------|---------------------------------------------------|
+<div style="text-align: center;"><h1>Functional Integration Testing Library for Java</h1></div>
 
 # Table of Contents
 
@@ -17,16 +16,12 @@
     * [Define Request-Response Trainings for External HTTP/REST Endpoints](#define-request-response-trainings-for-external-httprest-endpoints)
 - [How to Initiate Request Processing Flow in Your Service?](#how-to-initiate-request-processing-flow-in-your-service)
     * [Calling gRPC Endpoints of Your Service](#calling-grpc-endpoints-of-your-service)
-        + [Populating Service Request Context While Calling Our gRPC Endpoints](#populating-service-request-context-while-calling-our-grpc-endpoints)
     * [Calling REST Endpoints of Your Service](#calling-rest-endpoints-of-your-service)
     * [Publishing Kafka Messages to be Consumed by Your Service](#publishing-kafka-messages-to-be-consumed-by-your-service)
-- [How to Verify gRPC & REST Calls, Kafka Messages and EventTracking Events?](#how-to-verify-grpc--rest-calls-kafka-messages-and-eventtracking-events)
     * [Verify the Kafka Messages Published by Your Service](#verify-the-kafka-messages-published-by-your-service)
         + [Define Kafka Consumer Definitions to Consume Kafka Messages for Verification in Your Tests](#define-kafka-consumer-definitions-to-consume-kafka-messages-for-verification-in-your-tests)
         + [Waiting For Kafka Messages to be Published or Consumed](#waiting-for-kafka-messages-to-be-published-or-consumed)
         + [Verify Published or Consumed Kafka Messages](#verify-published-or-consumed-kafka-messages)
-    * [Verify the Events Submitted to EventTracker for Publishing](#verify-the-events-submitted-to-eventtracker-for-publishing)
-- [How to Integrate with Experimentation Platform?](#how-to-integrate-with-experimentation-platform)
 - [How to Work with TestContainers?](#how-to-work-with-testcontainers)
     * [Selectively Registering Your TestContainers](#selectively-registering-your-testcontainers)
     * [Initial Data Population for TestContainers](#initial-data-population-for-testcontainers)
@@ -406,12 +401,8 @@ In the above example, the body part is written as a SpEL expression, and it refe
 which is defined in the `PaymentGrpcServiceFIT` test class as below.
 
 ```kotlin
-import com.fit4j.annotation.FIT
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-
 @FIT
-class PaymentGrpcServiceFIT {
+class SampleFIT {
     @TestConfiguration
     class TestConfig {
         @Bean
@@ -427,14 +418,6 @@ In that case, you will need to implement a bean from `com.fit4j.http.HttpRespons
 interface in the test configuration class, and prepare the response programmatically as follows.
 
 ```kotlin
-import com.google.protobuf.Message
-import com.fit4j.annotation.FIT
-import com.fit4j.grpc.GrpcResponseJsonBuilder
-import com.example.services.retrieval.user.v1.UserRetrievalServiceOuterClass.GetUsersRequest
-import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-
 @FIT
 class SampleFIT {
     
@@ -519,28 +502,18 @@ submitting a Kafka message.
 You can call a particular grpc endpoint of your service via a grpc stub instance injected into your test class as follows.
 
 ```kotlin
-import com.example.dto.credit.v1.Money
-import com.fit4j.annotation.FIT
-import com.example.rpc.payments.checkout.credit.v1.CreditServiceGrpc
-import com.example.rpc.payments.checkout.credit.v1.ReserveCreditRequest
-import net.devh.boot.grpc.client.inject.GrpcClient
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-
 @FIT
 class SampleFIT {
     @GrpcClient("inProcess")
-    private lateinit var grpcClient:CreditServiceGrpc.CreditServiceBlockingStub
+    private lateinit var grpcClient: FooGrpcServiceGrpc.FooGrpcServiceBlockingStub
   
     @Test
     fun `test something`() {
         //given (arrange)
-        val request = ReserveCreditRequest.newBuilder()
-          .setUserId("123")
-          .setAmountMoney(Money.newBuilder().setCurrency("USD").setAmount("10.00").build())
-          .setPaymentAttemptId("456").build()
+        val request = GetFooByIdRequest.newBuilder()
+          .setId(123).build()
         //when (act)
-        val response = grpcClient.reserveCredit(request)
+        val response = grpcClient.getFooByIdResponse(request)
         //then (assert)
         Assertions.assertNotNull(response)
     }
@@ -549,47 +522,6 @@ class SampleFIT {
 After defining an instance variable of your particular grpc service stub class, you need to annotate it with `@GrpcClient`
 annotation. `inProcess` is the name of the grpc client address that your grpc service uses, which
 is already defined by the test library behind the scenes.
-
-### Populating Service Request Context While Calling Our gRPC Endpoints
-
-In case you need to populate the service request context while calling your own gRPC endpoints, you can achieve this by
-defining a bean factory method of return type `ServiceRequestContext` in your test configuration class. That bean should
-create and initialize a `ServiceRequestContext` object with the necessary values and return it. The FIT4J library 
-will detect it in the Spring container and use it while calling your gRPC endpoints.
-
-```kotlin
-import com.fit4j.annotation.FIT
-import com.fit4j.libraries.requestcontext.spring.RequestContextProvider
-import com.fit4j.services.dto.user.UserOuterClass
-import com.fit4j.services.requestcontext.v1.ServiceRequestContextOuterClass.ServiceRequestContext
-import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-
-@FIT
-class SampleFIT {
-
-    @TestConfiguration
-    class TestConfig {
-        @Bean
-        fun serviceRequestContext() : ServiceRequestContext {
-            return ServiceRequestContext.newBuilder()
-                .setUser(
-                    UserOuterClass.User.newBuilder().setUserId(123)
-                        .setCountry("US")
-                        .setPlatform("web")
-                        .setLocale("en_US")
-                ).build()
-        }
-    }
-
-    @Test
-    fun `it should work`() {
-        // when you perform a gRPC call here, the service request context will be available during the
-        // gRPC service call
-    }
-}
-```
 
 ## Calling REST Endpoints of Your Service
 
@@ -647,34 +579,24 @@ property defined in the bean. You can then make use of `KafkaMessageTracer` bean
 message and verify it.
 
 ```kotlin
-import com.fit4j.annotation.FIT
-import com.fit4j.rpc.payments.checkout.credit.v1beta1.CaptureCreditRequest
-import org.junit.jupiter.api.Assertions
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.kafka.test.context.EmbeddedKafka
-
 @EmbeddedKafka
 @FIT
 class SampleFIT {
 
   @Autowired
-  private lateinit var captureCreditRequestRepository: CaptureCreditRequestRepository
+  private lateinit var fooRepository: FooRepository
+  
+  private lateinit var helper: FitHelper
 
-  override fun prepareForTestExecution() {
-  }
+  @Test
+  override fun testFoo() {
+      val message = Foo.newBuilder().setId(123).setName("Foo").build()
+      helper.beans.kafkaTemplate.send("foo-create-topic", message).get()
 
-  override fun submitNewRequest() {
-    val message = CaptureCreditRequest.newBuilder().setPaymentAttemptId("123").build()
-    helper.beans.kafkaTemplate.send("capture-credit-request", message).get()
-  }
+      helper.beans.kafkaMessageTracker.waitForProcessing(CaptureCreditRequest::class)
 
-  override fun waitForRequestProcessing() {
-    helper.beans.kafkaMessageTracker.waitForProcessing(CaptureCreditRequest::class)
-  }
-
-  override fun verifyStateAfterExecution() {
-    val ccRequest = captureCreditRequestRepository.findByPaymentAttemptId("123")
-    Assertions.assertNotNull(ccRequest)
+      val foo = fooRepository.findById(123)
+      Assertions.assertNotNull(foo)
   }
 }
 ```
@@ -683,7 +605,7 @@ If you need to clean up the topics in between the tests or test classes, you can
 deletes topics after each test method execution. It is disabled by default, you can enable it by setting the property
 `fit4j.kafka.topicCleaner.enabled=true` in your `application-test.properties` file.
 
-# How to Verify gRPC & REST Calls, Kafka Messages and EventTracking Events?
+# How to Verify gRPC & REST Calls, Kafka Messages?
 
 The FIT4J test library provides you with the ability to verify the GRPC and REST calls made by your service.
 This can be done via a bean of type `com.fit4j.mock.MockServiceCallTracker` provided by the library. It provides methods 
@@ -757,87 +679,47 @@ verification of JPA entities and Kafka messages.
 @FIT
 class SampleFIT {
     @Autowired
-    private lateinit var refundEntityRepository: RefundEntityRepository
-
-    override fun prepareForTestExecution() {
-        //...
-    }
-  
-    override fun submitNewRequest() {
-        //...
-    }
-  
-    override fun waitForRequestProcessing() {
-        //...
-    }
+    private lateinit var fooRepository: FooRepository
     
-    override fun verifyStateAfterExecution() {
-        val refundEntity = refundEntityRepository.findByPurchaseRef("purchase-ref-123")
+   @Test 
+    override fun testVerifications() {
+        val foo = refundEntityRepository.findById(123)
 
         helper.verifyEntity(
-            refundEntity,
+            foo,
             """
             {
-                "issuerRef":"issuer-ref-123",
-                "purchaseRef":"purchase-ref-123",
-                "ticketRef":"ticket-ref-123",
-                "userRef":123,
-                "reason":"refund reason",
-                "legacyId":456,
-                "planStages":["IssueCredit","Unenroll"],
-                "refundStates":{
-                    "issueCredit":"CompletedAndSucceeded",
-                    "unenroll":"CompletedAndSucceeded"
-                    }
-            }
-            """.trimIndent()
-        )
-        
-        helper.verifyEvent(
-            RefundApprovedEvent::class,
-            """
-            {
-                "refundRef":"rfnd-${refundEntity.id}",
-                "hasDisputeCase":${refundEntity.hasDisputeCase},
-                "isReasonFraud":false,
-                "purchaseRef":"${refundEntity.purchaseRef}",
-                "userRef":${refundEntity.userRef},
-                "refundTime":${timestamp(refundEntity.creationTime!!)},
-                "items":[
-                    {
-                        "buyableRef":"${refundEntity.items.first.buyableRef}",
-                        "refundAmount":${money("5.00","USD")}
-                    }
-                ]
+                "id":123,
+                "name":"Foo"
             }
             """.trimIndent()
         )
 
-      val actualJsonString = helper.beans.jsonMapper.writeValueAsString(refundEntity)
-      helper.verifyValues(
-        actualJsonString,
-        """
+       val actualJsonString = helper.beans.jsonMapper.writeValueAsString(foo)
+       helper.verifyValues(
+           actualJsonString,
+           """
             {
-                "refundRef":"rfnd-${refundEntity.id}",
-                "hasDisputeCase":${refundEntity.hasDisputeCase},
-                "isReasonFraud":false,
-                "purchaseRef":"${refundEntity.purchaseRef}",
-                "userRef":${refundEntity.userRef},
-                "refundTime":${timestamp(refundEntity.creationTime!!)},
-                "items":[
-                    {
-                        "buyableRef":"${refundEntity.items.first.buyableRef}",
-                        "refundAmount":${money("5.00","USD")}
-                    }
-                ]
+                "id":123,
+                "name":"Foo"
             }
             """.trimIndent()
-      )
+       )
+        
+        helper.verifyEvent(
+            FooCreatedEvent::class,
+            """
+            {
+                "id":123,
+                "name":"Foo"
+            }
+            """.trimIndent()
+        )
     }
 }
 ```
-In the above example, the `RefundEntity` instance is fetched from the database and its state is verified against the
-expected state represented as JSON content. Similarly, Kafka message of `RefundApprovedEvent` type is verified against
+In the above example, the `Foo` instance is fetched from the database and its state is verified against the
+expected state represented as JSON content. Similarly, Kafka message of `FooCreatedEvent` type is verified against
 expected state represented as JSON content.
 
 # How to Work with TestContainers?
@@ -944,7 +826,7 @@ test class.
 ```kotlin
 @FIT
 @com.fit4j.testcontainers.Testcontainers(definitions = ["redisContainerDefinition"])
-class TestContainersWithSelectiveRegistrationIntegrationTests {
+class TestContainersWithSelectiveRegistrationFIT {
     
     @Test
     fun `test something`() {
@@ -1041,32 +923,18 @@ Therefore, you can immediately work with such kind of nested structures as demon
 
 ```kotlin
 verifyEvent(
-            DataContractMessage::class,
+            AnyRecord::class,
             """
             {
-                "metadata": {
-                    "eventType": "INSERT",
-                    "messageId": 1,
-                    "messageType": "DATA_CONTRACT_MESSAGE_TYPE_ENTITY_CHANGE",
-                    "published_at": ${timestamp(Date(123000))}
-                },
-                "payload": {
-                    "@type": "type.googleapis.com/fit4j.dto.payments.attribution_post_purchase.refunds.v1.EntityChangeEventPayloadForRefund",
+                "values": {
+                    "@type": "type.googleapis.com/com.example.Foo",
                     "id": 123,
-                    "issuerReference": "issuer-ref-123",
-                    "userReference": 456,
-                    "purchaseReference": "purchase-ref-123",
-                    "ticketReference": "ticket-ref-123",
-                    "reason": "my-reason",
-                    "rejectionReason": null
+                    "name": "Foo"
                 }
             }
             """.trimIndent()
         )
 ```
-
-DataContractMessage in the above example has a payload field which could be some other protobuf type. All you need to do
-is just infer the type of that protobuf object as you see in the example above.
 
 # How to Get More Help & Support?
 
@@ -1099,24 +967,20 @@ FIT environment such as programmatic and declarative request-response trainings 
 etc, which are not available when `@IT` annotation is used. Here is the complete list of features that are available for tests
 written with those annotations. Here is a more detailed table that lists available functionalities with each annotation.
 
-|                                                                                                                                                                                                                                          | @IT | @FIT | @RestControllerAcceptanceTest |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|-----------------|-------------------------------|
-| testClass FQN and simple names are exposed as an environment properties fit4j.testClass.name, fit4j.testClass.simpleName                                                                                                                 | Yes              | Yes             | Yes                           |
-| DynamoDBEmbedded is exposed as a Spring bean if @EmbeddedDynamoDB annotation is used in test class                                                                                                                                       | Yes              | Yes             | Yes                           |
-| spring.kafka.bootstrap-servers property is set if @EmbeddedKafka is used in test class                                                                                                                                                   | Yes              | Yes             | Yes                           |
-| EmbeddedRedisServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedRedisServer.port if @EmbeddedRedis annotation is used in test class                                                         | Yes              | Yes             | Yes                           |
-| gRPC server is run in-process mode at random port along with in-process name is assigned random name and clients are enabled to access it through several alternative names inProcess, inProcessClient, inProcessClientForAcceptanceTest | Yes              | Yes             | Yes                           |
-| okhttp3 MockWebServer is exposed as a Spring bean along with its host and port values as environment properties fit4j.mockWebServer.host, fit4j.mockWebServer.port if it is available in test classpath                                  | Yes              | Yes             | Yes                           |
-| Declarative Test Container support is enabled if @Testcontainers annotation is used in test class                                                                                                                                        | Yes              | Yes             | Yes                           |
-| Automatic ServiceRequestContext discovery and populating it into RequestContextProvider                                                                                                                                                  | Yes              | Yes             | Yes                           |
-| Events published to EventTracker are traced if EventTracker library is in classpath                                                                                                                                                      | No               | Yes             | Yes                           |
-| Experimentation Platform's gRPC communication is replaced with in-process mode                                                                                                                                                           | No               | Yes             | Yes                           |
-| gRPC & HTTP request-response training and call tracking capability is enabled                                                                                                                                                            | No               | Yes             | Yes                           |
-| gRPC automatic service and type descriptor discovery capability is enabled                                                                                                                                                               | No               | Yes             | Yes                           |
-| Kafka message tracking capability is enabled                                                                                                                                                                                             | No               | Yes             | Yes                           |
-| Google JsonFormat Printer & Parser classes are exposed as Spring bean if they are in class path                                                                                                                                          | No               | Yes             | Yes                           |
-| XXX SAS JWTProvider is replaced with an implementation which is capable of returning a test JWT token given as environment property fit4j.jwt                                                                                            | No               | Yes             | Yes                           |
-| Spring TestRestTemplate bean is enabled                                                                                                                                                                                                  | No               | No              | Yes                           |
+|                                                                                                                                                                                                                                          | @IT | @FIT | @FIT(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT) |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|-----------------|----------------------------------------------------------------|
+| testClass FQN and simple names are exposed as an environment properties fit4j.testClass.name, fit4j.testClass.simpleName                                                                                                                 | Yes              | Yes             | Yes                                                            |
+| DynamoDBEmbedded is exposed as a Spring bean if @EmbeddedDynamoDB annotation is used in test class                                                                                                                                       | Yes              | Yes             | Yes                                                            |
+| spring.kafka.bootstrap-servers property is set if @EmbeddedKafka is used in test class                                                                                                                                                   | Yes              | Yes             | Yes                                                            |
+| EmbeddedRedisServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedRedisServer.port if @EmbeddedRedis annotation is used in test class                                                         | Yes              | Yes             | Yes                                                            |
+| gRPC server is run in-process mode at random port along with in-process name is assigned random name and clients are enabled to access it through several alternative names inProcess, inProcessClient, inProcessClientForAcceptanceTest | Yes              | Yes             | Yes                                                            |
+| okhttp3 MockWebServer is exposed as a Spring bean along with its host and port values as environment properties fit4j.mockWebServer.host, fit4j.mockWebServer.port if it is available in test classpath                                  | Yes              | Yes             | Yes                                                            |
+| Declarative Test Container support is enabled if @Testcontainers annotation is used in test class                                                                                                                                        | Yes              | Yes             | Yes                                                            |
+| gRPC & HTTP request-response training and call tracking capability is enabled                                                                                                                                                            | No               | Yes             | Yes                                                            |
+| gRPC automatic service and type descriptor discovery capability is enabled                                                                                                                                                               | No               | Yes             | Yes                                                            |
+| Kafka message tracking capability is enabled                                                                                                                                                                                             | No               | Yes             | Yes                                                            |
+| Google JsonFormat Printer & Parser classes are exposed as Spring bean if they are in class path                                                                                                                                          | No               | Yes             | Yes                                                            |
+| Spring TestRestTemplate bean is enabled                                                                                                                                                                                                  | No               | No              | Yes                                                            |
 
 
 

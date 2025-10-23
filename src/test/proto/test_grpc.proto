@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/any.proto";
+
 option java_package = "com.example.fit4j.grpc";
 
 package com.example;
@@ -29,6 +31,7 @@ message GetAgeResponse {
 }
 
 message GetFooListGrpcRequest {
+  bool mayFail = 1;
 }
 
 message GetFooListGrpcResponse {
@@ -46,4 +49,13 @@ message GetFooByIdResponse {
 message Foo {
   int64 id = 1;
   string name = 2;
+}
+
+message Bar {
+  int64 id = 1;
+  string name = 2;
+}
+
+message AnyRecord {
+  repeated google.protobuf.Any values = 1;
 }

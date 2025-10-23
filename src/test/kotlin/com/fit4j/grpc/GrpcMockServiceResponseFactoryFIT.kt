@@ -1,7 +1,5 @@
 package com.fit4j.grpc
 
-import com.example.CurrencyServiceOuterClass
-import com.example.UserRetrievalServiceOuterClass
 import com.example.fit4j.grpc.TestGrpc
 import com.fit4j.annotation.FIT
 import com.fit4j.mock.MockServiceResponseFactory
@@ -25,7 +23,7 @@ class GrpcMockServiceResponseFactoryFIT {
         val variables: Variables
     )
 
-    data class Variables(val userId: Int)
+    data class Variables(val fooId: Int)
 
     @TestConfiguration
     class TestConfig {
@@ -67,7 +65,7 @@ class GrpcMockServiceResponseFactoryFIT {
         @Bean
         fun grpcResponseJsonBuilder(): GrpcResponseJsonBuilder<Message> {
             return GrpcResponseJsonBuilder {
-                if(it is TestGrpc.GetFooListGrpcRequest) {
+                if(it is TestGrpc.GetFooListGrpcRequest && !it.mayFail) {
                     """
                         {
                           "fooList": [
@@ -86,7 +84,7 @@ class GrpcMockServiceResponseFactoryFIT {
                           
                         }
                     """.trimIndent()
-                } else if (it is UserRetrievalServiceOuterClass.GetUsersRequest) {
+                } else if (it is TestGrpc.GetFooListGrpcRequest && it.mayFail) {
                     """
                         throw {
                             "status": "PERMISSION_DENIED"
@@ -143,21 +141,21 @@ class GrpcMockServiceResponseFactoryFIT {
     @Test
     fun `it should resolve a response from declarative responses for the given gRPC GetUserRequest`() {
         // Given
-        val request = UserRetrievalServiceOuterClass.GetUserRequest.newBuilder().build()
+        val request = TestGrpc.GetFooByIdRequest.getDefaultInstance()
 
         // When
         val response = mockServiceResponseFactory.getResponseFor(request)
 
         // Then
-        val user = UserRetrievalServiceOuterClass.User.newBuilder().setUserId(123).build()
-        val expectedResponse = UserRetrievalServiceOuterClass.GetUserResponse.newBuilder().setUser(user).build()
+        val foo = TestGrpc.Foo.newBuilder().setId(123).build()
+        val expectedResponse = TestGrpc.GetFooByIdResponse.newBuilder().setFoo(foo).build()
         Assertions.assertEquals(expectedResponse, response)
     }
 
     @Test
     fun `it should resolve a response for the given gRPC GetUsersRequest`() {
         // Given
-        val request = UserRetrievalServiceOuterClass.GetUsersRequest.getDefaultInstance()
+        val request = TestGrpc.GetFooListGrpcRequest.newBuilder().setMayFail(true).build()
 
         // When
         val response = mockServiceResponseFactory.getResponseFor(request)
@@ -169,9 +167,9 @@ class GrpcMockServiceResponseFactoryFIT {
 
     @Test
     fun `it should resolve a response from declarations for the given GRPC request`() {
-        val request = CurrencyServiceOuterClass.GetRateRequest.newBuilder().setSourceCurrency("USD").setTargetCurrency("TRY").build()
+        val request = TestGrpc.GetAgeRequest.newBuilder().setName("Foo").setSurname("Bar").build()
         val response = mockServiceResponseFactory.getResponseFor(request)
-        val expectedResponse = CurrencyServiceOuterClass.GetRateResponse.newBuilder().setRate("1.00").build()
+        val expectedResponse = TestGrpc.GetAgeResponse.newBuilder().setAge(10).build()
         Assertions.assertEquals(expectedResponse, response)
     }
 }

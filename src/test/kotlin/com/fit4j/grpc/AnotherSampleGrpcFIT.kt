@@ -1,24 +1,25 @@
 package com.fit4j.grpc
 
-import com.example.UserRetrievalServiceGrpc
-import com.example.UserRetrievalServiceOuterClass
+import com.example.fit4j.grpc.FooGrpcServiceGrpc
+import com.example.fit4j.grpc.TestGrpc
 import com.fit4j.annotation.FIT
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.test.context.TestPropertySource
 
-@TestPropertySource(properties = ["grpc.client.userRetrievalService.address=in-process:\${grpc.server.inProcessName}"])
+@TestPropertySource(properties = ["grpc.client.testGrpcService.address=in-process:\${grpc.server.inProcessName}"])
 @FIT
 class AnotherSampleGrpcFIT {
-    @GrpcClient("userRetrievalService")
-    private lateinit var userRetrievalService: UserRetrievalServiceGrpc.UserRetrievalServiceBlockingStub
+    @GrpcClient("testGrpcService")
+    private lateinit var fooGrpcService: FooGrpcServiceGrpc.FooGrpcServiceBlockingStub
 
     @Test
     fun `it should work`() {
-        val request = UserRetrievalServiceOuterClass.GetUserRequest.newBuilder().setUserId(123L).build()
-        val response = userRetrievalService.getUser(request)
-        Assertions.assertEquals(123L,response.user.userId)
+        val request = TestGrpc.GetFooByIdRequest.newBuilder().setId(123).build()
+        val response = fooGrpcService.getFooByIdResponse(request)
+        Assertions.assertEquals(123L,response.foo.id)
+        Assertions.assertEquals("Foo",response.foo.name)
     }
 
 }

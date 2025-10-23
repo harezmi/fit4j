@@ -28,13 +28,13 @@ propertiesFileContent=\
 ""
 
 packageName="com.fit4j.examples."$(echo $1 | sed 's/-//g')
-testClassName=$(to_camel_case $1)"ExampleAcceptanceTest"
+testClassName=$(to_camel_case $1)"ExampleFIT"
 testFileName=$testClassName".kt"
 testFileContent=\
 "package $packageName
 
 import com.fit4j.annotation.FIT
-import com.fit4j.helpers.AcceptanceTestHelper
+import com.fit4j.helper.FitHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired
 @FIT
 class $testClassName {
     @Autowired
-    private lateinit var helper: AcceptanceTestHelper
+    private lateinit var helper: FitHelper
 
     @Test
     fun \`it should work\`() {

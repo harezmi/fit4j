@@ -3,18 +3,19 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.UserRetrievalServiceOuterClass$GetSuppressedFeaturesRequest
+          type: com.example.fit4j.grpc.TestGrpc$PingRequest
           response:
             status: "OK"
   - name: AnotherSampleGrpcFIT
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.UserRetrievalServiceOuterClass$GetUserRequest
+          type: com.example.fit4j.grpc.TestGrpc$GetFooByIdRequest
           response:
             body:
-              user:
-                userId: 123
+              foo:
+                id: 123
+                name: "Foo"
   - name: SampleGrpcFIT
     fixtures:
       - request:
@@ -28,18 +29,18 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.CurrencyServiceOuterClass$GetRateRequest
-          predicate: "#request.sourceCurrency == 'USD' && #request.targetCurrency == 'TRY'"
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
+          predicate: "#request.name == 'Foo' && #request.surname == 'Bar'"
           response:
             body:
-              rate: "1.00"
+              age: 10
       - request:
           protocol: grpc
-          type: com.example.UserRetrievalServiceOuterClass$GetUserRequest
+          type: com.example.fit4j.grpc.TestGrpc$GetFooByIdRequest
           response:
             body:
-              user:
-                userId: "#{@testFixtureData.variables.userId}"
+              foo:
+                id: "#{@testFixtureData.variables.fooId}"
   - name: HttpMockServiceResponseFactoryFIT
     fixtures:
       - request:

@@ -1,8 +1,7 @@
 package com.fit4j.grpc
 
-import com.example.CreditServiceOuterClass
-import com.example.CurrencyServiceOuterClass
-import com.example.PaymentTransactionServiceOuterClass
+
+import com.example.fit4j.grpc.TestGrpc
 import com.fit4j.annotation.FIT
 import com.fit4j.helper.FitHelper
 import com.google.protobuf.Any
@@ -23,12 +22,12 @@ class GrpcTypeDescriptorsFIT {
     class TestConfig {
         @Bean
         fun grpcTypeDescriptors1() : List<Descriptors.Descriptor> {
-            return listOf(PaymentTransactionServiceOuterClass.PaymentTransaction.getDescriptor())
+            return listOf(TestGrpc.GetFooListGrpcRequest.getDescriptor())
         }
 
         @Bean
         fun grpcTypeDescriptors2() : List<Descriptors.Descriptor> {
-            return listOf(PaymentTransactionServiceOuterClass.GatewayPaymentTransaction.getDescriptor())
+            return listOf(TestGrpc.GetFooByIdRequest.getDescriptor())
         }
 
         @Bean
@@ -43,42 +42,23 @@ class GrpcTypeDescriptorsFIT {
     }
 
     @Test
-    fun `row json content with any value of pt should be deserialized successfully`() {
+    fun `anyRecord json content with any value of Foo should be deserialized successfully`() {
         val ptContent = """
             {
                 "values": [{
-                    "@type": "type.googleapis.com/com.example.PaymentTransaction",
-                    "id": "123",
-                    "paymentAttemptId": "456"
+                    "@type": "type.googleapis.com/com.example.Foo",
+                    "id": 123,
+                    "name": "Foo"
                 }]
             }
             """.trimIndent()
 
-        val rowBuilder = CurrencyServiceOuterClass.Row.newBuilder()
-        helper.beans.jsonProtoParser.merge(ptContent,rowBuilder)
-        val row = rowBuilder.build()
-        val any = row.getValues(0) as Any
-        val pt = any.unpack(PaymentTransactionServiceOuterClass.PaymentTransaction::class.java)
-        Assertions.assertEquals("123",pt.id)
-        Assertions.assertEquals("456",pt.paymentAttemptId)
-    }
-
-    @Test
-    fun `row json content with any value of credit should be deserialized successfully`() {
-        val ptContent = """
-            {
-                "values": [{
-                    "@type": "type.googleapis.com/com.example.Credit",
-                    "currency": "usd"
-                }]
-            }
-            """.trimIndent()
-
-        val rowBuilder = CurrencyServiceOuterClass.Row.newBuilder()
-        helper.beans.jsonProtoParser.merge(ptContent,rowBuilder)
-        val row = rowBuilder.build()
-        val any = row.getValues(0) as Any
-        val credit = any.unpack(CreditServiceOuterClass.Credit::class.java)
-        Assertions.assertEquals("usd",credit.currency)
+        val anyRecordBuilder = TestGrpc.AnyRecord.newBuilder()
+        helper.beans.jsonProtoParser.merge(ptContent,anyRecordBuilder)
+        val anyRecord = anyRecordBuilder.build()
+        val any = anyRecord.getValues(0) as Any
+        val foo = any.unpack(TestGrpc.Foo::class.java)
+        Assertions.assertEquals(123,foo.id)
+        Assertions.assertEquals("Foo",foo.name)
     }
 }

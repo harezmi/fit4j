@@ -19,6 +19,3 @@ message GetRateResponse {
     string rate = 1;
 }
 
-message Row {
-    repeated google.protobuf.Any values = 1;
-}

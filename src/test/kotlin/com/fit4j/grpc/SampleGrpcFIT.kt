@@ -1,7 +1,5 @@
 package com.fit4j.grpc
 
-import com.example.CurrencyServiceGrpc
-import com.example.CurrencyServiceOuterClass
 import com.example.fit4j.grpc.FooGrpcServiceGrpc
 import com.example.fit4j.grpc.TestGrpc
 import com.fit4j.annotation.FIT
@@ -22,5 +20,4 @@ class SampleGrpcFIT {
         val getAgeResponse = fooGrpcService.getAgeRequest(getAgeRequest)
         Assertions.assertEquals(10,getAgeResponse.age)
     }
-
 }
