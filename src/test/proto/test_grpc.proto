@@ -7,6 +7,25 @@ package com.example;
 service FooGrpcService {
   rpc getFooListResponse(GetFooListGrpcRequest) returns (GetFooListGrpcResponse);
   rpc getFooByIdResponse(GetFooByIdRequest) returns (GetFooByIdResponse);
+  rpc getAgeRequest(GetAgeRequest) returns (GetAgeResponse);
+  rpc pingRequest(PingRequest) returns (PingResponse);
+}
+
+message PingRequest {
+
+}
+
+message PingResponse {
+
+}
+
+message GetAgeRequest {
+  string name = 1;
+  string surname = 2;
+}
+
+message GetAgeResponse {
+  int64 age = 1;
 }
 
 message GetFooListGrpcRequest {

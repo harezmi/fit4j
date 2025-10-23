@@ -19,11 +19,11 @@ tests:
     fixtures:
       - request:
           protocol: grpc
-          type: com.example.CurrencyServiceOuterClass$GetRateRequest
-          predicate: "#request.sourceCurrency == 'USD' && #request.targetCurrency == 'TRY'"
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
+          predicate: "#request.name == 'Foo' && #request.surname == 'Bar'"
           response:
             body:
-              rate: "1.00"
+              age: 10
   - name: GrpcMockServiceResponseFactoryFIT
     fixtures:
       - request:
