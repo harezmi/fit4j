@@ -649,7 +649,7 @@ class SampleFIT {
     
    @Test 
     override fun testVerifications() {
-        val foo = refundEntityRepository.findById(123)
+        val foo = fooRepository.findById(123)
 
         helper.verifyEntity(
             foo,
