@@ -1,7 +1,7 @@
 package com.fit4j.context
 
 import com.fit4j.context.Fit4JTestExtension.Companion.currentExtensionContext
-import okhttp3.mockwebserver.RecordedRequest
+import com.fit4j.http.HttpRequest
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace
 import java.lang.reflect.Method
 
@@ -47,9 +47,9 @@ class Fit4JTestContextManager {
 
         @JvmStatic
         fun addFailedCall(request:Any) {
-            val requestPath = if(request is RecordedRequest) request.path!! else request!!.javaClass.name
-            val requestType = if(request is RecordedRequest) "HTTP" else "GRPC"
-            val requestMethod = if(request is RecordedRequest) request.method else null
+            val requestPath = if(request is HttpRequest) request.path!! else request!!.javaClass.name
+            val requestType = if(request is HttpRequest) "HTTP" else "GRPC"
+            val requestMethod = if(request is HttpRequest) request.method else null
             addFailedCall(FailedCall(requestType, requestPath,requestMethod))
         }
 

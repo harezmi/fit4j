@@ -1,16 +1,13 @@
 package com.fit4j.mock
 
 import com.fit4j.annotation.FIT
-import com.fit4j.grpc.MockGrpcCallTrace
-import com.fit4j.http.HttpRequestContext
-import com.fit4j.http.MockWebCallTrace
+import com.fit4j.grpc.GrpcCallTrace
+import com.fit4j.http.HttpCallTrace
+import com.fit4j.http.HttpRequest
+import com.fit4j.http.HttpResponse
 import com.google.protobuf.MessageLite
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import okhttp3.Headers
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.RecordedRequest
-import okio.Buffer
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -90,40 +87,35 @@ class MockServiceCallTrackerFIT {
         //when
         mockServiceCallTracker.track(request,response,exception)
         //then
-        verifyWebCallTrace(HttpRequestContext(request), response, exception, HttpStatus.OK, false)
+        verifyWebCallTrace(request, response, exception, HttpStatus.OK, false)
     }
 
-    private fun createWebRequest() =
-        RecordedRequest("GET /foo HTTP/1.1", Headers.headersOf(), emptyList(), 0, Buffer(), 0, Socket(), null)
+    private fun createWebRequest() = HttpRequest(path = "/foo", method = "GET",body="", headers = emptyMap<String,String>(),"/foo")
 
     @Test
     fun `it should track an HTTP call with a response and without an error`() {
         //given
         val request = createWebRequest()
-        val response = MockResponse().apply {
-            setResponseCode(404)
-        }
+        val response = HttpResponse(statusCode = 404)
         val exception = null
         Assertions.assertEquals(0, mockServiceCallTracker.getTraces().size)
         //when
         mockServiceCallTracker.track(request,response,exception)
         //then
-        verifyWebCallTrace(HttpRequestContext(request), response, exception, HttpStatus.NOT_FOUND, false)
+        verifyWebCallTrace(request, response, exception, HttpStatus.NOT_FOUND, false)
     }
 
     @Test
     fun `it should track an HTTP call with an error`() {
         //given
         val request = createWebRequest()
-        val response = MockResponse().apply {
-            setResponseCode(500)
-        }
+        val response = HttpResponse(statusCode = 500)
         val exception = Throwable("Internal server error")
         Assertions.assertEquals(0, mockServiceCallTracker.getTraces().size)
         //when
         mockServiceCallTracker.track(request,response,exception)
         //then
-        verifyWebCallTrace(HttpRequestContext(request), response, exception, HttpStatus.INTERNAL_SERVER_ERROR, true)
+        verifyWebCallTrace(request, response, exception, HttpStatus.INTERNAL_SERVER_ERROR, true)
     }
 
     private fun verifyGrpcCallTrace(
@@ -135,7 +127,7 @@ class MockServiceCallTrackerFIT {
     ) {
         val traces = mockServiceCallTracker.getTraces()
         Assertions.assertEquals(1, traces.size)
-        val trace = traces.first() as MockGrpcCallTrace
+        val trace = traces.first() as GrpcCallTrace
         Assertions.assertSame(request, trace.request)
         Assertions.assertSame(response, trace.getResponse())
         Assertions.assertSame(exception, trace.throwable)
@@ -155,15 +147,15 @@ class MockServiceCallTrackerFIT {
     }
 
     private fun verifyWebCallTrace(
-        request: HttpRequestContext,
-        response: MockResponse?,
+        request: HttpRequest,
+        response: HttpResponse?,
         exception: Throwable?,
         status:HttpStatus,
         hasError:Boolean
     ) {
         val traces = mockServiceCallTracker.getTraces()
         Assertions.assertEquals(1, traces.size)
-        val trace = traces.first() as MockWebCallTrace
+        val trace = traces.first() as HttpCallTrace
         Assertions.assertEquals(request, trace.request)
         Assertions.assertSame(response, trace.getResponse())
         Assertions.assertSame(exception, trace.throwable)

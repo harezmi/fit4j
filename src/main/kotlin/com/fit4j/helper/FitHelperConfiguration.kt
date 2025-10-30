@@ -1,11 +1,11 @@
 package com.fit4j.helper
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fit4j.http.HttpServerWrapper
 import com.fit4j.kafka.KafkaMessageTracker
 import com.fit4j.mock.MockServiceCallTracker
 import com.google.protobuf.MessageLite
 import com.google.protobuf.util.JsonFormat
-import okhttp3.mockwebserver.MockWebServer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -18,7 +18,7 @@ class FitHelperConfiguration {
     lateinit var kafkaTemplate: KafkaTemplate<String, MessageLite>
 
     @Autowired(required = false)
-    lateinit var mockWebServer: MockWebServer
+    lateinit var httpServer: HttpServerWrapper
 
     @Autowired(required = false)
     lateinit var jsonMapper: ObjectMapper

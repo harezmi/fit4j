@@ -1,12 +1,11 @@
 package com.fit4j.grpc
 
 import com.fit4j.mock.CallTrace
-import com.fit4j.mock.CallTraceFactory
 import com.google.protobuf.MessageLite
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 
-data class MockGrpcCallTrace(val request: MessageLite, private val response: Any?, val throwable: Throwable?) :
+data class GrpcCallTrace(val request: MessageLite, private val response: Any?, val throwable: Throwable?) :
     CallTrace {
     override fun matchesRequestPath(path: String): Boolean {
         return request.javaClass.name.equals(path)
@@ -41,15 +40,6 @@ data class MockGrpcCallTrace(val request: MessageLite, private val response: Any
     }
 
     override fun toString(): String {
-        return "MockGrpcCallTrace(request=${request.javaClass.name}, response=${response?.javaClass?.name}, throwable=${throwable?.javaClass})"
+        return "GrpcCallTrace(request=${request.javaClass.name}, response=${response?.javaClass?.name}, throwable=${throwable?.javaClass})"
     }
-}
-
-class MockGrpcCallTraceFactory:CallTraceFactory {
-    override fun create(request: Any, response: Any?, exception: Throwable?): CallTrace? {
-        return if(request is MessageLite) {
-            MockGrpcCallTrace(request as MessageLite, response, exception)
-        } else null
-    }
-
 }

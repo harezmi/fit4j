@@ -10,7 +10,7 @@ import java.io.ByteArrayOutputStream
 class MockResponseJsonConverterFIT {
 
     @Autowired
-    private lateinit var mockResponseJsonConverter: MockResponseJsonConverter
+    private lateinit var httpResponseJsonConverter: HttpResponseJsonConverter
 
     @Test
     fun `it should build mock response from json content`() {
@@ -24,12 +24,10 @@ class MockResponseJsonConverterFIT {
                 "status": 200
             }
         """.trimIndent()
-        val response = mockResponseJsonConverter.fromJson(jsonContent)
-        Assertions.assertEquals("HTTP/1.1 200 OK", response.status)
-        val out = ByteArrayOutputStream()
-        response.getBody()!!.writeTo(out)
-        Assertions.assertEquals("""{"message" : "Hello, world!"}""".trimIndent(), out.toString("utf-8"))
-        Assertions.assertEquals("application/json", response.headers.get("Content-Type"))
+        val response = httpResponseJsonConverter.fromJson(jsonContent)
+        Assertions.assertEquals(200, response.statusCode)
+        Assertions.assertEquals("""{"message" : "Hello, world!"}""".trimIndent(), response.body)
+        Assertions.assertEquals("application/json", response.headers!!.get("Content-Type"))
         Assertions.assertEquals("Bearer token", response.headers.get("Authorization"))
     }
 }

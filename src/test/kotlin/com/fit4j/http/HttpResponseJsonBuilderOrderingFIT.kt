@@ -1,7 +1,6 @@
 package com.fit4j.http
 
 import com.fit4j.annotation.FIT
-import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +36,7 @@ class HttpResponseJsonBuilderOrderingFIT {
 }
 
 class HttpResponseJsonBuilder1 : HttpResponseJsonBuilder {
-    override fun build(request: RecordedRequest): String? {
+    override fun build(request: HttpRequest): String? {
         return null
     }
 
@@ -47,7 +46,7 @@ class HttpResponseJsonBuilder1 : HttpResponseJsonBuilder {
 }
 
 class HttpResponseJsonBuilder2 : HttpResponseJsonBuilder {
-    override fun build(request: RecordedRequest): String? {
+    override fun build(request: HttpRequest): String? {
         return null
     }
 

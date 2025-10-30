@@ -45,7 +45,6 @@ dependencies {
 	implementation("com.google.protobuf:protobuf-java-util:$protobufJavaVersion")
 	implementation("io.mockk:mockk:$mockkVersion")
 	implementation("net.devh:grpc-spring-boot-starter:$grpcSpringBootVersion")
-	implementation("com.squareup.okhttp3:mockwebserver")
 	implementation("org.testcontainers:testcontainers:$testcontainersVersion")
 	implementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
 	implementation("org.testcontainers:kafka:$testcontainersVersion")

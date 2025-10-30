@@ -4,19 +4,15 @@ package com.fit4j.context
 import org.springframework.test.context.ContextConfigurationAttributes
 import org.springframework.test.context.ContextCustomizer
 
-class MockWebServerContextCustomizerFactory : AbstractContextCustomizerFactory() {
+class HttpWebServerContextCustomizerFactory : AbstractContextCustomizerFactory() {
     companion object {
-        val customizer = MockWebServerContextCustomizer()
+        val httpServerCustomizer = HttpServerContextCustomizer()
     }
     override fun buildContextCustomizer(
         testClass: Class<*>,
         configAttributes: MutableList<ContextConfigurationAttributes>
     ): ContextCustomizer? {
-        return if (isClassPresent("okhttp3.mockwebserver.MockWebServer")) {
-            customizer
-        } else {
-            null
-        }
+        return httpServerCustomizer
     }
 
 

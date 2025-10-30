@@ -1,7 +1,7 @@
 package com.fit4j.mock
 
-import com.fit4j.grpc.MockGrpcCallTrace
-import com.fit4j.http.MockWebCallTrace
+import com.fit4j.grpc.GrpcCallTrace
+import com.fit4j.http.HttpCallTrace
 import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
 import org.springframework.test.context.event.annotation.AfterTestMethod
@@ -58,20 +58,20 @@ class MockServiceCallTracker(val callTraceFactoryList: List<CallTraceFactory>) {
     }
     fun hasHttpError(statusCode: Int): Boolean {
         synchronized(traces) {
-            return getTraceList().filter { it is MockWebCallTrace }.filter { it.getStatus() == statusCode }.isNotEmpty()
+            return getTraceList().filter { it is HttpCallTrace }.filter { it.getStatus() == statusCode }.isNotEmpty()
         }
     }
 
     fun hasGrpcError(statusCode: Int): Boolean {
         synchronized(traces) {
-            return getTraceList().filter { it is MockGrpcCallTrace }.filter { it.getStatus() == statusCode }.isNotEmpty()
+            return getTraceList().filter { it is GrpcCallTrace }.filter { it.getStatus() == statusCode }.isNotEmpty()
         }
     }
 
     fun getHttpRequest(path: String): List<Any> {
         synchronized(traces) {
             return getTraceList()
-                .filter { it is MockWebCallTrace }
+                .filter { it is HttpCallTrace }
                 .filter { it.matchesRequestPath(path) }.map { it.getRequest() }
         }
     }
@@ -79,7 +79,7 @@ class MockServiceCallTracker(val callTraceFactoryList: List<CallTraceFactory>) {
     fun <T> getGrpcRequest(type: Class<T>): List<T> {
         synchronized(traces) {
             return getTraceList()
-                .filter { it is MockGrpcCallTrace }
+                .filter { it is GrpcCallTrace }
                 .filter { it.matchesRequestPath(type.name) }.map { it.getRequest() } as List<T>
         }
     }

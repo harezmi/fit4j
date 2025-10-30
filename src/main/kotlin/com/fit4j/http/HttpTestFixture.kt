@@ -3,7 +3,6 @@ package com.fit4j.http
 import com.fit4j.mock.declarative.ExpressionResolver
 import com.fit4j.mock.declarative.TestFixture
 import com.fit4j.mock.declarative.TestFixturePredicate
-import okhttp3.mockwebserver.RecordedRequest
 import java.util.*
 
 data class HttpTestFixture(
@@ -14,7 +13,7 @@ data class HttpTestFixture(
     val responses: List<HttpTestFixtureResponse> = listOf(HttpTestFixtureResponse(200))
 ) : TestFixture(predicate), HttpResponseJsonBuilder {
 
-    override fun build(request: RecordedRequest): String? {
+    override fun build(request: HttpRequest): String? {
         val response: HttpTestFixtureResponse = obtainResponse(request, responses) as HttpTestFixtureResponse
 
         return """
@@ -27,17 +26,17 @@ data class HttpTestFixture(
     }
 
     override fun isApplicableFor(request: Any?): Boolean {
-        return request is RecordedRequest
+        return request is HttpRequest
                 && checkIfPathMatches(request)
-                && checkIfmethodMatches(request)
-                && evaluatePredicate(HttpRequestContext(request))
+                && checkIfMethodMatches(request)
+                && evaluatePredicate(request)
     }
 
-    private fun checkIfPathMatches(request: RecordedRequest): Boolean {
+    private fun checkIfPathMatches(request: HttpRequest): Boolean {
         return if(requestPath!= null) expressionResolver.resolve(requestPath,request) == request.path else true
     }
 
-    private fun checkIfmethodMatches(request: RecordedRequest): Boolean {
+    private fun checkIfMethodMatches(request: HttpRequest): Boolean {
         return if(method!= null) method.uppercase(Locale.US) == request.method else true
     }
 }

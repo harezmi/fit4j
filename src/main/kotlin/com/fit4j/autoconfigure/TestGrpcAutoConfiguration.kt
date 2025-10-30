@@ -56,8 +56,8 @@ class TestGrpcAutoConfiguration {
     }
 
     @Bean
-    fun mockGrpcCallTraceFactory() : MockGrpcCallTraceFactory{
-        return MockGrpcCallTraceFactory()
+    fun mockGrpcCallTraceFactory() : GrpcCallTraceFactory{
+        return GrpcCallTraceFactory()
     }
 
     @Bean

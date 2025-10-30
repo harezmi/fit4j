@@ -2,29 +2,33 @@ package com.fit4j.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fit4j.EnableOnFIT
-import com.fit4j.http.*
+import com.fit4j.http.DefaultHttpResponseProvider
+import com.fit4j.http.HttpCallTraceFactory
+import com.fit4j.http.HttpResponseJsonBuilder
+import com.fit4j.http.HttpResponseJsonConverter
+import com.fit4j.http.HttpServerDispatcher
+import com.fit4j.http.HttpServerWrapper
+import com.fit4j.http.HttpTestFixtureBuilder
+import com.fit4j.http.RawJsonContentToHttpResponseConverter
 import com.fit4j.mock.MockServiceCallTracker
 import com.fit4j.mock.MockServiceResponseFactory
 import com.fit4j.mock.declarative.DeclarativeTestFixtureProvider
 import com.fit4j.mock.declarative.ExpressionResolver
 import com.fit4j.mock.declarative.JsonContentExpressionResolver
 import com.fit4j.mock.declarative.PredicateEvaluator
-import okhttp3.mockwebserver.MockWebServer
 import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.context.annotation.Bean
 
 @AutoConfiguration
-@ConditionalOnClass(MockWebServer::class)
 @EnableOnFIT
 class TestHttpAutoConfiguration {
 
     @Bean
-    fun mockWebServerDispatcher(mockServiceCallTracker: MockServiceCallTracker,
-                                mockServiceResponseFactory: MockServiceResponseFactory,
-                                mockWebServer:MockWebServer) : MockWebServerDispatcher {
-        val dispatcher = MockWebServerDispatcher(mockServiceCallTracker, mockServiceResponseFactory)
-        mockWebServer.dispatcher = dispatcher
+    fun httpServerDispatcher(httpServerWrapper: HttpServerWrapper,
+                             mockServiceCallTracker: MockServiceCallTracker,
+                             mockServiceResponseFactory: MockServiceResponseFactory) : HttpServerDispatcher {
+        val dispatcher = HttpServerDispatcher(mockServiceCallTracker,mockServiceResponseFactory)
+        httpServerWrapper.httpServer!!.createContext("/", dispatcher)
         return dispatcher
     }
 
@@ -39,9 +43,14 @@ class TestHttpAutoConfiguration {
     }
 
     @Bean
+    fun httpResponseJsonConverter(objectMapper: ObjectMapper): HttpResponseJsonConverter {
+        return HttpResponseJsonConverter(objectMapper)
+    }
+
+    @Bean
     fun rawJsonContentToHttpResponseConverter(jsonContentExpressionResolver: JsonContentExpressionResolver,
-                                                  mockResponseJsonConverter: MockResponseJsonConverter) : RawJsonContentToHttpResponseConverter {
-        return RawJsonContentToHttpResponseConverter(jsonContentExpressionResolver, mockResponseJsonConverter)
+                                              httpResponseJsonConverter: HttpResponseJsonConverter) : RawJsonContentToHttpResponseConverter {
+        return RawJsonContentToHttpResponseConverter(jsonContentExpressionResolver, httpResponseJsonConverter)
     }
 
     @Bean
@@ -54,12 +63,7 @@ class TestHttpAutoConfiguration {
     }
 
     @Bean
-    fun mockWebCallTraceFactory() : MockWebCallTraceFactory {
-        return MockWebCallTraceFactory()
-    }
-
-    @Bean
-    fun mockResponseJsonConverter(jsonMapper: ObjectMapper) : MockResponseJsonConverter {
-        return MockResponseJsonConverter(jsonMapper)
+    fun mockWebCallTraceFactory() : HttpCallTraceFactory {
+        return HttpCallTraceFactory()
     }
 }

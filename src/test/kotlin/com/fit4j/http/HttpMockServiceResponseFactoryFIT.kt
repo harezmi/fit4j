@@ -2,10 +2,6 @@ package com.fit4j.http
 
 import com.fit4j.annotation.FIT
 import com.fit4j.mock.MockServiceResponseFactory
-import okhttp3.Headers
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.RecordedRequest
-import okio.Buffer
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +9,6 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.core.Ordered
 import org.springframework.test.context.event.annotation.AfterTestMethod
-import java.net.Socket
 
 @FIT
 class HttpMockServiceResponseFactoryFIT {
@@ -60,7 +55,7 @@ class HttpMockServiceResponseFactoryFIT {
         @Bean
         fun httpResponseJsonBuilder1() : HttpResponseJsonBuilder {
             return HttpResponseJsonBuilder {
-                if(it.path == "/bar" && it.body.readUtf8() == "example request body")
+                if(it.path == "/bar" && it.body == "example request body")
                     """
                         {
                           "status": 201,
@@ -77,7 +72,7 @@ class HttpMockServiceResponseFactoryFIT {
         @Bean
         fun httpResponseJsonBuilder2() : HttpResponseJsonBuilder {
             return object: HttpResponseJsonBuilder {
-                override fun build(request: RecordedRequest): String? {
+                override fun build(request: HttpRequest): String? {
                     return if(request.path == "/foo")
                         """
                         {
@@ -100,10 +95,10 @@ class HttpMockServiceResponseFactoryFIT {
         val request = createWebRequest("/foo")
 
         // When
-        val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse
+        val response = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
 
         // Then
-        Assertions.assertTrue(response.status.contains("200"))
+        Assertions.assertEquals(200,response.statusCode)
     }
 
     @Test
@@ -112,10 +107,10 @@ class HttpMockServiceResponseFactoryFIT {
         val request = createWebRequest("/foo/${testFixture.variables.fooId}")
 
         // When
-        val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse
+        val response = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
 
         // Then
-        Assertions.assertTrue(response.status.contains("200"))
+        Assertions.assertEquals(200,response.statusCode)
     }
 
     @Test
@@ -124,10 +119,10 @@ class HttpMockServiceResponseFactoryFIT {
         val request = createWebRequest("/foo?id=${testFixture.variables.fooId}")
 
         // When
-        val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse
+        val response = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
 
         // Then
-        Assertions.assertTrue(response.status.contains("200"))
+        Assertions.assertEquals(200,response.statusCode)
     }
 
     @Test
@@ -136,16 +131,16 @@ class HttpMockServiceResponseFactoryFIT {
         val request = createWebRequest("/bar","GET", "example request body")
 
         // When
-        val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse
+        val response = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
 
         // Then
-        Assertions.assertTrue(response.status.contains("201"))
+        Assertions.assertEquals(201,response.statusCode)
         Assertions.assertEquals("""
             {
               "a" : "v1",
               "b" : "v2"
             }
-        """.trimIndent(),response.getBody()!!.readUtf8())
+        """.trimIndent(),response.body)
     }
 
     @Test
@@ -154,11 +149,11 @@ class HttpMockServiceResponseFactoryFIT {
         val request = createWebRequest("/test/foo/")
 
         // When
-        val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse
+        val response = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
 
         // Then
-        Assertions.assertTrue(response.status.contains("401"))
-        Assertions.assertEquals(response.headers.get("Content-Type"), "application/json")
+        Assertions.assertEquals(401, response.statusCode)
+        Assertions.assertEquals(response.headers!!.get("Content-Type"), "application/json")
     }
 
     @Test
@@ -167,14 +162,14 @@ class HttpMockServiceResponseFactoryFIT {
         val request = createWebRequest("/test/predicate/")
 
         // When
-        val response1 = mockServiceResponseFactory.getResponseFor(request) as MockResponse
-        val response2 = mockServiceResponseFactory.getResponseFor(request) as MockResponse
+        val response1 = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
+        val response2 = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
 
         // Then
-        Assertions.assertTrue(response1.status.contains("401"))
-        Assertions.assertEquals(response1.headers.get("Content-Type"), "application/json")
-        Assertions.assertTrue(response2.status.contains("200"))
-        Assertions.assertEquals(response2.headers.get("Content-Type"), "application/json")
+        Assertions.assertEquals(401,response1.statusCode)
+        Assertions.assertEquals(response1.headers!!.get("Content-Type"), "application/json")
+        Assertions.assertEquals(200,response2.statusCode)
+        Assertions.assertEquals(response2.headers!!.get("Content-Type"), "application/json")
     }
 
     @Test
@@ -183,17 +178,17 @@ class HttpMockServiceResponseFactoryFIT {
         val request = createWebRequest("/bar", "POST", "withBody")
 
         // When
-        val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse
+        val response = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
 
         // Then
-        Assertions.assertTrue(response.status.contains("200"))
-        Assertions.assertEquals("application/json", response.headers.get("Content-Type"))
+        Assertions.assertEquals(200,response.statusCode)
+        Assertions.assertEquals("application/json", response.headers!!.get("Content-Type"))
         Assertions.assertEquals("""
             {
               "id" : 210,
               "status" : "active"
             }
-        """.trimIndent(), response.getBody()!!.readUtf8())
+        """.trimIndent(), response.body)
     }
 
     @Test
@@ -202,21 +197,15 @@ class HttpMockServiceResponseFactoryFIT {
         val request = createWebRequest("/baz")
 
         // When
-        val response = mockServiceResponseFactory.getResponseFor(request) as MockResponse
+        val response = mockServiceResponseFactory.getResponseFor(request) as HttpResponse
 
         // Then
-        Assertions.assertTrue(response.status.contains("200"))
-        Assertions.assertNull(response.headers.get("Content-Type"))
+        Assertions.assertEquals(200,response.statusCode)
+        Assertions.assertNull(response.headers!!.get("Content-Type"))
     }
 
 
-    private fun createWebRequest(path:String, method:String="GET", body:String?=null) : RecordedRequest {
-        val buffer = Buffer()
-        if(body != null) buffer.writeUtf8(body)
-        val bodySize = body?.length?:0
-        return RecordedRequest("$method $path HTTP/1.1",
-            Headers.headersOf(), emptyList(),
-            bodySize.toLong(), buffer, 0,
-            Socket(), null)
+    private fun createWebRequest(path:String, method:String="GET", body:String?=null) : HttpRequest {
+        return HttpRequest(path=path,method=method,body=body?:"", headers = emptyMap<String,String>(), requestUrl = path)
     }
 }

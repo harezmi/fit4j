@@ -2,11 +2,10 @@ package com.fit4j.mock.declarative
 
 import com.fit4j.grpc.GrpcResponseJsonBuilder
 import com.fit4j.grpc.GrpcTestFixture
+import com.fit4j.http.HttpRequest
 import com.fit4j.http.HttpResponseJsonBuilder
 import com.fit4j.http.HttpTestFixture
-import com.fit4j.http.clone
 import com.google.protobuf.Message
-import okhttp3.mockwebserver.RecordedRequest
 
 data class TestFixturesGroup(val name:String, val primaryTestFixtures:List<TestFixture>)
     : GrpcResponseJsonBuilder<Message>, HttpResponseJsonBuilder  {
@@ -24,9 +23,9 @@ data class TestFixturesGroup(val name:String, val primaryTestFixtures:List<TestF
         return null
     }
 
-    override fun build(request: RecordedRequest): String? {
+    override fun build(request: HttpRequest): String? {
         val testFixture =
-            primaryTestFixtures.firstOrNull { it.isApplicableFor(request.clone())  }
+            primaryTestFixtures.firstOrNull { it.isApplicableFor(request)  }
         if(testFixture != null) {
             return (testFixture as HttpTestFixture).build(request)
         }
