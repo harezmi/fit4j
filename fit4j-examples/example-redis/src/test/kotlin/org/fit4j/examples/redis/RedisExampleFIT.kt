@@ -1,0 +1,28 @@
+package org.fit4j.examples.redis
+
+import org.fit4j.annotation.FIT
+import org.fit4j.testcontainers.RedisConnectionProperties
+import org.fit4j.testcontainers.RedisDataPopulator
+import org.fit4j.testcontainers.Testcontainers
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Value
+
+@Testcontainers(definitions = ["redisContainerDefinition"])
+@FIT
+class RedisExampleFIT {
+    @Value("\${fit4j.redisContainerDefinition.host}")
+    private lateinit var redisHost: String
+    @Value("\${fit4j.redisContainerDefinition.port}")
+    private lateinit var redisPort: Integer
+
+    @Test
+    fun `it should load data from yaml file into redis running in testcontainer`() {
+        val redisConnectionProperties = RedisConnectionProperties(redisHost, redisPort.toInt())
+        val redisDataPopulator = RedisDataPopulator(redisConnectionProperties)
+        val jedis = redisDataPopulator.getJedis()
+        val value = jedis.get("stringKey")
+        Assertions.assertEquals("stringValue",value)
+    }
+}
+

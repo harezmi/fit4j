@@ -1,0 +1,66 @@
+- container: org.testcontainers.containers.MySQLContainer
+  name: v1
+  image: mysql:8.0.37
+  exposedPorts:
+    - 3306
+  username: root
+  password: root
+  databaseName: v1
+  initScript: scripts/v1_init.sql
+  env:
+    - TZ: "America/Los_Angeles"
+  urlParam:
+    - serverTimezone: "America/Los_Angeles"
+    - useLegacyDatetimeCode: "false"
+  exposedProperties:
+    - jdbcUrl
+    - username
+    - password
+- container: org.testcontainers.containers.MySQLContainer
+  name: omega
+  image: mysql:8.0.37
+  exposedPorts:
+    - 3306
+  username: root
+  password: root
+  databaseName: omega_db
+  env:
+    - TZ: America/Los_Angeles
+  urlParam:
+    - serverTimezone: "America/Los_Angeles"
+    - useLegacyDatetimeCode: "false"
+  exposedProperties:
+    - jdbcUrl
+    - username
+    - password
+- container: org.testcontainers.containers.GenericContainer
+  name: redis
+  image: redis:6.2.1
+  exposedPorts:
+    - 6379
+  exposedProperties:
+    - host
+- container: org.testcontainers.elasticsearch.ElasticsearchContainer
+  name: elastic-search
+  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  exposedPorts:
+    - 9200
+    - 9300
+  env:
+    - ELASTICSEARCH_USERNAME: root
+    - ELASTICSEARCH_PASSWORD: root
+    - xpack.security.enabled: false
+    - bootstrap.memory_lock: true
+    - cluster.routing.allocation.disk.threshold_enabled: false
+    - JAVA_TOOL_OPTIONS: -Xmx10G
+- container: org.testcontainers.containers.GenericContainer
+  name: kafka-service-bus
+  image: confluentinc/cp-kafka:5.4.3
+  reuse: true
+- container: org.testcontainers.containers.GenericContainer
+  name: dynamodb
+  image: amazon/dynamodb-local:1.13.6
+  exposedPorts:
+    - 8000
+
+

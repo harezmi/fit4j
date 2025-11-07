@@ -1,0 +1,58 @@
+package org.fit4j.autoconfigure
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.protobuf.util.JsonFormat
+import org.fit4j.dbcleanup.DatabaseTestSupport
+import org.fit4j.dbcleanup.DatabaseTestSupportForH2
+import org.fit4j.dbcleanup.DatabaseTestSupportForMysql
+import org.fit4j.dbcleanup.DatabaseTestSupportForPostgreSQL
+import org.fit4j.dbcleanup.NoopDatabaseTestSupport
+import org.fit4j.helper.JsonHelper
+import org.fit4j.helper.VerificationHelper
+import org.fit4j.mock.MockServiceCallTracker
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.Bean
+import org.springframework.transaction.PlatformTransactionManager
+import javax.sql.DataSource
+
+@AutoConfiguration
+@EnableOnFIT
+class TestHelperAutoConfiguration(private val applicationContext: ApplicationContext) {
+
+    @Bean
+    fun jsonHelper(
+        @Autowired(required = false)
+        jsonProtoParser: JsonFormat.Parser?,
+        @Autowired(required = false)
+        jsonProtoPrinter:JsonFormat.Parser?,
+        objectMapper: ObjectMapper) : JsonHelper {
+        return JsonHelper(jsonProtoParser,jsonProtoPrinter,objectMapper)
+    }
+
+    @Bean
+    fun verifier(
+                jsonHelper: JsonHelper,
+                 mockServiceCallTracker: MockServiceCallTracker) : VerificationHelper {
+        return VerificationHelper(jsonHelper,mockServiceCallTracker)
+    }
+
+    @Bean
+    fun databaseTestSupport(dataSource: DataSource, transactionManager: PlatformTransactionManager): DatabaseTestSupport {
+        val dbVendorName = detectDatabaseVendor(dataSource)
+        return when (dbVendorName) {
+            "mysql" -> DatabaseTestSupportForMysql(dataSource, transactionManager)
+            "h2" -> DatabaseTestSupportForH2(dataSource, transactionManager)
+            "postgresql" -> DatabaseTestSupportForPostgreSQL(dataSource, transactionManager)
+            else -> NoopDatabaseTestSupport()
+        }
+    }
+
+    fun detectDatabaseVendor(dataSource: DataSource): String {
+        dataSource.connection.use { connection ->
+            val metaData = connection.metaData
+            return metaData.databaseProductName.lowercase()
+        }
+    }
+}

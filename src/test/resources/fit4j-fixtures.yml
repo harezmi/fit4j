@@ -1,0 +1,100 @@
+tests:
+  - name: "*"
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$PingRequest
+          response:
+            status: "OK"
+  - name: AnotherSampleGrpcFIT
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetFooByIdRequest
+          response:
+            body:
+              foo:
+                id: 123
+                name: "Foo"
+  - name: SampleGrpcFIT
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
+          predicate: "#request.name == 'Foo' && #request.surname == 'Bar'"
+          response:
+            body:
+              age: 10
+  - name: GrpcMockServiceResponseFactoryFIT
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
+          predicate: "#request.name == 'Foo' && #request.surname == 'Bar'"
+          response:
+            body:
+              age: 10
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetFooByIdRequest
+          response:
+            body:
+              foo:
+                id: "#{@testFixtureData.variables.fooId}"
+  - name: HttpMockServiceResponseFactoryFIT
+    fixtures:
+      - request:
+          protocol: http
+          path: "/test/foo/"
+          response:
+            status: 401
+            headers:
+              Content-Type: "application/json"
+
+      - request:
+          protocol: http
+          path: "/foo/#{@testFixtureData.variables.fooId}"
+          response:
+            status: 200
+
+      - request:
+          protocol: http
+          path: "/foo?id=#{@testFixtureData.variables.fooId}"
+          response:
+            status: 200
+
+      - request:
+          protocol: http
+          path: "/bar"
+          method: POST
+          predicate: "#request.body == 'withBody'"
+          response:
+            status: 200
+            body:
+              id: 210
+              status: "active"
+
+      - request:
+          protocol: http
+          path: "/baz"
+          response:
+            status: 200
+
+      - request:
+          protocol: http
+          path: "/test/predicate/"
+          predicate: "#request.method == 'GET' && @hitCounter.isHit(1)"
+          response:
+            status: 401
+            headers:
+              Content-Type: "application/json"
+
+      - request:
+          protocol: http
+          path: "/test/predicate/"
+          predicate: "#request.method == 'GET' && @hitCounter.isHit(2)"
+          response:
+            status: 200
+            headers:
+              Content-Type: "application/json"
+

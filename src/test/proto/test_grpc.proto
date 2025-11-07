@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+option java_package = "com.example.fit4j.grpc";
+
+package com.example;
+
+service FooGrpcService {
+  rpc getFooListResponse(GetFooListGrpcRequest) returns (GetFooListGrpcResponse);
+  rpc getFooByIdResponse(GetFooByIdRequest) returns (GetFooByIdResponse);
+  rpc getAgeRequest(GetAgeRequest) returns (GetAgeResponse);
+  rpc pingRequest(PingRequest) returns (PingResponse);
+  rpc getAllRequest(GetAllRequest) returns (GetAllResponse);
+}
+
+message PingRequest {
+
+}
+
+message PingResponse {
+
+}
+
+message GetAgeRequest {
+  string name = 1;
+  string surname = 2;
+}
+
+message GetAgeResponse {
+  int64 age = 1;
+}
+
+message GetFooListGrpcRequest {
+  bool mayFail = 1;
+}
+
+message GetFooListGrpcResponse {
+  repeated Foo fooList = 1;
+}
+
+message GetFooByIdRequest {
+  int64 id = 1;
+}
+
+message GetFooByIdResponse {
+  Foo foo = 1;
+}
+
+message GetAllRequest {
+  string name = 1;
+}
+
+message GetAllResponse {
+  repeated AnyRecord records = 1;
+}
+
+message Foo {
+  int64 id = 1;
+  string name = 2;
+}
+
+message Bar {
+  int64 id = 1;
+  string name = 2;
+}
+
+message AnyRecord {
+  repeated google.protobuf.Any values = 1;
+}
+
+message FooCreatedEvent {
+  Foo foo = 1;
+}

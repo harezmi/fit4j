@@ -1,0 +1,10 @@
+org.fit4j.autoconfigure.TestScopeAutoConfiguration
+org.fit4j.autoconfigure.IntegrationTestGrpcAutoConfiguration
+org.fit4j.autoconfigure.TestGrpcAutoConfiguration
+org.fit4j.autoconfigure.TestHttpAutoConfiguration
+org.fit4j.autoconfigure.TestKafkaAutoConfiguration
+org.fit4j.autoconfigure.TestMockAutoConfiguration
+org.fit4j.autoconfigure.TestProtobufAutoConfiguration
+org.fit4j.autoconfigure.TestHelperAutoConfiguration
+org.fit4j.autoconfigure.TestDynamoDBAutoConfiguration
+org.fit4j.autoconfigure.TestFixtureAutoConfiguration

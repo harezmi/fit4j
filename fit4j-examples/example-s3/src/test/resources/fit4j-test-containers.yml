@@ -1,0 +1,3 @@
+- container: org.testcontainers.containers.localstack.LocalStackContainer
+  name: localstackContainerDefinition
+  image: localstack/localstack:3.0

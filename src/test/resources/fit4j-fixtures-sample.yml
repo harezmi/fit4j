@@ -1,0 +1,86 @@
+common_fixtures: &common_fixtures
+  - request:
+      protocol: http
+      path: "/health"
+      response:
+        status: 200
+tests:
+  - name: test1
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
+          response:
+            body:
+              age: 10
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetFooByIdRequest
+          response:
+            body:
+              foo:
+                id: "#{@testFixture.variables.fooId}"
+      - request:
+          protocol: http
+          path: "/foo"
+          response:
+            status: 200
+      - request:
+          protocol: http
+          path: "/foo/123"
+          response:
+            status: 200
+            body:
+              id: 123
+              name: "Foo"
+  - name: test2
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetFooListGrpcRequest
+          predicate: "#request.mayFail == true"
+          response:
+            status: "UNAVAILABLE"
+      - request:
+          protocol: http
+          path: "/foo/123"
+          predicate: "#request.method == 'GET'"
+          response:
+            status: 200
+            body:
+              id: 123
+              name: "Foo"
+      - <<: *common_fixtures
+
+  - name: test3
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
+          responses:
+            - body:
+                age: 10
+            - status: "UNAVAILABLE"
+      - request:
+          protocol: http
+          path: "/foo/123"
+          responses:
+            - status: 200
+              body:
+                id: 123
+                name: "Foo"
+            - status: 404
+  - name: "*"
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetFooListGrpcRequest
+          response:
+            body:
+              fooList:
+                - id: 123
+                  name: "Foo1"
+                - id: 456
+                  name: "Foo2"
+
+

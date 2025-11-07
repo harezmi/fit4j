@@ -1,0 +1,19 @@
+- container: org.testcontainers.containers.MySQLContainer
+  name: mySQLContainerDefinition
+  image: mysql:8.0.37
+  exposedPorts:
+    - 3306
+  username: root
+  password: root
+  databaseName: v1
+  initScript: mysql_initial_data.sql
+  env:
+    - TZ: "America/Los_Angeles"
+  urlParam:
+    - serverTimezone: "America/Los_Angeles"
+    - useLegacyDatetimeCode: "false"
+  exposedProperties:
+    - jdbcUrl
+    - username
+    - password
+  reuse: false

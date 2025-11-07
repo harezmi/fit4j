@@ -1,0 +1,31 @@
+tests:
+  - name: "it should return responses from test fixture yml"
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
+          responses:
+            - body:
+                age: 10
+            - body:
+                age: 20
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetFooByIdRequest
+          response:
+            body:
+              foo:
+                id: 123
+                name: "Foo"
+      - request:
+          protocol: http
+          path: "/test-1"
+          method: GET
+          response:
+            status: 200
+      - request:
+          protocol: http
+          path: "/test-2"
+          method: GET
+          response:
+            status: 200

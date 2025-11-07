@@ -1,0 +1,30 @@
+tests:
+  - name: GrpcExampleWithDeclarativeFixtureFIT
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.FooGrpcService$GetFooByIdRequest
+          predicate: "#request.id == 123"
+          response:
+            body:
+              foo:
+                id: 123
+                name: "Foo1"
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.FooGrpcService$GetFooByIdRequest
+          predicate: "#request.id == 456"
+          response:
+            body:
+              foo:
+                id: 456
+                name: "Foo2"
+  - name: "*"
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.FooGrpcService$GetFooNameByIdRequest
+          predicate: "#request.id == 123"
+          response:
+            body:
+              name: "Foo"

@@ -1,0 +1,23 @@
+tests:
+  - name: "test-fixture-1"
+    fixtures:
+      - request:
+          protocol: http
+          path: "/test-1"
+          responses:
+            - status: 500
+              body: "Internal Server Error"
+            - status: 404
+              body: "Not Found"
+            - status: 200
+              body: "Success"
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetAgeRequest
+          responses:
+            - body:
+                age: 10
+            - body:
+                age: 20
+            - body:
+                age: 30
