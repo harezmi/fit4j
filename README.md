@@ -138,12 +138,71 @@ write functional integration tests for your service.
 
 ## Add the Library Dependency
 
-The **latest version** of the library is `1.0.0-SNAPSHOT`. You can add the library dependency to your service's `build.gradle.kts`
-file as follows.
+### From Maven Central
 
+FIT4J is published to Maven Central. Simply add the dependency to your `build.gradle.kts`:
+
+**Gradle (Kotlin DSL):**
 ```kotlin
-testImplementation("org.fit4j:fit4j:1.0.0-SNAPSHOT")
+dependencies {
+    testImplementation("org.fit4j:fit4j:1.0.0-SNAPSHOT")
+}
 ```
+
+**Gradle (Groovy DSL):**
+```groovy
+dependencies {
+    testImplementation 'org.fit4j:fit4j:1.0.0-SNAPSHOT'
+}
+```
+
+**Maven:**
+```xml
+<dependency>
+    <groupId>org.fit4j</groupId>
+    <artifactId>fit4j</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <scope>test</scope>
+</dependency>
+```
+
+### Snapshot Versions
+
+To use SNAPSHOT versions, add the Sonatype snapshots repository:
+
+**Gradle:**
+```kotlin
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+    }
+}
+```
+
+**Maven:**
+```xml
+<repositories>
+    <repository>
+        <id>ossrh-snapshots</id>
+        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+### From Maven Local (for development)
+
+If you're developing FIT4J locally, install it to your local Maven repository:
+
+```bash
+cd /path/to/fit4j
+./gradlew publishToMavenLocal
+```
+
+Then use it in your projects without any additional repository configuration.
 
 ## Create a Test Class
 

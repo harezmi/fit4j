@@ -53,6 +53,14 @@ We welcome suggestions for improvements! Please create an issue with:
 
 ## Development Setup
 
+### Getting Started
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/harezmi/fit4j.git
+   cd fit4j
+   ```
+
 ### Prerequisites
 
 - Java 17 or higher

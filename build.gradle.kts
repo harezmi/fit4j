@@ -1,12 +1,15 @@
 import com.google.protobuf.gradle.id
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.security.MessageDigest
+
 
 plugins {
 	`java-library`
 	kotlin("jvm") version "2.0.20"
 	kotlin("plugin.spring") version "2.0.20"
     id("com.google.protobuf") version "0.9.4"
-    id("maven-publish")
+    id("signing")
+    id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 repositories {
@@ -90,7 +93,6 @@ tasks.withType<PublishToMavenRepository> {
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
 	targetCompatibility = JavaVersion.VERSION_17
-	withSourcesJar()
 }
 
 protobuf {
@@ -115,36 +117,48 @@ protobuf {
     }
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("mavenJava") {
-            from(components["java"])
-            
-            pom {
-                name.set("FIT4J")
-                description.set("Functional Integration Testing Library for Java")
-                url.set("https://github.com/your-org/fit4j")
-                
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                
-                developers {
-                    developer {
-                        id.set("fit4j-contributors")
-                        name.set("FIT4J Contributors")
-                    }
-                }
-                
-                scm {
-                    connection.set("scm:git:git://github.com/your-org/fit4j.git")
-                    developerConnection.set("scm:git:ssh://github.com:your-org/fit4j.git")
-                    url.set("https://github.com/your-org/fit4j")
-                }
+mavenPublishing {
+    publishToMavenCentral(true)
+    signAllPublications()
+}
+
+mavenPublishing {
+    coordinates("${project.group}", "${project.name}", "${project.version}")
+
+    pom {
+        name.set("FIT4J")
+        description.set("Functional Integration Testing Library for Java and Kotlin microservices")
+        inceptionYear.set("2025")
+        url.set("https://github.com/harezmi/fit4j")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             }
+        }
+        developers {
+            developer {
+                id.set("harezmi")
+                name.set("Kenan Sevindik")
+                email.set("ksevindik@gmail.com")
+            }
+        }
+        scm {
+            connection.set("scm:git:git://github.com/harezmi/fit4j.git")
+            developerConnection.set("scm:git:ssh://github.com:harezmi/fit4j.git")
+            url.set("https://github.com/harezmi/fit4j")
         }
     }
 }
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications)
+}
+
+val signingTasks: TaskCollection<Sign> = tasks.withType<Sign>()
+tasks.withType<PublishToMavenRepository>().configureEach {
+    mustRunAfter(signingTasks)
+}
+
