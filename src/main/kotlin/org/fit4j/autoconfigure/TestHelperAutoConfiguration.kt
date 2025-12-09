@@ -12,6 +12,7 @@ import org.fit4j.helper.VerificationHelper
 import org.fit4j.mock.MockServiceCallTracker
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.transaction.PlatformTransactionManager
@@ -22,6 +23,7 @@ import javax.sql.DataSource
 class TestHelperAutoConfiguration(private val applicationContext: ApplicationContext) {
 
     @Bean
+    @ConditionalOnMissingBean
     fun jsonHelper(
         @Autowired(required = false)
         jsonProtoParser: JsonFormat.Parser?,
@@ -32,6 +34,7 @@ class TestHelperAutoConfiguration(private val applicationContext: ApplicationCon
     }
 
     @Bean
+    @ConditionalOnMissingBean
     fun verifier(
                 jsonHelper: JsonHelper,
                  mockServiceCallTracker: MockServiceCallTracker) : VerificationHelper {
@@ -39,6 +42,7 @@ class TestHelperAutoConfiguration(private val applicationContext: ApplicationCon
     }
 
     @Bean
+    @ConditionalOnMissingBean
     fun databaseTestSupport(dataSource: DataSource, transactionManager: PlatformTransactionManager): DatabaseTestSupport {
         val dbVendorName = detectDatabaseVendor(dataSource)
         return when (dbVendorName) {
