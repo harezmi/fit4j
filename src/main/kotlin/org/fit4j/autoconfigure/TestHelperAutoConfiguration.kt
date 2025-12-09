@@ -54,9 +54,13 @@ class TestHelperAutoConfiguration(private val applicationContext: ApplicationCon
     }
 
     fun detectDatabaseVendor(dataSource: DataSource): String {
-        dataSource.connection.use { connection ->
-            val metaData = connection.metaData
-            return metaData.databaseProductName.lowercase()
+        var vendor = applicationContext.getEnvironment().getProperty("fit4j.dbcleanup")
+        if(vendor == null) {
+            dataSource.connection.use { connection ->
+                val metaData = connection.metaData
+                vendor = metaData.databaseProductName.lowercase()
+            }
         }
+        return vendor!!
     }
 }
