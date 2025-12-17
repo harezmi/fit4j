@@ -237,7 +237,7 @@ your service and enables bean overriding capability of the Spring Container.
 
 The `@FIT` annotation accepts two optional parameters:
 * `fixtureFilePath`: Specifies a custom path to the YAML fixture file (default: uses `fit4j-fixtures.yml` from classpath)
-* `webEnvironment`: Specifies the web environment type (default: `SpringBootTest.WebEnvironment.MOCK`)
+* `webEnvironment`: Specifies the web environment type (default: `SpringBootTest.WebEnvironment.RANDOM_PORT`)
 
 You can also use method-level fixtures by combining `fixtureFilePath` parameter on the `@FIT` annotation with the `@FixtureForFIT` annotation on test methods. This allows different test methods to use different fixture groups from the same file. See the example below for usage.
 
@@ -688,17 +688,14 @@ The library automatically sets up `grpc.client.inProcess.address` to point to th
 
 ## Calling REST Endpoints of Your Service
 
-`@SpringBootTest` annotation which is inherited by `@FIT` annotation by default creates a MOCK WebEnvironment. 
-In the MOCK web environment, the Spring Boot application context is started but the web server itself is not. Instead of 
-starting a real server, a mock server environment is created using Spring's `MockMvc` framework. This setup is actually 
-enough for all test scenarios unless your service has REST endpoints, and you would like to test them via a 
-REST call. For that purpose, either RANDOM_PORT or DEFINED_PORT WebEnvironments needs to be used. Both of them create a 
-real embedded web server at a random port or predefined port with `server.port` property. In this case the application is 
-fully initialized including the embedded server, and tests can interact with the server using actual HTTP requests at the 
-cost of running a bit slower compared to MOCK WebEnvironment. You can change the webEnvironment attribute value to RANDOM_PORT
-via the same `@FIT` annotation like `@FIT((webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)` so that embedded web 
-server should be created at a random port. That way you can test your REST endpoints either using a `RestTemplate` object 
-you instantiate in your test, or make use of `TestRestTemplate` bean provided by Spring Boot.
+`@SpringBootTest` annotation which is inherited by `@FIT` annotation by default creates a real embedded web server at a 
+random port. That way you can test your REST endpoints either using a `RestTemplate` object you instantiate in your test, 
+or make use of `TestRestTemplate` bean provided by Spring Boot. You can change the webEnvironment attribute value to MOCK
+via the same `@FIT` annotation like `@FIT((webEnvironment = SpringBootTest.WebEnvironment.MOCK)` so that mock servlet context 
+should be created instead. In the MOCK web environment case, the Spring Boot application context is started but the web server 
+itself is not. Instead of starting a real server, a mock server environment is created using Spring's `MockMvc` framework. Only 
+in the RANDOM_PORT case the application is fully initialized including the embedded server, and tests can interact with the 
+server using actual HTTP requests at the cost of running a bit slower compared to MOCK WebEnvironment.
 
 ```kotlin
 @FIT(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

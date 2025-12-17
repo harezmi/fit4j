@@ -5,9 +5,10 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 
-@FIT
+@FIT(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class WebEnvironmentWithMockValueFIT {
     @Autowired(required = false)
     private lateinit var restTemplate: TestRestTemplate

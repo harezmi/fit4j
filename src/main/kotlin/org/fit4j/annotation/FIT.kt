@@ -15,6 +15,6 @@ import java.lang.annotation.Target
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(Fit4JTestExtension::class)
-annotation class FIT(val fixtureFilePath: String = "", val webEnvironment: SpringBootTest.WebEnvironment = SpringBootTest.WebEnvironment.MOCK)
+annotation class FIT(val fixtureFilePath: String = "", val webEnvironment: SpringBootTest.WebEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 
