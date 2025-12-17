@@ -5,6 +5,7 @@
         configs:
           - key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
           - value.deserializer: org.fit4j.examples.kafka.MessageDeserializer
+          - auto.offset.reset: earliest
       containerProperties:
         ackMode: MANUAL_IMMEDIATE
         groupId: sample-consumer-group
