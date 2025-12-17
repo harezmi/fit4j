@@ -17,6 +17,24 @@
     - username
     - password
   reuse: false
+- container: org.testcontainers.containers.PostgreSQLContainer
+  name: postgreSQLContainerDefinition
+  image: postgres:16.1
+  exposedPorts:
+    - 5432
+  username: postgres
+  password: postgres
+  databaseName: testdb
+  env:
+    - TZ: "UTC"
+    - POSTGRES_HOST_AUTH_METHOD: trust
+  exposedProperties:
+    - jdbcUrl
+    - username
+    - password
+    - host
+    - firstMappedPort
+  reuse: false
 - container: org.testcontainers.containers.GenericContainer
   name: redisContainerDefinition
   image: redis:6.2.1

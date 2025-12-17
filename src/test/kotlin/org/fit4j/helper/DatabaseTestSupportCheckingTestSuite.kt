@@ -2,6 +2,7 @@ package org.fit4j.helper
 
 import org.fit4j.annotation.FIT
 import org.fit4j.dbcleanup.DatabaseTestSupport
+import org.fit4j.dbcleanup.DatabaseTestSupportForH2
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.ClassOrderer
@@ -103,6 +104,7 @@ class DatabaseTestSupportCheckingTestSuite {
 
         @Test
         fun `populate db`() {
+            Assertions.assertTrue(databaseTestSupport is DatabaseTestSupportForH2)
             Assertions.assertEquals(0,jdbcTemplate.queryForObject<Int>("select count(*) from my_foo"))
             jdbcTemplate.update("insert into my_foo(name) values ('Foo')")
             jdbcTemplate.update("insert into my_foo(name) values ('Bar')")

@@ -2,6 +2,8 @@ package org.fit4j.helper
 
 import org.fit4j.annotation.FIT
 import org.fit4j.dbcleanup.DatabaseTestSupport
+import org.fit4j.dbcleanup.DatabaseTestSupportForH2
+import org.fit4j.dbcleanup.DatabaseTestSupportForMysql
 import org.fit4j.testcontainers.Testcontainers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.ClassOrderer
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.TestClassOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.queryForObject
+import org.springframework.test.context.TestPropertySource
 
 @TestClassOrder(ClassOrderer.OrderAnnotation::class)
 class DatabaseTestSupportForMySQLCheckingTestSuite {
@@ -20,6 +23,12 @@ class DatabaseTestSupportForMySQLCheckingTestSuite {
     @Order(1)
     @FIT
     @Testcontainers(definitions = ["mySQLContainerDefinition"])
+    @TestPropertySource(properties = [
+        "spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver",
+        "spring.datasource.url=\${fit4j.mySQLContainerDefinition.jdbcUrl}",
+        "spring.datasource.username=\${fit4j.mySQLContainerDefinition.username}",
+        "spring.datasource.password=\${fit4j.mySQLContainerDefinition.password}"
+    ])
     inner class FirstFIT {
 
         @Autowired
@@ -114,6 +123,12 @@ class DatabaseTestSupportForMySQLCheckingTestSuite {
     @Order(2)
     @FIT
     @Testcontainers(definitions = ["mySQLContainerDefinition"])
+    @TestPropertySource(properties = [
+        "spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver",
+        "spring.datasource.url=\${fit4j.mySQLContainerDefinition.jdbcUrl}",
+        "spring.datasource.username=\${fit4j.mySQLContainerDefinition.username}",
+        "spring.datasource.password=\${fit4j.mySQLContainerDefinition.password}"
+    ])
     inner class SecondFIT {
 
         @Autowired
@@ -124,6 +139,7 @@ class DatabaseTestSupportForMySQLCheckingTestSuite {
 
         @Test
         fun `verify tables are cleared and auto-increment is reset`() {
+            Assertions.assertTrue(databaseTestSupport is DatabaseTestSupportForMysql)
             // Verify my_foo table is empty and AUTO_INCREMENT is reset
             Assertions.assertEquals(0, jdbcTemplate.queryForObject<Int>("SELECT COUNT(*) FROM my_foo"))
             jdbcTemplate.update("INSERT INTO my_foo(name) VALUES ('Foo')")

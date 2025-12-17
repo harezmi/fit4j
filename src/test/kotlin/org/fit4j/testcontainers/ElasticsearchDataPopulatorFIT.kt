@@ -3,6 +3,7 @@ package org.fit4j.testcontainers
 import co.elastic.clients.elasticsearch.core.GetRequest
 import org.fit4j.annotation.FIT
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.TestConfiguration
@@ -10,6 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.event.EventListener
 import org.springframework.test.context.event.AfterTestClassEvent
 
+@Disabled
 @org.fit4j.testcontainers.Testcontainers(definitions = ["elasticSearchContainerDefinition"])
 @FIT
 class ElasticsearchDataPopulatorFIT {

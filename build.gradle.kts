@@ -54,6 +54,7 @@ dependencies {
 	implementation("org.testcontainers:kafka:$testcontainersVersion")
 	implementation("org.testcontainers:elasticsearch:$testcontainersVersion")
 	implementation("org.testcontainers:mysql:$testcontainersVersion")
+    implementation("org.testcontainers:postgresql:${testcontainersVersion}")
 	implementation("org.elasticsearch.client:elasticsearch-rest-client:$elasticSearchVersion")
 	implementation("co.elastic.clients:elasticsearch-java:$elasticSearchVersion")
 	implementation("redis.clients:jedis:$redisVersion")
@@ -70,6 +71,7 @@ dependencies {
 	implementation("jakarta.annotation:jakarta.annotation-api")
 
 	testImplementation("com.mysql:mysql-connector-j")
+    testImplementation("org.postgresql:postgresql")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 }
 
