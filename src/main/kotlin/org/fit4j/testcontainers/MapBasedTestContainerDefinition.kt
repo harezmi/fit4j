@@ -17,7 +17,7 @@ open class MapBasedTestContainerDefinition(map:Map<String,Any>) : TestContainerD
     private lateinit var imageName:String
     private var exposedProperties:List<String> = emptyList()
 
-    private val commonFields = listOf("name","image","container","exposedPorts","env","exposedProperties","reuse")
+    private val commonFields = listOf("name","image","container","exposedPorts","env","exposedProperties","reuse","compatibleSubstituteFor")
 
     protected open fun commonFields(): List<String> {
         return commonFields
@@ -51,7 +51,11 @@ open class MapBasedTestContainerDefinition(map:Map<String,Any>) : TestContainerD
         val containerClass = Class.forName(map["container"] as String)
         val constructor = containerClass.getConstructor(DockerImageName::class.java)
 
-        val din = DockerImageName.parse(getImageName())
+        var din = DockerImageName.parse(getImageName())
+        if(map.containsKey("compatibleSubstituteFor")) {
+            val compatibleSubstitute = map["compatibleSubstituteFor"] as String
+            din = din.asCompatibleSubstituteFor(compatibleSubstitute)
+        }
         return constructor.newInstance(din) as GenericContainer<*>
     }
 

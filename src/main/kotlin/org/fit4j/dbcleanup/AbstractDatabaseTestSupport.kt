@@ -11,7 +11,8 @@ import javax.sql.DataSource
 
 abstract class AbstractDatabaseTestSupport(
     val dataSource: DataSource,
-    val transactionManager: PlatformTransactionManager) : DatabaseTestSupport {
+    val transactionManager: PlatformTransactionManager,
+    val cleanupEnabled:Boolean = true) : DatabaseTestSupport {
 
     override fun resetAllIdentifiers() {
         resetAllIdentifiers(dataSource, transactionManager, schemaName())
@@ -59,7 +60,9 @@ abstract class AbstractDatabaseTestSupport(
 
     @AfterTestMethod
     fun doCleanUp() {
-        this.clearAllTables()
-        this.resetAllIdentifiers()
+        if(cleanupEnabled) {
+            this.clearAllTables()
+            this.resetAllIdentifiers()
+        }
     }
 }

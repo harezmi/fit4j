@@ -45,22 +45,25 @@ class TestHelperAutoConfiguration(private val applicationContext: ApplicationCon
     @ConditionalOnMissingBean
     fun databaseTestSupport(dataSource: DataSource, transactionManager: PlatformTransactionManager): DatabaseTestSupport {
         val dbVendorName = detectDatabaseVendor(dataSource)
+        val dbCleanUpEnabled = this.dbCleanUpEnabled()
         return when (dbVendorName) {
-            "mysql" -> DatabaseTestSupportForMysql(dataSource, transactionManager)
-            "h2" -> DatabaseTestSupportForH2(dataSource, transactionManager)
-            "postgresql" -> DatabaseTestSupportForPostgreSQL(dataSource, transactionManager)
-            else -> NoopDatabaseTestSupport()
+            "mysql" -> DatabaseTestSupportForMysql(dataSource, transactionManager, dbCleanUpEnabled)
+            "h2" -> DatabaseTestSupportForH2(dataSource, transactionManager, dbCleanUpEnabled)
+            "postgresql" -> DatabaseTestSupportForPostgreSQL(dataSource, transactionManager, dbCleanUpEnabled)
+            else -> throw IllegalStateException("There is test support strategy for db vendor $dbVendorName")
         }
     }
 
+    private fun dbCleanUpEnabled() : Boolean {
+        val prop = applicationContext.getEnvironment().getProperty("fit4j.dbcleanup","true")
+        return if("none".equals(prop)) false
+        else prop.toBoolean()
+    }
+
     fun detectDatabaseVendor(dataSource: DataSource): String {
-        var vendor = applicationContext.getEnvironment().getProperty("fit4j.dbcleanup")
-        if(vendor == null) {
-            dataSource.connection.use { connection ->
-                val metaData = connection.metaData
-                vendor = metaData.databaseProductName.lowercase()
-            }
+        return dataSource.connection.use { connection ->
+            val metaData = connection.metaData
+            metaData.databaseProductName.lowercase()
         }
-        return vendor!!
     }
 }
