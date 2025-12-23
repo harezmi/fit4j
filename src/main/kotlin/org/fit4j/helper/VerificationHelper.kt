@@ -25,7 +25,7 @@ class VerificationHelper(private val jsonHelper: JsonHelper,
             if (jsonHelper.objectMapper == null)
                 throw IllegalStateException("ObjectMapper is not configured, make sure jackson-databind dependency is in your classpath")
             val type =
-                TypeFactory.defaultInstance().constructMapType(Map::class.java, String::class.java, String::class.java)
+                TypeFactory.defaultInstance().constructMapType(Map::class.java, String::class.java, Object::class.java)
             val map = jsonHelper.objectMapper.readValue<Map<String, String>>(expectedJson, type)
             map.forEach { (k, v) ->
                 val field = ReflectionUtils.findField(entity.javaClass, k)
