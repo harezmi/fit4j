@@ -9,7 +9,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
-@FIT(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@FIT
 class EmbeddedWebServerCreatingFIT {
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
