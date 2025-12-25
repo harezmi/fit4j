@@ -14,37 +14,20 @@ import kotlin.collections.component2
 @Aspect
 class KafkaMessageTrackerAspect(private val kafkaMessageTracker: KafkaMessageTracker,
                                 private val delayBeforeMessageConsumption:Long = 500L,
-                                private val applicationContext: ApplicationContext) {
+                                private val topicNameExpressionResolver: TopicNameExpressionResolver) {
 
     private val kafkaMessageExtractor = KafkaMessageExtractor()
-    private var parser = SpelExpressionParser()
 
     @Around("@annotation(kafkaListener)")
     fun interceptKafkaListeners(pjp: ProceedingJoinPoint, kafkaListener: org.springframework.kafka.annotation.KafkaListener): Any? {
         val messageProcessed = kafkaMessageExtractor.extract(pjp.args)
-        messageProcessed.topic = resolveTopicName(kafkaListener.topics.first())
+        messageProcessed.topic = topicNameExpressionResolver.resolveTopicName(kafkaListener.topics.first())
         try {
             introduceDelayBeforeMessageConsumption()
             return pjp.proceed()
         } finally {
             kafkaMessageTracker.markAsProcessed(messageProcessed)
         }
-    }
-
-    private fun resolveTopicName(topicNameExpression:String) : String {
-        return if(topicNameExpression.startsWith("\${")) {
-            val tpn = applicationContext.environment.getProperty(topicNameExpression.substring(2,topicNameExpression.length-1))
-            if(tpn.isNullOrEmpty()) throw IllegalStateException("Topic name expression cannot be resolved $tpn")
-            tpn
-        } else if (topicNameExpression.startsWith("#{")) {
-            val expression = parser.parseExpression(topicNameExpression.substring(2,topicNameExpression.length-1))
-            val context = StandardEvaluationContext()
-            context.setBeanResolver(BeanFactoryResolver(applicationContext))
-            return expression.getValue(context, String::class.java)!!
-        } else {
-            topicNameExpression
-        }
-
     }
 
     private fun introduceDelayBeforeMessageConsumption() {

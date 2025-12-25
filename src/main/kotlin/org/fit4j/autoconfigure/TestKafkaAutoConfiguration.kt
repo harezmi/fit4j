@@ -7,6 +7,7 @@ import org.fit4j.kafka.TestKafkaConsumerConfigurer
 import org.fit4j.kafka.TestKafkaConsumerDefinition
 import org.fit4j.kafka.TestKafkaConsumerDefinitionProvider
 import org.fit4j.kafka.TestMessageListener
+import org.fit4j.kafka.TopicNameExpressionResolver
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -35,10 +36,15 @@ class TestKafkaAutoConfiguration {
     }
 
     @Bean
-    fun kafkaMessageTrackerAspect(kafkaMessageTracker: KafkaMessageTracker, configurableEnvironment: ConfigurableEnvironment, applicationContext: ApplicationContext) : KafkaMessageTrackerAspect {
+    fun kafkaMessageTrackerAspect(kafkaMessageTracker: KafkaMessageTracker, configurableEnvironment: ConfigurableEnvironment, topicNameExpressionResolver: TopicNameExpressionResolver) : KafkaMessageTrackerAspect {
         val delayBeforeMessageConsumption = configurableEnvironment.getProperty<Long>(
             "fit4j.kafka.delayBeforeMessageConsumption",Long::class.java,500L)
-        return KafkaMessageTrackerAspect(kafkaMessageTracker, delayBeforeMessageConsumption,applicationContext)
+        return KafkaMessageTrackerAspect(kafkaMessageTracker, delayBeforeMessageConsumption,topicNameExpressionResolver)
+    }
+
+    @Bean
+    fun topicNameExpressionResolver(applicationContext: ApplicationContext) : TopicNameExpressionResolver {
+        return TopicNameExpressionResolver(applicationContext)
     }
 
     @Bean
@@ -47,8 +53,10 @@ class TestKafkaAutoConfiguration {
     }
 
     @Bean
-    fun testKafkaConsumerDefinitionProvider(applicationContext: GenericApplicationContext) : TestKafkaConsumerDefinitionProvider {
-        return TestKafkaConsumerDefinitionProvider(applicationContext)
+    fun testKafkaConsumerDefinitionProvider(applicationContext: GenericApplicationContext,
+                                            topicNameExpressionResolver: TopicNameExpressionResolver) : TestKafkaConsumerDefinitionProvider {
+        val ymlFile = applicationContext.environment.getProperty("fit4j.kafka.consumers.file","classpath:fit4j-kafka-consumers.yml")
+        return TestKafkaConsumerDefinitionProvider(topicNameExpressionResolver, applicationContext, ymlFile)
     }
 
     @Bean

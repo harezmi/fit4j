@@ -7,31 +7,47 @@ import org.hamcrest.Matchers
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.Bean
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.listener.ContainerProperties.AckMode
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.util.ReflectionTestUtils
 
+@EnableEmbeddedKafka
 @FIT
-@TestPropertySource(properties = ["kafka.topic.name=sample-topic-1"])
+@TestPropertySource(properties = [
+    "kafka.topic.name=sample-topic-1",
+    "fit4j.kafka.consumers.file=classpath:fit4j-kafka-consumers-sample.yml"])
 class KafkaConsumersYamlFileLoadFIT {
-
-    @Autowired
-    private lateinit var applicationContext: ApplicationContext
 
     @Autowired
     private lateinit var kafkaListenerContainerFactory: ConcurrentKafkaListenerContainerFactory<Any, Any>
 
+    @Autowired
+    private lateinit var testKafkaConsumerDefinitionProvider: TestKafkaConsumerDefinitionProvider
+
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        fun testTopicProvider() : TestTopicProvider {
+            return TestTopicProvider()
+        }
+
+        class TestTopicProvider {
+            fun getTopicName() : String = "sample-topic-3"
+        }
+    }
+
     @Test
     fun `it should load given sample kafka consumers yaml file`() {
-        val provider = TestKafkaConsumerDefinitionProvider(applicationContext, "classpath:fit4j-kafka-consumers-sample.yml")
-        provider.initialize()
-        val definitions = provider.getTestKafkaConsumerDefinitions()
+        val definitions = testKafkaConsumerDefinitionProvider.getTestKafkaConsumerDefinitions()
 
-        Assertions.assertEquals(2, definitions.size)
+        Assertions.assertEquals(3, definitions.size)
         verifyFirstConsumer(definitions[0])
         verifySecondConsumer(definitions[1])
+        verifyThirdConsumer(definitions[2])
     }
 
     private fun verifyFirstConsumer(consumerDef:TestKafkaConsumerDefinition) {
@@ -52,6 +68,14 @@ class KafkaConsumersYamlFileLoadFIT {
         Assertions.assertSame(kafkaListenerContainerFactory, consumerDef.containerFactory)
         MatcherAssert.assertThat(consumerDef.containerProperties, Matchers.allOf(
             Matchers.hasEntry("groupId", "sample-consumer-group-2")
+        ))
+    }
+
+    private fun verifyThirdConsumer(consumerDef:TestKafkaConsumerDefinition) {
+        Assertions.assertEquals("sample-topic-3", consumerDef.topicName)
+        Assertions.assertSame(kafkaListenerContainerFactory, consumerDef.containerFactory)
+        MatcherAssert.assertThat(consumerDef.containerProperties, Matchers.allOf(
+            Matchers.hasEntry("groupId", "sample-consumer-group-3")
         ))
     }
 }

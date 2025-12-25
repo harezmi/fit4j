@@ -10,8 +10,10 @@ import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.util.backoff.FixedBackOff
 import org.yaml.snakeyaml.Yaml
 
-class TestKafkaConsumerDefinitionProvider(private val applicationContext: ApplicationContext,
-                                          private val resourcePath:String="classpath:fit4j-kafka-consumers.yml") {
+class TestKafkaConsumerDefinitionProvider(
+        private val topicNameExpressionResolver: TopicNameExpressionResolver,
+        private val applicationContext: ApplicationContext,
+        private val resourcePath:String="classpath:fit4j-kafka-consumers.yml") {
 
     private lateinit var testKafkaConsumerDefinitions: List<TestKafkaConsumerDefinition>
 
@@ -35,9 +37,7 @@ class TestKafkaConsumerDefinitionProvider(private val applicationContext: Applic
         val consumerMap = map["consumer"] as Map<String,Any>
         var topicName = consumerMap["topic"] as String
         var containerFactory: ConcurrentKafkaListenerContainerFactory<Any, Any>
-        if(topicName.startsWith("\${")) {
-            topicName = applicationContext.environment.resolveRequiredPlaceholders(topicName)
-        }
+        topicName = topicNameExpressionResolver.resolveTopicName(topicName)
         val containerFactoryMap = consumerMap["containerFactory"] as Map<String,Any>
         if(containerFactoryMap.containsKey("beanName")) {
             val beanName = containerFactoryMap["beanName"] as String
