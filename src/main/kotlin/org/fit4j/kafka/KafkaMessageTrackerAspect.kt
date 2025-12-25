@@ -3,24 +3,48 @@ package org.fit4j.kafka
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
+import org.springframework.context.ApplicationContext
+import org.springframework.context.expression.BeanFactoryResolver
+import org.springframework.expression.spel.standard.SpelExpressionParser
+import org.springframework.expression.spel.support.StandardEvaluationContext
 import org.springframework.kafka.core.KafkaTemplate
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @Aspect
 class KafkaMessageTrackerAspect(private val kafkaMessageTracker: KafkaMessageTracker,
-                                private val delayBeforeMessageConsumption:Long = 500L) {
+                                private val delayBeforeMessageConsumption:Long = 500L,
+                                private val applicationContext: ApplicationContext) {
 
     private val kafkaMessageExtractor = KafkaMessageExtractor()
+    private var parser = SpelExpressionParser()
 
     @Around("@annotation(kafkaListener)")
     fun interceptKafkaListeners(pjp: ProceedingJoinPoint, kafkaListener: org.springframework.kafka.annotation.KafkaListener): Any? {
         val messageProcessed = kafkaMessageExtractor.extract(pjp.args)
-        messageProcessed.topic = kafkaListener.topics.first()
+        messageProcessed.topic = resolveTopicName(kafkaListener.topics.first())
         try {
             introduceDelayBeforeMessageConsumption()
             return pjp.proceed()
         } finally {
             kafkaMessageTracker.markAsProcessed(messageProcessed)
         }
+    }
+
+    private fun resolveTopicName(topicNameExpression:String) : String {
+        return if(topicNameExpression.startsWith("\${")) {
+            val tpn = applicationContext.environment.getProperty(topicNameExpression.substring(2,topicNameExpression.length-1))
+            if(tpn.isNullOrEmpty()) throw IllegalStateException("Topic name expression cannot be resolved $tpn")
+            tpn
+        } else if (topicNameExpression.startsWith("#{")) {
+            val expression = parser.parseExpression(topicNameExpression.substring(2,topicNameExpression.length-1))
+            val context = StandardEvaluationContext()
+            context.setBeanResolver(BeanFactoryResolver(applicationContext))
+            return expression.getValue(context, String::class.java)!!
+        } else {
+            topicNameExpression
+        }
+
     }
 
     private fun introduceDelayBeforeMessageConsumption() {

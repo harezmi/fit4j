@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.core.env.ConfigurableEnvironment
@@ -34,10 +35,10 @@ class TestKafkaAutoConfiguration {
     }
 
     @Bean
-    fun kafkaMessageTrackerAspect(kafkaMessageTracker: KafkaMessageTracker, configurableEnvironment: ConfigurableEnvironment) : KafkaMessageTrackerAspect {
+    fun kafkaMessageTrackerAspect(kafkaMessageTracker: KafkaMessageTracker, configurableEnvironment: ConfigurableEnvironment, applicationContext: ApplicationContext) : KafkaMessageTrackerAspect {
         val delayBeforeMessageConsumption = configurableEnvironment.getProperty<Long>(
             "fit4j.kafka.delayBeforeMessageConsumption",Long::class.java,500L)
-        return KafkaMessageTrackerAspect(kafkaMessageTracker, delayBeforeMessageConsumption)
+        return KafkaMessageTrackerAspect(kafkaMessageTracker, delayBeforeMessageConsumption,applicationContext)
     }
 
     @Bean
