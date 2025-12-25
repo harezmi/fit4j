@@ -12,9 +12,10 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 
 @EmbeddedKafka
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @FIT
-@TestPropertySource(properties = ["spring.kafka.producer.value-serializer=org.fit4j.kafka.MessageSerializer"])
+@TestPropertySource(properties = [
+    "spring.kafka.producer.value-serializer=org.fit4j.kafka.MessageSerializer",
+    "spring.kafka.consumer.auto-offset-reset=earliest"])
 class KafkaMessageTrackerAspectFIT {
 
     @Autowired

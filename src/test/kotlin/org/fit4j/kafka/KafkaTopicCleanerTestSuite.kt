@@ -12,9 +12,8 @@ import org.springframework.test.context.TestPropertySource
 class KafkaTopicCleanerTestSuite {
     @Nested
     @FIT
-    @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=true"])
+    @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=true","spring.kafka.consumer.auto-offset-reset=earliest"])
     @EmbeddedKafka
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     inner class KafkaTopicCleanerEnabledFIT {
         @Autowired
         private lateinit var applicationContext: ApplicationContext
@@ -29,9 +28,8 @@ class KafkaTopicCleanerTestSuite {
 
     @Nested
     @FIT
-    @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=false"])
+    @TestPropertySource(properties = ["fit4j.kafka.topicCleaner.enabled=false","spring.kafka.consumer.auto-offset-reset=earliest"])
     @EmbeddedKafka
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     inner class KafkaTopicCleanerDisabledFIT {
         @Autowired
         private lateinit var applicationContext: ApplicationContext

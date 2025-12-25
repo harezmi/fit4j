@@ -20,7 +20,10 @@ import org.springframework.test.context.TestPropertySource
 
 @EmbeddedKafka
 @FIT
-//@TestPropertySource(properties = ["fit4j.kafka.consumers.file=classpath:consumers/KafkaMessageWithHeadersFIT-consumers.yml"])
+@TestPropertySource(properties = [
+    "fit4j.kafka.consumers.file=classpath:consumers/KafkaMessageWithHeadersFIT-consumers.yml",
+    "spring.kafka.consumer.auto-offset-reset=earliest"
+])
 class KafkaMessageWithHeadersFIT {
     @Autowired
     private lateinit var kafkaMessageTracker: KafkaMessageTracker
