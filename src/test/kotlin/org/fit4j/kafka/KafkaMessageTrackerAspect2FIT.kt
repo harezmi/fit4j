@@ -11,13 +11,14 @@ import org.springframework.context.annotation.Import
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 
 
 @EmbeddedKafka
 @FIT
 @Import(value=[ExampleKafkaMessageListener::class, ExampleKafkaMessageListener2::class, ExampleKafkaMessageListener3::class])
-@TestPropertySource(properties = ["example.topic2=example-topic-2"])
+@TestPropertySource(properties = ["example.topic2=example-topic-2","spring.kafka.consumer.auto-offset-reset=earliest"])
 class KafkaMessageTrackerAspect2FIT {
 
     @Autowired

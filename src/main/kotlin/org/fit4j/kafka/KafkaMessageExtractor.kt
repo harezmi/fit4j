@@ -2,6 +2,11 @@ package org.fit4j.kafka
 
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.header.Header
+import org.apache.kafka.common.header.Headers
+import org.apache.kafka.common.header.internals.RecordHeader
+import org.apache.kafka.common.header.internals.RecordHeaders
+import org.springframework.kafka.support.converter.KafkaMessageHeaders
 
 class KafkaMessageExtractor() {
 
@@ -33,15 +38,17 @@ class KafkaMessageExtractor() {
 
     fun extract(args:Array<out Any>) : KafkaMessage {
         val record = args.first()
-        return createKafkaMessage(record)
+        val kafkaMessageHeaders : KafkaMessageHeaders? = (if (args.size>1 && (args.get(1) is KafkaMessageHeaders)) args[1] else null) as KafkaMessageHeaders?
+        return createKafkaMessage(record, kafkaMessageHeaders)
     }
 
-    private fun createKafkaMessage(record: Any): KafkaMessage {
+    private fun createKafkaMessage(record: Any, kafkaMessageHeaders: KafkaMessageHeaders?=null): KafkaMessage {
         var message: Any?
         var topicName: String? = null
         var partition: Int? = null
         var timestamp: Long? = null
         var key: Any? = null
+        var headers: Headers? = null
         when (record) {
             is ConsumerRecord<*, *> -> {
                 message = record.value()
@@ -49,6 +56,7 @@ class KafkaMessageExtractor() {
                 partition = record.partition()
                 timestamp = record.timestamp()
                 key = record.key()
+                headers = record.headers()
             }
 
             is ProducerRecord<*, *> -> {
@@ -57,10 +65,21 @@ class KafkaMessageExtractor() {
                 partition = record.partition()
                 timestamp = record.timestamp()
                 key = record.key()
+                headers = record.headers()
             }
 
             else -> {
                 message = record
+                headers = RecordHeaders()
+                if(kafkaMessageHeaders!=null) {
+                    kafkaMessageHeaders.forEach {
+                        if(it.key.startsWith("kafka_")) {
+                            headers.add(SpringKafkaHeader(it.key,it.value))
+                        } else {
+                            headers.add(RecordHeader(it.key,it.value as ByteArray))
+                        }
+                    }
+                }
             }
         }
         return KafkaMessage(
@@ -68,8 +87,14 @@ class KafkaMessageExtractor() {
             partition = partition,
             timestamp = timestamp,
             key = key,
-            data = message
+            data = message,
+            headers = headers
         )
     }
+}
+
+data class SpringKafkaHeader(val key:String, val value:Any) : Header {
+    override fun key(): String = key
+    override fun value(): ByteArray? = value as? ByteArray
 }
 
