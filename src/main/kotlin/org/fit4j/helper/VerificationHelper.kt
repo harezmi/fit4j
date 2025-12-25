@@ -1,10 +1,8 @@
 package org.fit4j.helper
 
-import com.fasterxml.jackson.databind.type.TypeFactory
 import com.google.protobuf.Message
 import org.fit4j.mock.MockServiceCallTracker
 import org.junit.jupiter.api.Assertions
-import org.springframework.util.ReflectionUtils
 
 class VerificationHelper(private val jsonHelper: JsonHelper,
                          private val mockServiceCallTracker: MockServiceCallTracker
@@ -24,18 +22,8 @@ class VerificationHelper(private val jsonHelper: JsonHelper,
         } else {
             if (jsonHelper.objectMapper == null)
                 throw IllegalStateException("ObjectMapper is not configured, make sure jackson-databind dependency is in your classpath")
-            val type =
-                TypeFactory.defaultInstance().constructMapType(Map::class.java, String::class.java, Object::class.java)
-            val map = jsonHelper.objectMapper.readValue<Map<String, String>>(expectedJson, type)
-            map.forEach { (k, v) ->
-                val field = ReflectionUtils.findField(entity.javaClass, k)
-                field!!.trySetAccessible()
-                val value = ReflectionUtils.getField(field, entity)?.toString()
-                Assertions.assertEquals(
-                    v, value,
-                    "Values don't match for field :$k of given object, expected :$v actual:$value"
-                )
-            }
+            val actualJson = jsonHelper.objectMapper.writeValueAsString(entity)
+            this.verifyJson(expectedJson,actualJson)
         }
     }
 
