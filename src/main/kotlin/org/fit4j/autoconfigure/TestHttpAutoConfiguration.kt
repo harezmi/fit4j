@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.fit4j.http.DefaultHttpMockResponseProvider
 import org.fit4j.http.HttpCallTraceFactory
 import org.fit4j.http.HttpHeadersRegisteringRequestInterceptor
+import org.fit4j.http.HttpHeadersSource
 import org.fit4j.http.HttpResponseJsonBuilder
 import org.fit4j.http.HttpServerDispatcher
 import org.fit4j.http.HttpServerWrapper
@@ -76,10 +77,10 @@ class TestHttpAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(HttpHeaders::class)
-    fun restTemplateCustomizer(httpHeaders: HttpHeaders) : RestTemplateCustomizer {
+    @ConditionalOnBean(HttpHeadersSource::class)
+    fun restTemplateCustomizer(httpHeadersSource: HttpHeadersSource) : RestTemplateCustomizer {
         return RestTemplateCustomizer {
-            rt -> rt.interceptors.add(HttpHeadersRegisteringRequestInterceptor(httpHeaders))
+            rt -> rt.interceptors.add(HttpHeadersRegisteringRequestInterceptor(httpHeadersSource = httpHeadersSource))
         }
     }
 }

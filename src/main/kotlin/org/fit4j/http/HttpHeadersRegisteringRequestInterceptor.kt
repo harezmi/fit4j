@@ -6,13 +6,13 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 
-class HttpHeadersRegisteringRequestInterceptor(val httpHeaders: HttpHeaders) : ClientHttpRequestInterceptor {
+class HttpHeadersRegisteringRequestInterceptor(val httpHeadersSource: HttpHeadersSource) : ClientHttpRequestInterceptor {
     override fun intercept(
         request: HttpRequest,
         body: ByteArray,
         execution: ClientHttpRequestExecution
     ): ClientHttpResponse {
-        request.headers.addAll(httpHeaders)
+        request.headers.addAll(httpHeadersSource.get())
         return  execution.execute(request,body)
     }
 }

@@ -21,11 +21,13 @@ class HttpHeadersRegistrationFIT {
     @TestConfiguration
     class TestConfig {
         @Bean
-        fun httpHeaders() : HttpHeaders {
-            val httpHeaders = HttpHeaders()
-            httpHeaders.add("X-User-Id","123")
-            httpHeaders.add("Authorization","Bearer XXX")
-            return httpHeaders
+        fun httpHeadersSource() : HttpHeadersSource {
+            return HttpHeadersSource {
+                val httpHeaders = HttpHeaders()
+                httpHeaders.add("X-User-Id","123")
+                httpHeaders.add("Authorization","Bearer XXX")
+                httpHeaders
+            }
         }
     }
 
