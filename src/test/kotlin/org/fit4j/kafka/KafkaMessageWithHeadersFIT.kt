@@ -1,6 +1,5 @@
 package org.fit4j.kafka
 
-import io.mockk.InternalPlatformDsl.toArray
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.header.internals.RecordHeader
 import org.apache.kafka.common.header.internals.RecordHeaders
@@ -14,7 +13,6 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.messaging.handler.annotation.Headers
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 
 
@@ -41,20 +39,25 @@ class KafkaMessageWithHeadersFIT {
 
     @Test
     fun `headers should be available when message sent with headers`() {
+        val expectedHeaders = RecordHeaders().add("k-key", "h-value".toByteArray(Charsets.UTF_8))
         val pr = ProducerRecord(
             "my-topic",1,"my-key","my-value",
-            RecordHeaders().add("k-key","h-value".toByteArray(Charsets.UTF_8)))
+            expectedHeaders
+        )
         kafkaTemplate.send(pr).join()
 
         val kmp = kafkaMessageTracker.getMessagesPublishedAt("my-topic").get(0)
-        Assertions.assertEquals(RecordHeaders().add("k-key","h-value".toByteArray(Charsets.UTF_8)),kmp.headers)
+        Assertions.assertEquals(expectedHeaders,kmp.headers)
+        Assertions.assertEquals("h-value",kmp.getHeaderValueAsString("k-key"))
 
         val kmr = kafkaMessageTracker.getMessagesReceivedAt("my-topic").get(0)
-        Assertions.assertEquals(RecordHeaders().add("k-key","h-value".toByteArray(Charsets.UTF_8)),kmr.headers)
+        Assertions.assertEquals(expectedHeaders,kmr.headers)
+        Assertions.assertTrue { kmr.containsHeader("k-key") }
 
         val kmpr = kafkaMessageTracker.getMessagesProcessedAt("my-topic").get(0)
-        Assertions.assertArrayEquals(RecordHeaders().add("k-key","h-value".toByteArray(Charsets.UTF_8)).toArray(),
+        Assertions.assertArrayEquals(expectedHeaders.toArray(),
             kmpr.headers.filter { it is RecordHeader }.toTypedArray())
+        Assertions.assertArrayEquals("h-value".toByteArray(Charsets.UTF_8),kmpr.getHeaderValue("k-key"))
     }
 }
 
