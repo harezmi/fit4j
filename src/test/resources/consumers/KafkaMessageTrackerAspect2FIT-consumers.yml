@@ -1,0 +1,11 @@
+- consumer:
+    topic: example-topic
+    containerFactory:
+      consumerFactory:
+        configs:
+          - key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          - value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          - auto.offset.reset: earliest
+      containerProperties:
+        ackMode: MANUAL_IMMEDIATE
+        groupId: example-topic-consumer-group

@@ -53,6 +53,7 @@ class KafkaMessageWithHeadersFIT {
         val kmr = kafkaMessageTracker.getMessagesReceivedAt("my-topic").get(0)
         Assertions.assertEquals(expectedHeaders,kmr.headers)
         Assertions.assertTrue { kmr.containsHeader("k-key") }
+        Assertions.assertTrue { kmr.containsHeader("k-key","h-value") }
 
         val kmpr = kafkaMessageTracker.getMessagesProcessedAt("my-topic").get(0)
         Assertions.assertArrayEquals(expectedHeaders.toArray(),

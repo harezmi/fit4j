@@ -27,6 +27,12 @@ data class KafkaMessage(var topic: String? = null,
         val header = headers.firstOrNull { it.key().equals(key) }
         return header != null
     }
+
+    fun containsHeader(key:String, value:String) : Boolean {
+        val vb = value.toByteArray(Charsets.UTF_8)
+        val header = headers.firstOrNull { it.key().equals(key) && vb.contentEquals(it.value())}
+        return header != null
+    }
 }
 
 class HeaderNotFoundException(msg:String) : RuntimeException(msg)

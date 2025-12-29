@@ -3,6 +3,7 @@ package org.fit4j.kafka
 import com.example.fit4j.grpc.TestGrpc
 import com.google.protobuf.Message
 import org.fit4j.annotation.FIT
+import org.fit4j.helper.VerificationHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

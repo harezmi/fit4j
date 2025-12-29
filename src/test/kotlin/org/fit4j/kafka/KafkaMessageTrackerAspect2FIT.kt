@@ -1,6 +1,7 @@
 package org.fit4j.kafka
 
 import org.fit4j.annotation.FIT
+import org.fit4j.helper.VerificationHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,13 +19,18 @@ import org.springframework.test.context.TestPropertySource
 @EmbeddedKafka
 @FIT
 @Import(value=[ExampleKafkaMessageListener::class, ExampleKafkaMessageListener2::class, ExampleKafkaMessageListener3::class])
-@TestPropertySource(properties = ["example.topic2=example-topic-2","spring.kafka.consumer.auto-offset-reset=earliest"])
+@TestPropertySource(properties = [
+    "fit4j.kafka.consumers.file=classpath:consumers/KafkaMessageTrackerAspect2FIT-consumers.yml",
+    "example.topic2=example-topic-2",
+    "spring.kafka.consumer.auto-offset-reset=earliest"])
 class KafkaMessageTrackerAspect2FIT {
 
     @Autowired
     private lateinit var kafkaMessageTracker: KafkaMessageTracker
     @Autowired
     private lateinit var kafkaTemplate: KafkaTemplate<String,String>
+    @Autowired
+    private lateinit var verificationHelper: VerificationHelper
 
     @TestConfiguration
     class TestConfig {
@@ -44,9 +50,10 @@ class KafkaMessageTrackerAspect2FIT {
     @Test
     fun `kafka topic should be correctly identified`() {
         kafkaTemplate.send("example-topic","example-message").get()
-        val messagesProcessed = kafkaMessageTracker.getMessagesProcessedAt("example-topic")
-        Assertions.assertEquals(1,messagesProcessed.size)
-        Assertions.assertEquals("example-message",messagesProcessed.first().data)
+
+        verificationHelper.verifyMessagePublishedAt("example-topic","example-message")
+        verificationHelper.verifyMessageProcessedAt("example-topic","example-message")
+        verificationHelper.verifyMessageReceivedAt("example-topic","example-message")
     }
 
     @Test

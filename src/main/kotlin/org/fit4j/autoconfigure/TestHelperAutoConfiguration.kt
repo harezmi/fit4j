@@ -9,6 +9,7 @@ import org.fit4j.dbcleanup.DatabaseTestSupportForPostgreSQL
 import org.fit4j.dbcleanup.NoopDatabaseTestSupport
 import org.fit4j.helper.JsonHelper
 import org.fit4j.helper.VerificationHelper
+import org.fit4j.kafka.KafkaMessageTracker
 import org.fit4j.mock.MockServiceCallTracker
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -37,8 +38,10 @@ class TestHelperAutoConfiguration(private val applicationContext: ApplicationCon
     @ConditionalOnMissingBean
     fun verifier(
                 jsonHelper: JsonHelper,
-                 mockServiceCallTracker: MockServiceCallTracker) : VerificationHelper {
-        return VerificationHelper(jsonHelper,mockServiceCallTracker)
+                 mockServiceCallTracker: MockServiceCallTracker,
+                @Autowired(required = false)
+                kafkaMessageTracker: KafkaMessageTracker?) : VerificationHelper {
+        return VerificationHelper(jsonHelper,mockServiceCallTracker, kafkaMessageTracker)
     }
 
     @Bean
