@@ -2,7 +2,7 @@ package org.fit4j.testcontainers
 
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 
-class ElasticsearchTestContainerDefinition(map:Map<String,Any>) : DataPopulatingTestContainerDefinition(map) {
+class ElasticsearchTestContainerDefinition(map:Map<String,Any?>) : DataPopulatingTestContainerDefinition(map) {
 
     override fun dataPopulator(): TestContainerDataPopulator {
         val connectionProperties = elasticsearchConnectionProperties()

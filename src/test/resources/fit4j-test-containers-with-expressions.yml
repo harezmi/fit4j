@@ -1,0 +1,47 @@
+- container: org.testcontainers.containers.PostgreSQLContainer
+  name: testPostgresWithExpressions
+  image: "${test.postgres.image:postgres:14.0}"
+  exposedPorts:
+    - 5432
+  username: "${test.db.username}"
+  password: "#{@testContainerConfig.getPassword()}"
+  databaseName: "${test.db.name}"
+  env:
+    - TZ: "${test.timezone}"
+    - POSTGRES_HOST_AUTH_METHOD: "#{@testContainerConfig.getAuthMethod()}"
+  exposedProperties:
+    - jdbcUrl
+    - username
+    - password
+  reuse: false
+
+- container: org.testcontainers.containers.GenericContainer
+  name: testRedisWithProperties
+  image: "${test.redis.image:redis:6.2}"
+  exposedPorts:
+    - 6379
+  env:
+    - REDIS_PASSWORD: "${test.redis.password:redispass}"
+  exposedProperties:
+    - host
+    - firstMappedPort
+  reuse: false
+
+- container: org.testcontainers.containers.MySQLContainer
+  name: testMySQLWithMixedExpressions
+  image: "#{@testContainerConfig.getMySQLImage()}"
+  exposedPorts:
+    - 3306
+  username: "${test.mysql.username}"
+  password: "${test.mysql.password}"
+  databaseName: "#{@testContainerConfig.getDatabaseName()}"
+  env:
+    - TZ: "${test.timezone}"
+  urlParam:
+    - serverTimezone: "${test.timezone}"
+    - useSSL: "false"
+  exposedProperties:
+    - jdbcUrl
+    - username
+    - password
+  reuse: false

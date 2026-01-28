@@ -8,7 +8,7 @@ import org.springframework.util.StringUtils
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
 
-open class MapBasedTestContainerDefinition(map:Map<String,Any>) : TestContainerDefinition {
+open class MapBasedTestContainerDefinition(map:Map<String,Any?>) : TestContainerDefinition {
 
     private var container: GenericContainer<*>
 
@@ -42,7 +42,7 @@ open class MapBasedTestContainerDefinition(map:Map<String,Any>) : TestContainerD
         }
     }
 
-    private fun createContainer(map: Map<String, Any>) : GenericContainer<*> {
+    private fun createContainer(map: Map<String, Any?>) : GenericContainer<*> {
         if(!map.containsKey("image")) {
             throw IllegalStateException("image is required")
         }
@@ -59,13 +59,13 @@ open class MapBasedTestContainerDefinition(map:Map<String,Any>) : TestContainerD
         return constructor.newInstance(din) as GenericContainer<*>
     }
 
-    private fun initializeContainer(map: Map<String, Any>) {
+    private fun initializeContainer(map: Map<String, Any?>) {
         if(map.containsKey("exposedPorts")) {
             val exposedPorts = map["exposedPorts"] as List<Int>
             container.withExposedPorts(*(exposedPorts.toTypedArray()))
         }
         if(map.containsKey("env")) {
-            val env = (map["env"] as List<Map<String, Any>>).flatMap { it.entries }.map { it.key to it.value }
+            val env = (map["env"] as List<Map<String, Any?>>).flatMap { it.entries }.map { it.key to it.value }
             env.forEach { container.withEnv(it.first, it.second.toString()) }
         }
 
@@ -77,7 +77,7 @@ open class MapBasedTestContainerDefinition(map:Map<String,Any>) : TestContainerD
             val value = map[property]
             if (value is List<*>) {
                 value.forEach {
-                    val m = it as Map<String, Any>
+                    val m = it as Map<String, Any?>
                     val k = m.keys.first()
                     val v = m[k]
                     MethodUtils.invokeMethod(container, methodName, k, v)

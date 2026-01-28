@@ -1,24 +1,40 @@
 package org.fit4j.kafka
 
+import org.fit4j.expression.PropertyAndExpressionResolver
 import org.springframework.context.ApplicationContext
-import org.springframework.context.expression.BeanFactoryResolver
-import org.springframework.expression.spel.standard.SpelExpressionParser
-import org.springframework.expression.spel.support.StandardEvaluationContext
 
-class TopicNameExpressionResolver(private val applicationContext: ApplicationContext) {
-    private var parser = SpelExpressionParser()
+/**
+ * Resolves topic name expressions for Kafka consumers and producers.
+ * 
+ * This class delegates to [PropertyAndExpressionResolver] for actual resolution,
+ * providing a Kafka-specific API while maintaining backward compatibility.
+ * 
+ * Supports three formats:
+ * - `${property.name}` - Spring property placeholder
+ * - `#{@bean.method()}` - SpEL expression
+ * - Plain text - Returns unchanged
+ * 
+ * ## Example
+ * ```yaml
+ * consumer:
+ *   topic: "#{@topicConfig.getTopicName()}"
+ *   # or
+ *   topic: "${kafka.topic.name}"
+ * ```
+ * 
+ * @property applicationContext The Spring ApplicationContext used for resolution
+ */
+class TopicNameExpressionResolver(applicationContext: ApplicationContext) {
+    private val resolver = PropertyAndExpressionResolver(applicationContext)
 
-    fun resolveTopicName(topicNameExpression:String) : String {
-        return if(topicNameExpression.startsWith("\${")) {
-            return applicationContext.environment.resolveRequiredPlaceholders(topicNameExpression)
-        } else if (topicNameExpression.startsWith("#{")) {
-            val expression = parser.parseExpression(topicNameExpression.substring(2,topicNameExpression.length-1))
-            val context = StandardEvaluationContext()
-            context.setBeanResolver(BeanFactoryResolver(applicationContext))
-            return expression.getValue(context, String::class.java)!!
-        } else {
-            topicNameExpression
-        }
-
+    /**
+     * Resolves a topic name that may contain property placeholders or SpEL expressions.
+     * 
+     * @param topicNameExpression The topic name expression to resolve
+     * @return The resolved topic name
+     * @throws IllegalArgumentException if resolution fails
+     */
+    fun resolveTopicName(topicNameExpression: String): String {
+        return resolver.resolve(topicNameExpression)
     }
 }

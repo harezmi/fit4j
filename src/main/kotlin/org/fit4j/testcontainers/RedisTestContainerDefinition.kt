@@ -2,7 +2,7 @@ package org.fit4j.testcontainers
 
 import org.testcontainers.containers.GenericContainer
 
-class RedisTestContainerDefinition(map:Map<String,Any>) : DataPopulatingTestContainerDefinition(map) {
+class RedisTestContainerDefinition(map:Map<String,Any?>) : DataPopulatingTestContainerDefinition(map) {
 
     override fun dataPopulator(): TestContainerDataPopulator {
         val connectionProperties = redisConnectionProperties()

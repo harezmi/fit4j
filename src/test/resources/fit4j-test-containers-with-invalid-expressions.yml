@@ -1,0 +1,9 @@
+- container: org.testcontainers.containers.PostgreSQLContainer
+  name: testContainerWithMissingProperty
+  image: postgres:16.1
+  exposedPorts:
+    - 5432
+  username: "${missing.property.that.does.not.exist}"
+  password: testpass
+  databaseName: testdb
+  reuse: false

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.InitializingBean
 import org.springframework.context.ResourceLoaderAware
 import org.springframework.core.io.ResourceLoader
 
-abstract class DataPopulatingTestContainerDefinition(map:Map<String,Any>) : MapBasedTestContainerDefinition(map),
+abstract class DataPopulatingTestContainerDefinition(map:Map<String,Any?>) : MapBasedTestContainerDefinition(map),
     InitializingBean, ResourceLoaderAware {
 
     private var initScript:String?=null
