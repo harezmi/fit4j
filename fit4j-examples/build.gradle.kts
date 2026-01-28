@@ -48,7 +48,7 @@ subprojects {
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-        testImplementation("io.github.harezmi:fit4j:0.0.13")
+        testImplementation("io.github.harezmi:fit4j:0.0.14")
     }
 
     java {
