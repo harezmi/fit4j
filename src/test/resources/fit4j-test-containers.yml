@@ -60,3 +60,21 @@
     - cluster.routing.allocation.disk.threshold_enabled: false
     - JAVA_TOOL_OPTIONS: -Xmx10G
   reuse: false
+- container: org.testcontainers.containers.KafkaContainer
+  name: kafkaContainerDefinition
+  image: confluentinc/cp-kafka:5.4.3
+  reuse: false
+  exposedProperties:
+   - bootstrapServers
+- container: org.testcontainers.containers.GenericContainer
+  name: kafkaUiContainerDefinition
+  image: provectuslabs/kafka-ui:latest
+  reuse: false
+  exposedPorts:
+   - 8080
+  env:
+   - KAFKA_CLUSTERS_0_NAME: local
+   - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafkaContainerDefinition:9092
+  exposedProperties:
+    - host
+    - firstMappedPort

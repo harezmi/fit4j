@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.ContextCustomizer
 import org.springframework.test.context.MergedContextConfiguration
+import org.testcontainers.containers.Network
 
 class TestContainersContextCustomizer(private val registerDefinitionsSelectively:Boolean = false, private val registerDefinitions:Array<String> = arrayOf()) : ContextCustomizer {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
@@ -23,7 +24,10 @@ class TestContainersContextCustomizer(private val registerDefinitionsSelectively
         if(registerDefinitionsSelectively) {
             definitions = definitions.filter { this.registerDefinitions.contains(it.beanName) }
         }
-        val registrars: List<TestContainerDefinitionRegistrar> = definitions.map { TestContainerDefinitionRegistrar(it) }
+        val network = Network.newNetwork()
+        context.beanFactory.registerSingleton("dockerContainerNetwork",network)
+
+        val registrars: List<TestContainerDefinitionRegistrar> = definitions.map { TestContainerDefinitionRegistrar(it, network) }
         registrars.forEach {
             it.register(context)
         }
