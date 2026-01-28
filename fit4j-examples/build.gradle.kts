@@ -12,6 +12,11 @@ plugins {
     id("com.google.protobuf") version "0.9.4"
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
     implementation("com.google.protobuf:protobuf-java:${protobufJavaVersion}")
@@ -43,7 +48,7 @@ subprojects {
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-        testImplementation("org.fit4j:fit4j:1.0.0-SNAPSHOT")
+        testImplementation("io.github.harezmi:fit4j:0.0.13")
     }
 
     java {

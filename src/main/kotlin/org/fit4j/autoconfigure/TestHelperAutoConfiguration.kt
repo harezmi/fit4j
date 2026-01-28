@@ -7,6 +7,7 @@ import org.fit4j.dbcleanup.DatabaseTestSupportForH2
 import org.fit4j.dbcleanup.DatabaseTestSupportForMysql
 import org.fit4j.dbcleanup.DatabaseTestSupportForPostgreSQL
 import org.fit4j.dbcleanup.NoopDatabaseTestSupport
+import org.fit4j.helper.BrowserLauncher
 import org.fit4j.helper.JsonHelper
 import org.fit4j.helper.VerificationHelper
 import org.fit4j.kafka.KafkaMessageTracker
@@ -55,6 +56,11 @@ class TestHelperAutoConfiguration(private val applicationContext: ApplicationCon
             "postgresql" -> DatabaseTestSupportForPostgreSQL(dataSource, transactionManager, dbCleanUpEnabled)
             else -> throw IllegalStateException("There is test support strategy for db vendor $dbVendorName")
         }
+    }
+
+    @Bean
+    fun browserLauncher() : BrowserLauncher {
+        return BrowserLauncher()
     }
 
     private fun dbCleanUpEnabled() : Boolean {

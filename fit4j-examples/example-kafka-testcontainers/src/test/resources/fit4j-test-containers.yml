@@ -4,4 +4,16 @@
   reuse: false
   exposedProperties:
     - bootstrapServers
+- container: org.testcontainers.containers.GenericContainer
+  name: kafka-ui
+  image: provectuslabs/kafka-ui:latest
+  reuse: false
+  exposedPorts:
+    - 8080
+  env:
+    - KAFKA_CLUSTERS_0_NAME: local
+    - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-service-bus:9092
+  exposedProperties:
+    - host
+    - firstMappedPort
 
