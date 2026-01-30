@@ -20,7 +20,7 @@ class ApplicationContextLifecycleListener {
 
     @EventListener
     fun handle(event:ContextRefreshedEvent) {
-        contextStartTimesMap.put(event.applicationContext.hashCode(), System.currentTimeMillis())
+        contextStartTimesMap[event.applicationContext.hashCode()] = System.currentTimeMillis()
     }
 
     @EventListener
@@ -33,11 +33,11 @@ class ApplicationContextLifecycleListener {
     }
 
     private fun calculateTestExecutionTime(applicationContext: ApplicationContext) {
-        val startTime = contextStartTimesMap.get(applicationContext.hashCode())
+        val startTime = contextStartTimesMap[applicationContext.hashCode()] ?:return
         val endTime = System.currentTimeMillis()
-        val duration = (endTime - startTime!!) / 1000.0
+        val duration = (endTime - startTime) / 1000.0
         val testName = applicationContext.environment.getProperty("fit4j.testClass.simpleName", "Unknown")
-        logger.debug("Test ${testName} executed for $duration seconds")
+        logger.debug("Test $testName executed for $duration seconds")
     }
 
     fun stopKafkaListeners(applicationContext: ApplicationContext) {
@@ -59,19 +59,17 @@ class ApplicationContextLifecycleListener {
 
     private fun printMemoryConsumption() {
         val memoryMXBean: MemoryMXBean = ManagementFactory.getMemoryMXBean()
-        logger.debug(">>>Heap Memory usage:")
-        printMemoryUsage(memoryMXBean.heapMemoryUsage)
-        logger.debug(">>>Non-Heap Memory usage:")
-        printMemoryUsage(memoryMXBean.nonHeapMemoryUsage)
+        printMemoryUsage("Heap Memory usage:",memoryMXBean.heapMemoryUsage)
+        printMemoryUsage("Non-Heap Memory usage:",memoryMXBean.nonHeapMemoryUsage)
     }
 
-    private fun printMemoryUsage(memoryUsage: java.lang.management.MemoryUsage) {
+    private fun printMemoryUsage(logMsg:String, memoryUsage: java.lang.management.MemoryUsage) {
         val mb = 1024 * 1024 * 1.0
         val used = memoryUsage.used / mb
         val committed = memoryUsage.committed / mb
         val max = memoryUsage.max
         val max2 = (if(max!=-1L) max/mb else max).toDouble()
-
+        logger.debug(logMsg)
         logger.debug("Used: $used MB")
         logger.debug("Committed: $committed MB")
         logger.debug("Max: ${if (max == -1L) "no limit" else "$max2 MB"}")
