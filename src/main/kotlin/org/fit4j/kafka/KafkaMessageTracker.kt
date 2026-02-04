@@ -12,71 +12,59 @@ class KafkaMessageTracker(val waitTimeout : Long = 1000L, val waitLoopCount : In
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    private fun publishedMessages() : MutableList<KafkaMessage> {
-        return publishedMessages
-    }
-
-    private fun processedMessages() : MutableList<KafkaMessage> {
-        return processedMessages
-    }
-
-    private fun receivedMessages() : MutableList<KafkaMessage> {
-        return receivedMessages
-    }
-
     fun markAsPublished(message: KafkaMessage) {
         synchronized(this.publishedMessages) {
             logger.debug("Marking message as published (which means test or service itself published it at some point): $message")
-            this.publishedMessages().add(message)
+            this.publishedMessages.add(message)
         }
     }
 
     fun markAsProcessed(message:KafkaMessage) {
         synchronized(this.processedMessages) {
             logger.debug("Marking message as processed (which means service itself handled it during request processing): $message")
-            this.processedMessages().add(message)
+            this.processedMessages.add(message)
         }
     }
 
     fun markAsReceived(message:KafkaMessage) {
         synchronized(this.receivedMessages) {
             logger.debug("Marking message as received (which means ${TestMessageListener::class.simpleName} on behalf of external consumers handled it): $message")
-            this.receivedMessages().add(message)
+            this.receivedMessages.add(message)
         }
     }
 
     fun <T : Any> waitForProcessing(data:T): KafkaMessage? {
-        return this.waitFor(data, processedMessages(), "processed")
+        return this.waitFor(data, processedMessages, "processed")
     }
 
     fun <T : Any> waitForPublish(data:T): KafkaMessage? {
-        return this.waitFor(data, publishedMessages(), "published")
+        return this.waitFor(data, publishedMessages, "published")
     }
 
     fun <T : Any> waitForReceiving(data:T): KafkaMessage? {
-        return this.waitFor(data, receivedMessages(), "received")
+        return this.waitFor(data, receivedMessages, "received")
     }
 
     fun <T : Any> isPublished(data:T): Boolean {
-        return this.messageExists(data, publishedMessages())
+        return this.messageExists(data, publishedMessages)
     }
 
-    fun getMessagesPublishedAt(topic: String): List<KafkaMessage> {
-        return this.getMessagesAt(publishedMessages(), topic)
+    fun getMessagesPublishedAt(topic: String, messageCount:Int=1): List<KafkaMessage> {
+        return this.getMessagesAt(publishedMessages, topic, messageCount)
     }
 
-    fun getMessagesReceivedAt(topic: String): List<KafkaMessage> {
-        return this.getMessagesAt(receivedMessages(), topic)
+    fun getMessagesReceivedAt(topic: String, messageCount:Int=1): List<KafkaMessage> {
+        return this.getMessagesAt(receivedMessages, topic, messageCount)
     }
 
-    fun getMessagesProcessedAt(topic: String): List<KafkaMessage> {
-        return this.getMessagesAt(processedMessages(), topic)
+    fun getMessagesProcessedAt(topic: String, messageCount:Int=1): List<KafkaMessage> {
+        return this.getMessagesAt(processedMessages, topic, messageCount)
     }
 
-    private fun getMessagesAt(messageList: List<KafkaMessage>, topic: String): List<KafkaMessage> {
+    private fun getMessagesAt(messageList: List<KafkaMessage>, topic: String, messageCount:Int=1): List<KafkaMessage> {
         synchronized(messageList) {
             var count = 0
-            while(messageList.isEmpty() && count < waitLoopCount) {
+            while((messageList.size < messageCount) && count < waitLoopCount) {
                 (messageList as Object).wait(waitTimeout)
                 count +=1
             }
@@ -112,9 +100,9 @@ class KafkaMessageTracker(val waitTimeout : Long = 1000L, val waitLoopCount : In
     @AfterTestMethod
     @Order(0)
     fun reset() {
-        doClear(publishedMessages())
-        doClear(receivedMessages())
-        doClear(processedMessages())
+        doClear(publishedMessages)
+        doClear(receivedMessages)
+        doClear(processedMessages)
     }
 
     private fun doClear(messageList: MutableList<KafkaMessage>) {
