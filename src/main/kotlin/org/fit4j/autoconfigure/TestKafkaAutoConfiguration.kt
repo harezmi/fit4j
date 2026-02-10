@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry
-import org.springframework.kafka.test.EmbeddedKafkaBroker
 
 @AutoConfiguration
 @AutoConfigureAfter(KafkaAutoConfiguration::class)
@@ -70,9 +69,8 @@ class TestKafkaAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(EmbeddedKafkaBroker::class)
     @ConditionalOnProperty(name = ["fit4j.kafka.topicCleaner.enabled"], havingValue = "true", matchIfMissing = true)
-    fun kafkaTopicCleaner(kafkaBroker: EmbeddedKafkaBroker) : KafkaTopicCleaner {
-        return KafkaTopicCleaner(kafkaBroker)
+    fun kafkaTopicCleaner(environment: ConfigurableEnvironment) : KafkaTopicCleaner {
+        return KafkaTopicCleaner(environment)
     }
 }
