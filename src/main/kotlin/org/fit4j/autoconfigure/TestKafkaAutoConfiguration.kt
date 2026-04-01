@@ -1,5 +1,6 @@
 package org.fit4j.autoconfigure
 
+import org.fit4j.kafka.KafkaListenerContainerFactoryTrackingBeanPostProcessor
 import org.fit4j.kafka.KafkaMessageTracker
 import org.fit4j.kafka.KafkaMessageTrackerAspect
 import org.fit4j.kafka.KafkaTopicCleaner
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.GenericApplicationContext
@@ -35,10 +37,19 @@ class TestKafkaAutoConfiguration {
     }
 
     @Bean
-    fun kafkaMessageTrackerAspect(kafkaMessageTracker: KafkaMessageTracker, configurableEnvironment: ConfigurableEnvironment, topicNameExpressionResolver: TopicNameExpressionResolver) : KafkaMessageTrackerAspect {
-        val delayBeforeMessageConsumption = configurableEnvironment.getProperty<Long>(
-            "fit4j.kafka.delayBeforeMessageConsumption",Long::class.java,500L)
-        return KafkaMessageTrackerAspect(kafkaMessageTracker, delayBeforeMessageConsumption,topicNameExpressionResolver)
+    fun kafkaMessageTrackerAspect(kafkaMessageTracker: KafkaMessageTracker): KafkaMessageTrackerAspect {
+        return KafkaMessageTrackerAspect(kafkaMessageTracker)
+    }
+
+    @Bean
+    fun kafkaListenerContainerFactoryTrackingBeanPostProcessor(
+        kafkaMessageTrackerProvider: ObjectProvider<KafkaMessageTracker>,
+        environment: ConfigurableEnvironment,
+    ): KafkaListenerContainerFactoryTrackingBeanPostProcessor {
+        return KafkaListenerContainerFactoryTrackingBeanPostProcessor(
+            kafkaMessageTrackerProvider,
+            environment,
+        )
     }
 
     @Bean

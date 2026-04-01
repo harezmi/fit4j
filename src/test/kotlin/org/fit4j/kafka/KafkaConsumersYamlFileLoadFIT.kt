@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.listener.ContainerProperties.AckMode
@@ -65,7 +64,13 @@ class KafkaConsumersYamlFileLoadFIT {
 
     private fun verifySecondConsumer(consumerDef:TestKafkaConsumerDefinition) {
         Assertions.assertEquals("sample-topic-2", consumerDef.topicName)
-        Assertions.assertSame(kafkaListenerContainerFactory, consumerDef.containerFactory)
+        Assertions.assertNotSame(kafkaListenerContainerFactory, consumerDef.containerFactory)
+        Assertions.assertSame(
+            kafkaListenerContainerFactory.consumerFactory,
+            consumerDef.containerFactory.consumerFactory,
+        )
+        Assertions.assertNotNull(ReflectionTestUtils.getField(kafkaListenerContainerFactory, "recordInterceptor"))
+        Assertions.assertNull(ReflectionTestUtils.getField(consumerDef.containerFactory, "recordInterceptor"))
         MatcherAssert.assertThat(consumerDef.containerProperties, Matchers.allOf(
             Matchers.hasEntry("groupId", "sample-consumer-group-2")
         ))
@@ -73,7 +78,12 @@ class KafkaConsumersYamlFileLoadFIT {
 
     private fun verifyThirdConsumer(consumerDef:TestKafkaConsumerDefinition) {
         Assertions.assertEquals("sample-topic-3", consumerDef.topicName)
-        Assertions.assertSame(kafkaListenerContainerFactory, consumerDef.containerFactory)
+        Assertions.assertNotSame(kafkaListenerContainerFactory, consumerDef.containerFactory)
+        Assertions.assertSame(
+            kafkaListenerContainerFactory.consumerFactory,
+            consumerDef.containerFactory.consumerFactory,
+        )
+        Assertions.assertNull(ReflectionTestUtils.getField(consumerDef.containerFactory, "recordInterceptor"))
         MatcherAssert.assertThat(consumerDef.containerProperties, Matchers.allOf(
             Matchers.hasEntry("groupId", "sample-consumer-group-3")
         ))

@@ -41,7 +41,11 @@ class TestKafkaConsumerDefinitionProvider(
         val containerFactoryMap = consumerMap["containerFactory"] as Map<String,Any>
         if(containerFactoryMap.containsKey("beanName")) {
             val beanName = containerFactoryMap["beanName"] as String
-            containerFactory = applicationContext.getBean(beanName) as ConcurrentKafkaListenerContainerFactory<Any, Any>
+            val beanFactory =
+                applicationContext.getBean(beanName) as ConcurrentKafkaListenerContainerFactory<Any, Any>
+            containerFactory = KafkaListenerContainerFactoryCopier.copyWithoutRecordInterceptor(beanFactory)
+            containerFactory.setApplicationContext(applicationContext)
+            containerFactory.setApplicationEventPublisher(applicationContext)
 
         } else {
             val consumerFactoryMap = containerFactoryMap["consumerFactory"] as Map<String,Any>

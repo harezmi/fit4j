@@ -6,12 +6,13 @@ import org.springframework.kafka.listener.AcknowledgingMessageListener
 import org.springframework.kafka.support.Acknowledgment
 
 /*
-TestMessageListener is deliberately made implementing AcknowledgingMessageListener rather than
-utilizing @KafkaListener annotation because beans with @KafkaListener annotation are intercepted
-by the KafkaMessageTrackerAspect and those intercepted message consumptions are marked as processed.
-On the other hand, messages consumed here are marked as received. In short, TestMessageListener
-in a way acts on behalf of any external consumer service which expects messages from the service
-currently being tested.
+TestMessageListener implements AcknowledgingMessageListener instead of @KafkaListener so FIT can
+treat it as an external consumer: consumptions are marked as received only.
+
+Application @KafkaListener containers use Spring Kafka's RecordInterceptor (see
+KafkaListenerContainerFactoryTrackingBeanPostProcessor) and mark messages as processed. YAML
+definitions that reference a shared factory bean receive a copied factory without that interceptor
+so this listener is not marked processed.
  */
 class TestMessageListener(private val kafkaMessageTracker: KafkaMessageTracker) :
     AcknowledgingMessageListener<String, Any> {
