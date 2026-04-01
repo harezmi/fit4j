@@ -2,7 +2,7 @@ package org.fit4j.autoconfigure
 
 import org.fit4j.kafka.KafkaListenerContainerFactoryTrackingBeanPostProcessor
 import org.fit4j.kafka.KafkaMessageTracker
-import org.fit4j.kafka.KafkaMessageTrackerAspect
+import org.fit4j.kafka.KafkaTemplateTrackingBeanPostProcessor
 import org.fit4j.kafka.KafkaTopicCleaner
 import org.fit4j.kafka.TestKafkaConsumerConfigurer
 import org.fit4j.kafka.TestKafkaConsumerDefinition
@@ -37,8 +37,10 @@ class TestKafkaAutoConfiguration {
     }
 
     @Bean
-    fun kafkaMessageTrackerAspect(kafkaMessageTracker: KafkaMessageTracker): KafkaMessageTrackerAspect {
-        return KafkaMessageTrackerAspect(kafkaMessageTracker)
+    fun kafkaTemplateTrackingBeanPostProcessor(
+        kafkaMessageTrackerProvider: ObjectProvider<KafkaMessageTracker>,
+    ): KafkaTemplateTrackingBeanPostProcessor {
+        return KafkaTemplateTrackingBeanPostProcessor(kafkaMessageTrackerProvider)
     }
 
     @Bean

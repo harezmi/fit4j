@@ -5,9 +5,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.listener.RecordInterceptor
 
 /**
- * Invoked by Spring Kafka before/after listener processing. Applies the same delay and
- * [KafkaMessageTracker.markAsProcessed] semantics as the former [KafkaMessageTrackerAspect]
- * `@KafkaListener` advice.
+ * Invoked by Spring Kafka before/after `@KafkaListener` processing. Applies a configurable delay before the listener runs,
+ * then [KafkaMessageTracker.markAsProcessed] in [afterRecord].
  */
 class KafkaMessageTrackingRecordInterceptor(
     private val kafkaMessageTracker: KafkaMessageTracker,
@@ -21,7 +20,7 @@ class KafkaMessageTrackingRecordInterceptor(
         consumer: Consumer<Any, Any>,
     ): ConsumerRecord<Any, Any>? {
         if (delayBeforeMessageConsumption > 0) {
-            // Mirrors KafkaMessageTrackerAspect: give producer-side persistence time to finish
+            // Give producer-side persistence time to finish
             // before the listener runs (not for offset/commit timing).
             Thread.sleep(delayBeforeMessageConsumption)
         }

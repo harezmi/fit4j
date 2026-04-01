@@ -863,8 +863,8 @@ those topics from within the service.
 The FIT4J test library registers a Spring Kafka `RecordInterceptor` on each `ConcurrentKafkaListenerContainerFactory` bean so that
 messages consumed by `@KafkaListener` methods are marked as `processed` after handling (along with an optional pre-listener delay).
 Therefore, you can wait for the processing of those messages to be completed by calling `waitForProcessing` on the `KafkaMessageTracker`.
-In a similar manner, execution of `org.springframework.kafka.core.KafkaTemplate.send()` methods is intercepted via AspectJ and the messages sent via
-`KafkaTemplate` from within the service are marked as `published`. Therefore, you can also wait for the publishing of those
+In a similar manner, a `ProducerListener` is registered on each `KafkaTemplate` bean (combined with any existing listener via `CompositeProducerListener`)
+so that completed sends are marked as `published`. Therefore, you can also wait for the publishing of those
 messages as well. The library also provides you with the ability to wait for the messages to be received by the
 `TestMessageListener` bean configured through Kafka Consumer Definitions mentioned earlier. All of those `waitForPublish`,
 `waitForProcessing`, and `waitForReceiving` methods of the `KafkaMessageTracker` expect the actual message instance (not the class type), and return the corresponding `KafkaMessage` wrapper or throw `MessageNotReceivedException` if the message is not found within the timeout period.
