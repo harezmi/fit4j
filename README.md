@@ -98,18 +98,58 @@ Each example project is completely self-contained and can be run independently. 
 
 ## ⚠️ Important Limitations
 
-**Parallel Test Execution Not Supported**: Currently, FIT4J does not support parallel test execution. All tests annotated with `@FIT` or `@IT` must be executed sequentially. This limitation is due to the use of shared static state for managing test context. Running tests in parallel may lead to unpredictable behavior, race conditions, and test failures.
+### Parallel test execution (same JVM vs. multiple JVMs)
 
-To ensure tests run sequentially in your build configuration:
+FIT4J uses shared static state (for example the current JUnit `ExtensionContext`) so that mock HTTP/gRPC servers and other infrastructure on **worker threads** can correlate failures and fixtures with the running test. Because of that:
 
-**Gradle:**
+- **Concurrent execution inside a single JVM is not supported** — do not enable JUnit 5 parallel mode (`@Execution(CONCURRENT)`, parallel classes/methods, etc.) for `@FIT` / `@IT` suites. Doing so can cause races, wrong fixture selection, and flaky failures.
+- **Running tests sequentially is still required within each test JVM process.** Defaults are usually safe: Gradle and Surefire run tests one after another inside a fork unless you explicitly turn on JUnit parallel execution.
+
+**JUnit Platform — keep parallel execution disabled** (recommended even when using multiple Gradle/Maven forks):
+
+```properties
+# src/test/resources/junit-platform.properties
+junit.jupiter.execution.parallel.enabled = false
+```
+
+### Speeding up CI with multiple processes (“Solution 0”)
+
+You can often **shorten total wall-clock time** by running tests in **several separate JVM processes** (each process has its own static state). In each fork, tests still run **sequentially**, which matches FIT4J’s expectations.
+
+**Trade-offs:** higher aggregate memory use, more CPU contention, and possible stress on shared resources (Docker/Testcontainers, fixed ports, disk). Tune fork count to your environment.
+
+**Gradle** — example: four forks, one test class per fork is a common pattern; adjust `forkEvery` / filtering as needed:
+
+```kotlin
+tasks.test {
+    maxParallelForks = 4   // number of parallel JVM processes, not concurrent tests inside one JVM
+    // Optional: cap workers on small machines, e.g. maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+}
+```
+
+To force a **single** test JVM (maximum isolation of static state from other modules, simplest mental model):
+
 ```kotlin
 tasks.test {
     maxParallelForks = 1
 }
 ```
 
-**Maven:**
+**Maven** — multiple JVMs (example):
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <configuration>
+        <forkCount>4</forkCount>
+        <reuseForks>true</reuseForks>
+    </configuration>
+</plugin>
+```
+
+To use only one JVM:
+
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -121,13 +161,7 @@ tasks.test {
 </plugin>
 ```
 
-**JUnit Platform:**
-```properties
-# src/test/resources/junit-platform.properties
-junit.jupiter.execution.parallel.enabled = false
-```
-
-Support for parallel test execution is planned for a future release.
+**Summary:** Multi-fork / multi-process parallelism is a practical way to improve throughput **without** changing FIT4J; **in-process** JUnit parallelism remains unsupported. True concurrent execution within the same JVM is planned for a future release.
 
 # How to Start Working with This Library?
 
@@ -1426,7 +1460,7 @@ Please ensure that:
 
 **Q**: Does FIT4J support parallel test execution?
 
-**A**: No, FIT4J currently does not support parallel test execution. All tests must run sequentially due to the use of shared static state for managing test context. Running tests in parallel will lead to race conditions, unpredictable behavior, and test failures. Please ensure your build configuration is set to run tests sequentially (see the [Important Limitations](#️-important-limitations) section for configuration examples). Support for parallel test execution is planned for a future release and is tracked in our refactoring roadmap.
+**A**: **Not inside a single JVM.** FIT4J relies on shared static state for test context; enabling JUnit 5 parallel execution (concurrent classes/methods in one process) can cause races and flaky tests. **Within each test JVM, `@FIT` / `@IT` tests should run sequentially**, and you should keep `junit.jupiter.execution.parallel.enabled=false` (see [Important Limitations](#️-important-limitations)). **You can still speed up CI** by running tests in **multiple forked JVMs** (e.g. Gradle `maxParallelForks` > 1 or Maven Surefire `forkCount` > 1), which isolates static state per process while tests in each fork run one after another. Watch memory, CPU, and shared resources such as Testcontainers. Concurrent execution *within* one JVM is planned for a future release.
 
 **Q**: Which method should I prefer to use for FITs, declarative or programmatic fixture definitions?
 
