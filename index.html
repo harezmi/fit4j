@@ -7577,7 +7577,7 @@ sequenceDiagram
        // Your test code
    }
    <code>``
-   See [</code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt:7-18<code>](https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L7-L18) and [</code>src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt:7-22`](https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt#L7-L22).</p>
+   See [</code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt:7-18<code>](https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt#L7-L18) and [</code>src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt:7-22`](https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt#L7-L22).</p>
 <p>When using Spring’s <code>@EmbeddedKafka</code>, the Spring docs recommend adding <code>@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)</code> to avoid race conditions and to ensure the embedded broker is shut down properly. See <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/sample/SampleFIT.kt#L9-L20"><code>src/test/kotlin/org/fit4j/sample/SampleFIT.kt:9-20</code></a>.</p>
 <h3>Auto-configuration Trigger</h3>
 <p><code>TestKafkaAutoConfiguration</code> activates only when:</p>
@@ -7745,8 +7745,8 @@ class SampleFIT {
 <h3>Using KafkaMessageTracker in Test Classes</h3>
 <p>Tests directly inject <code>KafkaMessageTracker</code>:</p>
 <ul>
-<li><code>KafkaMessageTrackerAspectFIT</code>: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L19-L27"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt:19-27</code></a></li>
-<li><code>KafkaMessageTrackerAspect2FIT</code>: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt#L24-L34"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt:24-34</code></a></li>
+<li><code>KafkaMessageTrackerProtobufFIT</code>: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt#L19-L27"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt:19-27</code></a></li>
+<li><code>KafkaMessageTrackerYamlConsumersFIT</code>: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerYamlConsumersFIT.kt#L24-L34"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerYamlConsumersFIT.kt:24-34</code></a></li>
 <li><code>KafkaMessageWithHeadersFIT</code>: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt#L24-L32"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt:24-32</code></a></li>
 </ul>
 <p>The typical pattern:</p>
@@ -7773,7 +7773,7 @@ fun `should process Kafka message`() {
     Assertions.assertNotNull(processed)
 }
 </code></pre>
-<p>(Structure based on <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt#L24-L56"><code>KafkaMessageTrackerAspect2FIT.kt:24-56</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L19-L40"><code>KafkaMessageTrackerAspectFIT.kt:19-40</code></a>.)</p>
+<p>(Structure based on <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerYamlConsumersFIT.kt#L24-L56"><code>KafkaMessageTrackerYamlConsumersFIT.kt:24-56</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt#L19-L40"><code>KafkaMessageTrackerProtobufFIT.kt:19-40</code></a>.)</p>
 <p><code>VerificationHelper</code> encapsulates common wait‑and‑assert patterns around <code>KafkaMessageTracker</code>.</p>
 <hr />
 <h2>Working with Headers and Complex Payloads</h2>
@@ -7821,7 +7821,7 @@ class KafkaMessageWithHeadersFIT {
 <p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt#L7-L60"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt:7-60</code></a>.</p>
 <p>Inside <code>TestConfig</code>, <code>MessageListener1</code> is a test listener with <code>@KafkaListener</code> and <code>@Headers</code> argument to access headers. The FIT <code>RecordInterceptor</code> on the listener factory sees these invocations and informs the tracker.</p>
 <h3>Protobuf / gRPC Messages</h3>
-<p><code>KafkaMessageTrackerAspectFIT</code> demonstrates tracking non‑String payloads (e.g. Protobuf):</p>
+<p><code>KafkaMessageTrackerProtobufFIT</code> demonstrates tracking non‑String payloads (e.g. Protobuf):</p>
 <pre><code class="language-kotlin">@EmbeddedKafka
 @FIT
 @TestPropertySource(
@@ -7830,7 +7830,7 @@ class KafkaMessageWithHeadersFIT {
         &quot;spring.kafka.consumer.auto-offset-reset=earliest&quot;
     ]
 )
-class KafkaMessageTrackerAspectFIT {
+class KafkaMessageTrackerProtobufFIT {
 
     @Autowired
     private lateinit var kafkaMessageTracker: KafkaMessageTracker
@@ -7854,7 +7854,7 @@ class KafkaMessageTrackerAspectFIT {
     }
 }
 </code></pre>
-<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L7-L50"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt:7-50</code></a>.</p>
+<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt#L7-L50"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt:7-50</code></a>.</p>
 <p>Note the custom serializer <code>org.fit4j.kafka.MessageSerializer</code> configured via <code>spring.kafka.producer.value-serializer</code>, which allows raw Protobuf messages to be sent.</p>
 <hr />
 <h2>Auto-Configured Components</h2>
@@ -7879,7 +7879,7 @@ class KafkaMessageTrackerAspectFIT {
 <li>Scope: Tests</li>
 <li>Default: <code>classpath:fit4j-kafka-consumers.yml</code></li>
 <li>Description: Path to the YAML file describing test Kafka consumers.</li>
-<li>Example override: <code>@TestPropertySource(properties = ["fit4j.kafka.consumers.file=classpath:consumers/KafkaMessageTrackerAspect2FIT-consumers.yml"])</code></li>
+<li>Example override: <code>@TestPropertySource(properties = ["fit4j.kafka.consumers.file=classpath:consumers/KafkaMessageTrackerYamlConsumersFIT-consumers.yml"])</code></li>
 <li>
 <p>Used in: <code>TestKafkaAutoConfiguration.testKafkaConsumerDefinitionProvider</code> (<a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L67-L72"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:67-72</code></a>).</p>
 </li>
@@ -7914,9 +7914,9 @@ class KafkaMessageTrackerAspectFIT {
 <li>
 <p>Used across tests:</p>
 <ul>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt#L19-L27"><code>KafkaMessageTrackerAspect2FIT.kt:19-27</code></a></li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerYamlConsumersFIT.kt#L19-L27"><code>KafkaMessageTrackerYamlConsumersFIT.kt:19-27</code></a></li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/KafkaMessageWithHeadersFIT.kt#L19-L27"><code>KafkaMessageWithHeadersFIT.kt:19-27</code></a></li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L15-L23"><code>KafkaMessageTrackerAspectFIT.kt:15-23</code></a></li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt#L15-L23"><code>KafkaMessageTrackerProtobufFIT.kt:15-23</code></a></li>
 </ul>
 </li>
 <li>
@@ -7924,12 +7924,12 @@ class KafkaMessageTrackerAspectFIT {
 </li>
 <li>Used to configure Protobuf serializer: <code>org.fit4j.kafka.MessageSerializer</code>.</li>
 <li>
-<p>Example: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L15-L21"><code>KafkaMessageTrackerAspectFIT.kt:15-21</code></a>.</p>
+<p>Example: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerProtobufFIT.kt#L15-L21"><code>KafkaMessageTrackerProtobufFIT.kt:15-21</code></a>.</p>
 </li>
 <li>
 <p><strong>Custom topic properties</strong></p>
 </li>
-<li>E.g. <code>example.topic2=example-topic-2</code> in <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt#L18-L26"><code>KafkaMessageTrackerAspect2FIT.kt:18-26</code></a>.</li>
+<li>E.g. <code>example.topic2=example-topic-2</code> in <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerYamlConsumersFIT.kt#L18-L26"><code>KafkaMessageTrackerYamlConsumersFIT.kt:18-26</code></a>.</li>
 <li>These are usually resolved by <code>TopicNameExpressionResolver</code> in YAML-defined consumer topics or <code>@KafkaListener</code> attributes.</li>
 </ul>
 <p>All credentials or connection strings (if any) should be configured with passwords masked, e.g.:</p>
@@ -7949,7 +7949,7 @@ graph TD
 </div></div>
 <p>Interpretation:</p>
 <ol>
-<li><strong>Test sends message</strong> – via <code>KafkaTemplate</code> from test (<code>SampleFIT</code>, <code>KafkaMessageTrackerAspectFIT</code>, etc.).</li>
+<li><strong>Test sends message</strong> – via <code>KafkaTemplate</code> from test (<code>SampleFIT</code>, <code>KafkaMessageTrackerProtobufFIT</code>, etc.).</li>
 <li><strong>Kafka broker receives</strong> – embedded or external Kafka broker.</li>
 <li><strong>Test consumer listens</strong> – <code>TestMessageListener</code> and/or application <code>@KafkaListener</code>s.</li>
 <li><strong>Interceptor tracks processed</strong> – FIT <code>RecordInterceptor</code> on the listener container factory marks <code>@KafkaListener</code> handling; <code>ProducerListener</code> on <code>KafkaTemplate</code> marks published sends when the producer callback completes.</li>
@@ -10541,7 +10541,7 @@ graph TD
 <li>Kafka‑related FIT tests:</li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaAutoConfigurationEnabledFIT.kt#L1-L20"><code>src/test/kotlin/org/fit4j/kafka/KafkaAutoConfigurationEnabledFIT.kt:1-20</code></a></li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt#L1-L35"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt:1-35</code></a></li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt#L1-L35"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt:1-35</code></a></li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerYamlConsumersFIT.kt#L1-L35"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerYamlConsumersFIT.kt:1-35</code></a></li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaTopicCleanerTestSuite.kt#L1-L35"><code>src/test/kotlin/org/fit4j/kafka/KafkaTopicCleanerTestSuite.kt:1-35</code></a></li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaConsumersYamlFileLoadFIT.kt#L1-L25"><code>src/test/kotlin/org/fit4j/kafka/KafkaConsumersYamlFileLoadFIT.kt:1-25</code></a></li>
 <li>JUnit extension:</li>

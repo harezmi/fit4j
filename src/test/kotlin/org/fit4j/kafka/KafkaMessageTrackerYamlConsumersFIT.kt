@@ -20,10 +20,10 @@ import org.springframework.test.context.TestPropertySource
 @FIT
 @Import(value=[ExampleKafkaMessageListener::class, ExampleKafkaMessageListener2::class, ExampleKafkaMessageListener3::class])
 @TestPropertySource(properties = [
-    "fit4j.kafka.consumers.file=classpath:consumers/KafkaMessageTrackerAspect2FIT-consumers.yml",
+    "fit4j.kafka.consumers.file=classpath:consumers/KafkaMessageTrackerYamlConsumersFIT-consumers.yml",
     "example.topic2=example-topic-2",
     "spring.kafka.consumer.auto-offset-reset=earliest"])
-class KafkaMessageTrackerAspect2FIT {
+class KafkaMessageTrackerYamlConsumersFIT {
 
     @Autowired
     private lateinit var kafkaMessageTracker: KafkaMessageTracker

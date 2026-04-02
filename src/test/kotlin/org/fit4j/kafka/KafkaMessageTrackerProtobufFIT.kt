@@ -3,13 +3,11 @@ package org.fit4j.kafka
 import com.example.fit4j.grpc.TestGrpc
 import com.google.protobuf.Message
 import org.fit4j.annotation.FIT
-import org.fit4j.helper.VerificationHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 
 @EmbeddedKafka
@@ -17,7 +15,7 @@ import org.springframework.test.context.TestPropertySource
 @TestPropertySource(properties = [
     "spring.kafka.producer.value-serializer=org.fit4j.kafka.MessageSerializer",
     "spring.kafka.consumer.auto-offset-reset=earliest"])
-class KafkaMessageTrackerAspectFIT {
+class KafkaMessageTrackerProtobufFIT {
 
     @Autowired
     private lateinit var kafkaMessageTracker: KafkaMessageTracker
