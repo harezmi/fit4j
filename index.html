@@ -7530,14 +7530,14 @@ sequenceDiagram
 <section id="section-kafka-messaging-workflows" class="dw-section">
   <div class="dw-section-inner">
     <h1>Kafka Messaging Workflows</h1>
-<p>This page describes how FIT4J orchestrates Kafka-based integration tests: how embedded Kafka is enabled, how test consumers are defined declaratively in YAML, how messages are tracked via <code>KafkaMessageTracker</code> and <code>KafkaMessageTrackerAspect</code>, and how tests assert on produced and consumed messages. It focuses on the Kafka-related auto-configuration and test patterns used throughout the repository.</p>
+<p>This page describes how FIT4J orchestrates Kafka-based integration tests: how embedded Kafka is enabled, how test consumers are defined declaratively in YAML, how messages are tracked via <code>KafkaMessageTracker</code> together with Spring Kafka <code>RecordInterceptor</code> (consumed / processed) and <code>ProducerListener</code> (published), and how tests assert on produced and consumed messages. It focuses on the Kafka-related auto-configuration and test patterns used throughout the repository.</p>
 <hr />
 <h2>Overview of Kafka Testing in FIT4J</h2>
 <p>Kafka support in FIT4J is built around four main elements:</p>
 <ul>
 <li><strong>Embedded Kafka broker</strong> – provided either by FIT4J’s <code>@EnableEmbeddedKafka</code> or Spring Kafka’s <code>@EmbeddedKafka</code>.</li>
 <li><strong>Declarative consumer definitions</strong> – YAML file (<a href="https://github.com/harezmi/fit4j/blob/main/fit4j-kafka-consumers.yml"><code>fit4j-kafka-consumers.yml</code></a>) describing test Kafka consumers.</li>
-<li><strong>Message tracking</strong> – <code>KafkaMessageTracker</code> and <code>KafkaMessageTrackerAspect</code> to await and assert processing of messages.</li>
+<li><strong>Message tracking</strong> – <code>KafkaMessageTracker</code>, plus <code>RecordInterceptor</code> on listener container factories and <code>ProducerListener</code> on <code>KafkaTemplate</code> beans, to await and assert publishing and processing.</li>
 <li><strong>Auto-configuration</strong> – <code>TestKafkaAutoConfiguration</code> wires everything together when Kafka is enabled in the environment.</li>
 </ul>
 <p>At a high level, a typical workflow is:</p>
@@ -7545,7 +7545,7 @@ sequenceDiagram
 <li>A test class enables FIT4J and embedded Kafka.</li>
 <li>FIT4J auto-configuration reads consumer definitions from YAML and registers <code>TestMessageListener</code> containers.</li>
 <li>The test publishes messages via <code>KafkaTemplate</code>.</li>
-<li>Service code and/or test listeners consume these messages; <code>KafkaMessageTrackerAspect</code> intercepts <code>@KafkaListener</code> methods.</li>
+<li>Service code and/or test listeners consume these messages; <code>@KafkaListener</code> methods run behind a FIT <code>RecordInterceptor</code> on each <code>ConcurrentKafkaListenerContainerFactory</code> bean (see below).</li>
 <li>The test uses <code>KafkaMessageTracker</code> or a helper to wait for and verify message processing.</li>
 </ol>
 <hr />
@@ -7629,7 +7629,7 @@ fun testKafkaConsumerDefinitionProvider(
     return TestKafkaConsumerDefinitionProvider(topicNameExpressionResolver, applicationContext, ymlFile)
 }
 </code></pre>
-<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L40-L49"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:40-49</code></a>.</p>
+<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L67-L72"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:67-72</code></a>.</p>
 <p>The YAML file location can be customized per test class via <code>@TestPropertySource</code>:</p>
 <pre><code class="language-kotlin">@EnableEmbeddedKafka
 @FIT
@@ -7668,34 +7668,29 @@ fun kafkaMessageTracker(env: ConfigurableEnvironment): KafkaMessageTracker {
     return KafkaMessageTracker(waitTimeout, waitLoopCount)
 }
 </code></pre>
-<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L21-L29"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:21-29</code></a>.</p>
+<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L30-L37"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:30-37</code></a>.</p>
 <ul>
 <li><code>fit4j.kafka.waitTimeout</code> – sleep duration between polling attempts (ms).</li>
 <li><code>fit4j.kafka.waitLoopCount</code> – maximum number of polling attempts.</li>
 </ul>
 <p>Together they bound the maximum wait time when calling <code>waitForProcessing</code>-like methods.</p>
-<h3>KafkaMessageTrackerAspect</h3>
-<p><code>KafkaMessageTrackerAspect</code> intercepts methods annotated with <code>@KafkaListener</code> and marks consumed messages as processed. It is created via:</p>
-<pre><code class="language-kotlin">@Bean
-fun kafkaMessageTrackerAspect(
-    kafkaMessageTracker: KafkaMessageTracker,
-    env: ConfigurableEnvironment,
-    topicNameExpressionResolver: TopicNameExpressionResolver
-): KafkaMessageTrackerAspect {
-    // ctor call, not fully shown in snippet
-}
-</code></pre>
-<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L29-L40"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:29-40</code></a>.</p>
-<p>The aspect uses <code>TopicNameExpressionResolver</code> to determine the effective topic name for listeners whose <code>topics</code> or <code>topicPattern</code> attributes may use placeholders or expressions.</p>
-<h4>What the Aspect Does</h4>
-<p>Whenever a <code>@KafkaListener</code> method receives a message:</p>
+<h3>Spring Kafka integration: <code>RecordInterceptor</code> and <code>ProducerListener</code></h3>
+<p>FIT4J does not use AspectJ for Kafka. Auto-configuration registers:</p>
+<ul>
+<li><strong><code>KafkaListenerContainerFactoryTrackingBeanPostProcessor</code></strong> – attaches <code>KafkaMessageTrackingRecordInterceptor</code> (a Spring Kafka <code>RecordInterceptor</code>) to each <code>ConcurrentKafkaListenerContainerFactory</code> bean. It honors <code>fit4j.kafka.delayBeforeMessageConsumption</code> before the listener runs, then marks the record as <strong>processed</strong> in <code>afterRecord</code>. Existing factory interceptors are composed with <code>CompositeRecordInterceptor</code>.</li>
+<li><strong><code>KafkaTemplateTrackingBeanPostProcessor</code></strong> – attaches <code>KafkaMessageTrackingProducerListener</code> to each <code>KafkaTemplate</code> bean so completed sends are marked as <strong>published</strong> (<code>onSuccess</code> / <code>onError</code>), using <code>CompositeProducerListener</code> when a listener is already set.</li>
+</ul>
+<p>Sources: <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/kafka/KafkaListenerContainerFactoryTrackingBeanPostProcessor.kt"><code>KafkaListenerContainerFactoryTrackingBeanPostProcessor.kt</code></a>, <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/kafka/KafkaMessageTrackingRecordInterceptor.kt"><code>KafkaMessageTrackingRecordInterceptor.kt</code></a>, <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/kafka/KafkaTemplateTrackingBeanPostProcessor.kt"><code>KafkaTemplateTrackingBeanPostProcessor.kt</code></a>, <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/kafka/KafkaMessageTrackingProducerListener.kt"><code>KafkaMessageTrackingProducerListener.kt</code></a>.</p>
+<p>YAML-based <code>TestMessageListener</code> consumers record <strong>received</strong> only. When a definition uses <code>containerFactory.beanName</code> pointing at a shared Spring factory, <code>TestKafkaConsumerDefinitionProvider</code> uses <code>KafkaListenerContainerFactoryCopier</code> to duplicate that factory <em>without</em> the FIT <code>RecordInterceptor</code> so those containers are not marked <code>processed</code>.</p>
+<p><code>TopicNameExpressionResolver</code> resolves placeholders and SpEL in YAML consumer topic strings; tracking uses the record’s topic from the broker for <code>@KafkaListener</code> paths.</p>
+<h4>What happens when a message is consumed</h4>
+<p>For each record delivered to a <code>@KafkaListener</code> using a tracked factory:</p>
 <ol>
-<li>The aspect intercepts before or after the method.</li>
-<li>It extracts the message payload (and possibly headers).</li>
-<li>It notifies <code>KafkaMessageTracker</code> to mark the message as processed for the relevant topic and key.</li>
-<li>Test code waiting on this message is unblocked and can assert on it.</li>
+<li>The <code>RecordInterceptor</code> chain runs (optional delay, then the listener).</li>
+<li><code>afterRecord</code> updates <code>KafkaMessageTracker</code> with the processed message.</li>
+<li>Tests using <code>waitForProcessing</code> or <code>VerificationHelper</code> can proceed.</li>
 </ol>
-<p>This applies both to application listeners and test-only listeners defined within test configuration classes.</p>
+<p>This applies to application listeners and test <code>@KafkaListener</code> methods that use the same tracked <code>ConcurrentKafkaListenerContainerFactory</code> bean as Spring Boot.</p>
 <hr />
 <h2>Publishing and Waiting for Messages in Tests</h2>
 <h3>Basic Pattern</h3>
@@ -7823,7 +7818,7 @@ class KafkaMessageWithHeadersFIT {
 }
 </code></pre>
 <p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt#L7-L60"><code>src/test/kotlin/org/fit4j/kafka/KafkaMessageWithHeadersFIT.kt:7-60</code></a>.</p>
-<p>Inside <code>TestConfig</code>, <code>MessageListener1</code> is a test listener with <code>@KafkaListener</code> and <code>@Headers</code> argument to access headers. The aspect sees these invocations and informs the tracker.</p>
+<p>Inside <code>TestConfig</code>, <code>MessageListener1</code> is a test listener with <code>@KafkaListener</code> and <code>@Headers</code> argument to access headers. The FIT <code>RecordInterceptor</code> on the listener factory sees these invocations and informs the tracker.</p>
 <h3>Protobuf / gRPC Messages</h3>
 <p><code>KafkaMessageTrackerAspectFIT</code> demonstrates tracking non‑String payloads (e.g. Protobuf):</p>
 <pre><code class="language-kotlin">@EmbeddedKafka
@@ -7862,57 +7857,18 @@ class KafkaMessageTrackerAspectFIT {
 <p>Note the custom serializer <code>org.fit4j.kafka.MessageSerializer</code> configured via <code>spring.kafka.producer.value-serializer</code>, which allows raw Protobuf messages to be sent.</p>
 <hr />
 <h2>Auto-Configured Components</h2>
-<p><code>TestKafkaAutoConfiguration</code> orchestrates several beans used in messaging workflows:</p>
-<pre><code class="language-kotlin">@AutoConfiguration
-@AutoConfigureAfter(KafkaAutoConfiguration::class)
-@ConditionalOnBean(KafkaListenerEndpointRegistry::class)
-@ConditionalOnProperty(name = [&quot;spring.kafka.bootstrap-servers&quot;])
-@EnableOnFIT
-class TestKafkaAutoConfiguration {
-
-    @Bean
-    fun kafkaMessageTracker(env: ConfigurableEnvironment): KafkaMessageTracker { ... }
-
-    @Bean
-    fun kafkaMessageTrackerAspect(
-        kafkaMessageTracker: KafkaMessageTracker,
-        env: ConfigurableEnvironment,
-        topicNameExpressionResolver: TopicNameExpressionResolver
-    ): KafkaMessageTrackerAspect { ... }
-
-    @Bean
-    fun topicNameExpressionResolver(applicationContext: ApplicationContext): TopicNameExpressionResolver {
-        return TopicNameExpressionResolver(applicationContext)
-    }
-
-    @Bean
-    fun testMessageListener(kafkaMessageTracker: KafkaMessageTracker): TestMessageListener {
-        return TestMessageListener(kafkaMessageTracker)
-    }
-
-    @Bean
-    fun testKafkaConsumerDefinitionProvider(
-        applicationContext: GenericApplicationContext,
-        topicNameExpressionResolver: TopicNameExpressionResolver
-    ): TestKafkaConsumerDefinitionProvider { ... }
-
-    @Bean
-    fun testKafkaConsumerConfigurer(
-        provider: TestKafkaConsumerDefinitionProvider,
-        registry: KafkaListenerEndpointRegistry
-    ): TestKafkaConsumerConfigurer { ... }
-}
-</code></pre>
-<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L7-L55"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:7-55</code></a>.</p>
-<p>Key beans:</p>
+<p><code>TestKafkaAutoConfiguration</code> orchestrates beans used in messaging workflows, including:</p>
 <ul>
-<li><strong><code>KafkaMessageTracker</code></strong> – central tracking component.</li>
-<li><strong><code>KafkaMessageTrackerAspect</code></strong> – AOP around <code>@KafkaListener</code>.</li>
-<li><strong><code>TopicNameExpressionResolver</code></strong> – resolves topic placeholders (e.g. <code>${example.topic2}</code>).</li>
-<li><strong><code>TestMessageListener</code></strong> – generic listener that forwards consumed messages to the tracker.</li>
-<li><strong><code>TestKafkaConsumerDefinitionProvider</code></strong> – parses YAML and exposes <code>TestKafkaConsumerDefinition</code> instances.</li>
-<li><strong><code>TestKafkaConsumerConfigurer</code></strong> – registers listener endpoints based on definitions (not shown, but implied by name).</li>
+<li><strong><code>kafkaMessageTracker</code></strong> – central tracking state.</li>
+<li><strong><code>kafkaTemplateTrackingBeanPostProcessor</code></strong> – wires <code>KafkaMessageTrackingProducerListener</code> onto each <code>KafkaTemplate</code>.</li>
+<li><strong><code>kafkaListenerContainerFactoryTrackingBeanPostProcessor</code></strong> – wires <code>KafkaMessageTrackingRecordInterceptor</code> onto each <code>ConcurrentKafkaListenerContainerFactory</code>.</li>
+<li><strong><code>topicNameExpressionResolver</code></strong> – resolves topic placeholders and SpEL (YAML / config).</li>
+<li><strong><code>testMessageListener</code></strong> – used by YAML-declared consumers for <code>markAsReceived</code>.</li>
+<li><strong><code>testKafkaConsumerDefinitionProvider</code></strong> – loads YAML and may copy shared factories via <code>KafkaListenerContainerFactoryCopier</code>.</li>
+<li><strong><code>testKafkaConsumerConfigurer</code></strong> – registers programmatic listener containers from definitions.</li>
+<li><strong><code>kafkaTopicCleaner</code></strong> (conditional) – optional topic cleanup for tests.</li>
 </ul>
+<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt</code></a>.</p>
 <hr />
 <h2>Configuration Properties Reference</h2>
 <p>Below are the main Kafka-related properties used in tests and how they affect behavior.</p>
@@ -7924,7 +7880,7 @@ class TestKafkaAutoConfiguration {
 <li>Description: Path to the YAML file describing test Kafka consumers.</li>
 <li>Example override: <code>@TestPropertySource(properties = ["fit4j.kafka.consumers.file=classpath:consumers/KafkaMessageTrackerAspect2FIT-consumers.yml"])</code></li>
 <li>
-<p>Used in: <code>TestKafkaAutoConfiguration.testKafkaConsumerDefinitionProvider</code> (<a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L40-L49"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:40-49</code></a>).</p>
+<p>Used in: <code>TestKafkaAutoConfiguration.testKafkaConsumerDefinitionProvider</code> (<a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt#L67-L72"><code>src/main/kotlin/org/fit4j/autoconfigure/TestKafkaAutoConfiguration.kt:67-72</code></a>).</p>
 </li>
 <li>
 <p><strong><code>fit4j.kafka.waitTimeout</code></strong></p>
@@ -7985,8 +7941,8 @@ spring.kafka.properties.sasl.jaas.config=org.apache.kafka.common.security.plain.
 <div class="dw-mermaid-wrapper"><div class="mermaid">
 graph TD
  step1["Test sends message"] --> step2["Kafka broker receives"]
- step2 --> step3["Test consumer listens"]
- step3 --> step4["Aspect tracks processed"]
+ step2 --> step3["Consumers run listeners"]
+ step3 --> step4["RecordInterceptor marks processed"]
  step4 --> step5["Tracker stores state"]
  step5 --> step6["Test asserts result"]
 </div></div>
@@ -7995,7 +7951,7 @@ graph TD
 <li><strong>Test sends message</strong> – via <code>KafkaTemplate</code> from test (<code>SampleFIT</code>, <code>KafkaMessageTrackerAspectFIT</code>, etc.).</li>
 <li><strong>Kafka broker receives</strong> – embedded or external Kafka broker.</li>
 <li><strong>Test consumer listens</strong> – <code>TestMessageListener</code> and/or application <code>@KafkaListener</code>s.</li>
-<li><strong>Aspect tracks processed</strong> – <code>KafkaMessageTrackerAspect</code> intercepts listener invocations.</li>
+<li><strong>Interceptor tracks processed</strong> – FIT <code>RecordInterceptor</code> on the listener container factory marks <code>@KafkaListener</code> handling; <code>ProducerListener</code> on <code>KafkaTemplate</code> marks published sends when the producer callback completes.</li>
 <li><strong>Tracker stores state</strong> – <code>KafkaMessageTracker</code> updates its internal storage.</li>
 <li><strong>Test asserts result</strong> – waiting and assertions via <code>KafkaMessageTracker</code> or <code>VerificationHelper</code>.</li>
 </ol>
