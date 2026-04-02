@@ -22,7 +22,7 @@ Java **17**, Kotlin, Spring Boot from `gradle.properties`. Coordinates: **`io.gi
 - **`@IT`** — `@SpringBootTest` (default `MOCK`), `test` profile, `fit4j.testClass.isIntegrationTest=true`.
 - **`@FIT`** — on `@IT`: `fit4j.testClass.isFunctionalIntegrationTest=true`, **`Fit4JTestExtension`**, default random port, YAML fixtures. FIT-only beans: **`@EnableOnFIT`**.
 
-**Do not assume parallel `@FIT`/`@IT`** — `Fit4JTestExtension` holds static `ExtensionContext` (see its KDoc).
+**JUnit parallel mode** remains discouraged; mock HTTP/gRPC threads resolve the active test via **execution id** (`X-Fit4j-Test-Execution-Id` / gRPC metadata `x-fit4j-test-execution-id`) and `Fit4jTestExecutionRegistry`. Shared resources (e.g. some embedded Kafka setups) may still conflict across concurrent tests.
 
 ## Packages (`org.fit4j`)
 

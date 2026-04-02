@@ -163,6 +163,17 @@ To use only one JVM:
 
 **Summary:** Multi-fork / multi-process parallelism is a practical way to improve throughput **without** changing FIT4J; **in-process** JUnit parallelism remains unsupported. True concurrent execution within the same JVM is planned for a future release.
 
+### Test execution id (worker-thread correlation)
+
+FIT4J registers a **per-test-method execution id** and resolves the correct JUnit `ExtensionContext` on mock **HTTP** and **gRPC** worker threads by propagating that id on each outgoing call:
+
+- **HTTP:** header `X-Fit4j-Test-Execution-Id` — added automatically for Spring `RestTemplate` beans via a `RestTemplateCustomizer` (runs with highest precedence so it combines with optional custom `HttpHeadersSource` beans).
+- **gRPC:** metadata key `x-fit4j-test-execution-id` — attached on in-process `ManagedChannel` beans and read by a server interceptor on the mock gRPC server.
+
+If you use **WebClient**, raw `HttpURLConnection`, or a non-Spring HTTP client, add the same header yourself on outbound calls to FIT mock servers, using the current value from `Fit4jTestExecutionRegistry.currentExecutionId()` when present.
+
+This mechanism is the library’s **Solution 1** building block for same-JVM isolation on server-side mock threads. Other shared resources (for example a singleton embedded Kafka broker in some configurations) may still need care; keep JUnit parallel mode disabled unless you have validated your full stack.
+
 # How to Start Working with This Library?
 
 There is a separate examples project which demonstrates the 

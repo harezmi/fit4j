@@ -1,6 +1,7 @@
 package org.fit4j.grpc
 
 import io.grpc.MethodDescriptor
+import io.grpc.ServerInterceptors
 import io.grpc.ServerMethodDefinition
 import io.grpc.ServerServiceDefinition
 import io.grpc.Status
@@ -32,9 +33,13 @@ class TestGrpcServiceConfigurer(
 
     internal fun register(testGrpcServiceDefinition: TestGrpcServiceDefinition) {
         val newServiceDefinition = createNewServerServiceDefinition(testGrpcServiceDefinition)
+        val intercepted = ServerInterceptors.intercept(
+            newServiceDefinition,
+            Fit4jGrpcServerExecutionIdInterceptor()
+        )
         inProcessGrpcServerFactory.addService(
             GrpcServiceDefinition(testGrpcServiceDefinition.getBindableServiceJavaClass().name,
-                testGrpcServiceDefinition.getBindableServiceJavaClass(), newServiceDefinition)
+                testGrpcServiceDefinition.getBindableServiceJavaClass(), intercepted)
         )
     }
 

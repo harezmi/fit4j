@@ -2,6 +2,7 @@ package org.fit4j.context
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.AfterAllCallback
+import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -9,21 +10,15 @@ import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler
 
-class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback, BeforeTestExecutionCallback,
-    AfterTestExecutionCallback, TestExecutionExceptionHandler {
+class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback,
+    BeforeTestExecutionCallback, AfterTestExecutionCallback, TestExecutionExceptionHandler {
 
     companion object {
-        /*
-        Tests are started to run on the client side, and ExtensionContext is set there.
-        Later, that ExtensionContext is accessed on the server side if there is a failed
-        call handling to report at the end of the test execution. Because of this two
-        different thread involvement during the whole test execution lifecycle, it is not
-        directly possible to employ ThreadLocal to store current ExtensionContext. This is
-        why we simply made it a static variable accessible over anywhere. Obviously, this
-        limits running tests in parallel. In order to manage ExtensionContext isolated,
-        we might need to devise a mechanism to propagate ExtensionContext between client-server.
+        /**
+         * Last active JUnit [ExtensionContext] on the test thread. Mock HTTP/gRPC workers must not rely on this alone;
+         * they resolve context via [Fit4jTestExecutionRegistry] using the execution id sent on each request.
          */
-        var currentExtensionContext : ExtensionContext? = null
+        var currentExtensionContext: ExtensionContext? = null
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -32,6 +27,12 @@ class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallba
 
     override fun beforeEach(context: ExtensionContext) {
         currentExtensionContext = context
+        Fit4jTestExecutionRegistry.beginTestMethod(context)
+    }
+
+    override fun afterEach(context: ExtensionContext) {
+        Fit4jTestExecutionRegistry.endTestMethod(context)
+        currentExtensionContext = null
     }
 
     override fun afterAll(context: ExtensionContext) {
@@ -57,7 +58,7 @@ class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallba
         }
     }
 
-    private fun printFailedCalls(failedCalls: List<FailedCall>) : String {
+    private fun printFailedCalls(failedCalls: List<FailedCall>): String {
         val builder = StringBuilder()
         failedCalls.forEach {
             builder.append(it.toString() + "\n")

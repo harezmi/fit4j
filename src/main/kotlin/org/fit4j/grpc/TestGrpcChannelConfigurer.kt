@@ -22,12 +22,18 @@ class TestGrpcChannelConfigurer(private val genericApplicationContext: GenericAp
         }
     }
 
+    private fun channelSupplier(grpcManagedChannelName: String): java.util.function.Supplier<ManagedChannel> {
+        return java.util.function.Supplier {
+            InProcessChannelBuilder.forName(grpcManagedChannelName)
+                .intercept(Fit4jGrpcClientExecutionIdInterceptor())
+                .build()
+        }
+    }
+
     private fun findManagedChannelBeanNames(beanFactory: ConfigurableListableBeanFactory): Array<out String> =
         beanFactory.getBeanNamesForType(ManagedChannel::class.java)
 
     private fun overrideManagedChannelBeanDefinition(name: String?, grpcManagedChannelName: String) {
-        genericApplicationContext.registerBean(name, ManagedChannel::class.java, Supplier {
-            InProcessChannelBuilder.forName(grpcManagedChannelName).build()
-        })
+        genericApplicationContext.registerBean(name, ManagedChannel::class.java, channelSupplier(grpcManagedChannelName))
     }
 }

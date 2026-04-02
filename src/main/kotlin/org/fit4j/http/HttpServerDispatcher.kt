@@ -2,6 +2,8 @@ package org.fit4j.http
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
+import org.fit4j.context.Fit4jTestExecutionConstants
+import org.fit4j.context.Fit4jTestExecutionRegistry
 import org.fit4j.mock.MockResponseFactory
 import org.fit4j.mock.MockServiceCallTracker
 import org.slf4j.LoggerFactory
@@ -14,6 +16,13 @@ class HttpServerDispatcher(
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun handle(exchange: HttpExchange) {
+        val executionId = exchange.requestHeaders.getFirst(Fit4jTestExecutionConstants.EXECUTION_ID_HTTP_HEADER)
+        Fit4jTestExecutionRegistry.runWithExecutionId(executionId) {
+            handleInner(exchange)
+        }
+    }
+
+    private fun handleInner(exchange: HttpExchange) {
         var response: Any? = null
         var error: Throwable? = null
         val request = HttpRequest(exchange)

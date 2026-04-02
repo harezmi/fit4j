@@ -2,6 +2,7 @@ package org.fit4j.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.fit4j.http.DefaultHttpMockResponseProvider
+import org.fit4j.http.Fit4jExecutionIdClientHttpRequestInterceptor
 import org.fit4j.http.HttpCallTraceFactory
 import org.fit4j.http.HttpHeadersRegisteringRequestInterceptor
 import org.fit4j.http.HttpHeadersSource
@@ -21,6 +22,8 @@ import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.web.client.RestTemplateCustomizer
 import org.springframework.context.annotation.Bean
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.getProperty
 import org.springframework.http.HttpHeaders
@@ -74,6 +77,14 @@ class TestHttpAutoConfiguration {
     @Bean
     fun mockWebCallTraceFactory() : HttpCallTraceFactory {
         return HttpCallTraceFactory()
+    }
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    fun fit4jExecutionIdRestTemplateCustomizer(): RestTemplateCustomizer {
+        return RestTemplateCustomizer { rt ->
+            rt.interceptors.add(0, Fit4jExecutionIdClientHttpRequestInterceptor())
+        }
     }
 
     @Bean
