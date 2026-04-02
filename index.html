@@ -1829,11 +1829,11 @@ graph TD
 </tr>
 <tr>
 <td><strong>Kafka Topic Cleaner</strong></td>
-<td>FIT4J facility controlled by <code>fit4j.kafka.topicCleaner.enabled</code>. When <code>true</code>, Kafka topics used in tests are automatically cleaned up between test method executions, ensuring test isolation and preventing cross-test interference. Default is <code>false</code>. See <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L510-L530"><code>README.md:510-530</code></a>.</td>
+<td>FIT4J facility controlled by <code>fit4j.kafka.topicCleaner.enabled</code>. When <code>true</code> (or when the property is omitted, per <code>TestKafkaAutoConfiguration</code>), Kafka topics used in tests can be cleaned up between test method executions. Set explicitly to <code>false</code> to disable. See <code>KafkaTopicCleaner</code> and <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a>.</td>
 </tr>
 <tr>
 <td><strong>Kafka Message Consumption Delay</strong></td>
-<td>Config configurable via <code>fit4j.kafka.delayBeforeMessageConsumption</code> (default <code>500</code> ms). It adds a delay before consuming messages to ensure DB transactions are committed before message processing. This improves determinism of tests that depend on both database writes and Kafka consumption. See <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L500-L520"><code>README.md:500-520</code></a>.</td>
+<td>Config configurable via <code>fit4j.kafka.delayBeforeMessageConsumption</code> (default <code>500</code> ms). <code>KafkaMessageTrackingRecordInterceptor</code> sleeps in <code>RecordInterceptor.intercept</code> before the <code>@KafkaListener</code> runs, so related DB commits can complete first. See <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a> (configuration properties table).</td>
 </tr>
 <tr>
 <td><strong>Embedded Kafka</strong></td>
@@ -7583,6 +7583,7 @@ sequenceDiagram
 <p><code>TestKafkaAutoConfiguration</code> activates only when:</p>
 <ul>
 <li>The test is annotated with <code>@FIT</code> (via <code>@EnableOnFIT</code> meta-annotation).</li>
+<li>A <code>KafkaListenerEndpointRegistry</code> bean is available (Spring Kafka auto-configuration when using listeners).</li>
 <li><code>spring.kafka.bootstrap-servers</code> is present in the environment.</li>
 </ul>
 <p>This is verified by:</p>
@@ -7590,7 +7591,7 @@ sequenceDiagram
 <li>Enabled case: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaAutoConfigurationEnabledFIT.kt#L7-L22"><code>src/test/kotlin/org/fit4j/kafka/KafkaAutoConfigurationEnabledFIT.kt:7-22</code></a></li>
 <li>Disabled case: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaAutoConfigurationDisabledFIT.kt#L7-L22"><code>src/test/kotlin/org/fit4j/kafka/KafkaAutoConfigurationDisabledFIT.kt:7-22</code></a></li>
 </ul>
-<p>In the enabled case, a <code>TestMessageListener</code> bean must be present, and Kafka bootstrap servers must be configured.</p>
+<p>When active, <code>TestKafkaAutoConfiguration</code> registers <code>KafkaMessageTracker</code>, Kafka BPPs, YAML consumer wiring, and <code>TestMessageListener</code>.</p>
 <hr />
 <h2>Declarative Test Consumers from YAML</h2>
 <h3>Defining Consumers</h3>
@@ -7772,7 +7773,7 @@ fun `should process Kafka message`() {
     Assertions.assertNotNull(processed)
 }
 </code></pre>
-<p>(Structure based on <a href="https://github.com/harezmi/fit4j/blob/main/KafkaMessageTrackerAspect2FIT.kt#L24-L56"><code>KafkaMessageTrackerAspect2FIT.kt:24-56</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/KafkaMessageTrackerAspectFIT.kt#L19-L40"><code>KafkaMessageTrackerAspectFIT.kt:19-40</code></a>.)</p>
+<p>(Structure based on <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt#L24-L56"><code>KafkaMessageTrackerAspect2FIT.kt:24-56</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L19-L40"><code>KafkaMessageTrackerAspectFIT.kt:19-40</code></a>.)</p>
 <p><code>VerificationHelper</code> encapsulates common wait‑and‑assert patterns around <code>KafkaMessageTracker</code>.</p>
 <hr />
 <h2>Working with Headers and Complex Payloads</h2>
@@ -7913,9 +7914,9 @@ class KafkaMessageTrackerAspectFIT {
 <li>
 <p>Used across tests:</p>
 <ul>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/KafkaMessageTrackerAspect2FIT.kt#L19-L27"><code>KafkaMessageTrackerAspect2FIT.kt:19-27</code></a></li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt#L19-L27"><code>KafkaMessageTrackerAspect2FIT.kt:19-27</code></a></li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/KafkaMessageWithHeadersFIT.kt#L19-L27"><code>KafkaMessageWithHeadersFIT.kt:19-27</code></a></li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/KafkaMessageTrackerAspectFIT.kt#L15-L23"><code>KafkaMessageTrackerAspectFIT.kt:15-23</code></a></li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L15-L23"><code>KafkaMessageTrackerAspectFIT.kt:15-23</code></a></li>
 </ul>
 </li>
 <li>
@@ -7923,12 +7924,12 @@ class KafkaMessageTrackerAspectFIT {
 </li>
 <li>Used to configure Protobuf serializer: <code>org.fit4j.kafka.MessageSerializer</code>.</li>
 <li>
-<p>Example: <a href="https://github.com/harezmi/fit4j/blob/main/KafkaMessageTrackerAspectFIT.kt#L15-L21"><code>KafkaMessageTrackerAspectFIT.kt:15-21</code></a>.</p>
+<p>Example: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspectFIT.kt#L15-L21"><code>KafkaMessageTrackerAspectFIT.kt:15-21</code></a>.</p>
 </li>
 <li>
 <p><strong>Custom topic properties</strong></p>
 </li>
-<li>E.g. <code>example.topic2=example-topic-2</code> in <a href="https://github.com/harezmi/fit4j/blob/main/KafkaMessageTrackerAspect2FIT.kt#L18-L26"><code>KafkaMessageTrackerAspect2FIT.kt:18-26</code></a>.</li>
+<li>E.g. <code>example.topic2=example-topic-2</code> in <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/kafka/KafkaMessageTrackerAspect2FIT.kt#L18-L26"><code>KafkaMessageTrackerAspect2FIT.kt:18-26</code></a>.</li>
 <li>These are usually resolved by <code>TopicNameExpressionResolver</code> in YAML-defined consumer topics or <code>@KafkaListener</code> attributes.</li>
 </ul>
 <p>All credentials or connection strings (if any) should be configured with passwords masked, e.g.:</p>
@@ -9262,14 +9263,14 @@ redis.port=${fit4j.redisContainerDefinition.port}
 <p>Several FIT4J behavioral knobs are configured via properties that you set in <a href="https://github.com/harezmi/fit4j/blob/main/application-test.properties"><code>application-test.properties</code></a> (or <a href="https://github.com/harezmi/fit4j/blob/main/application.properties"><code>application.properties</code></a> for shared defaults).</p>
 <p>From <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a> (Kafka and fixture configuration section):</p>
 <ul>
-<li><code>fit4j.kafka.waitTimeout</code> (Long, default <code>2000</code>)  </li>
-<li>Milliseconds to wait for a Kafka operation (e.g. consumption) to complete.</li>
-<li><code>fit4j.kafka.waitLoopCount</code> (Integer, default <code>50</code>)  </li>
-<li>Number of loops during waiting; effectively controls polling granularity.</li>
+<li><code>fit4j.kafka.waitTimeout</code> (Long, default <code>1000</code>)  </li>
+<li>Milliseconds between <code>waitFor*</code> polling iterations in <code>KafkaMessageTracker</code>.</li>
+<li><code>fit4j.kafka.waitLoopCount</code> (Integer, default <code>30</code>)  </li>
+<li>Maximum polling iterations for <code>waitFor*</code> methods.</li>
 <li><code>fit4j.kafka.delayBeforeMessageConsumption</code> (Long, default <code>500</code>)  </li>
-<li>Delay before consuming messages to ensure DB transactions are committed.</li>
-<li><code>fit4j.kafka.topicCleaner.enabled</code> (Boolean, default <code>false</code>)  </li>
-<li>Enables automatic cleanup of Kafka topics after each test method.</li>
+<li>Applied in <code>KafkaMessageTrackingRecordInterceptor.intercept</code> before the listener runs.</li>
+<li><code>fit4j.kafka.topicCleaner.enabled</code> (Boolean; omit for default-on per auto-configuration)  </li>
+<li>When <code>true</code> or unset (<code>matchIfMissing</code>), the <code>KafkaTopicCleaner</code> bean is registered; set to <code>false</code> to disable.</li>
 </ul>
 <p>Declarative fixture behavior:</p>
 <ul>

@@ -1,0 +1,31 @@
+---
+description: FIT4J library purpose, architecture, and where to change code
+alwaysApply: true
+---
+
+# FIT4J (this repo)
+
+**FIT4J** — Spring Boot **test library** for JVM (Kotlin/Java): full `ApplicationContext`; mock external gRPC/REST/third parties; infrastructure via embedded services and Testcontainers (Kafka, DBs, Redis, Elasticsearch, etc.).
+
+## Docs
+
+- **`README.md`** — user guide: setup, `@FIT`/`@IT`, fixtures, Kafka verification, Testcontainers, properties, **no parallel tests**.
+- **`index.html`** — **Fit4j Wiki** (sidebar sections: architecture, Spring context integration, HTTP/gRPC/Kafka, Testcontainers, config). Design companion; not shipped in the JAR.
+- **`fit4j-examples/`** — runnable samples (`fit4j-examples/README.md`).
+
+## Build
+
+Java **17**, Kotlin, Spring Boot from `gradle.properties`. Coordinates: **`io.github.harezmi:fit4j`** + version in `gradle.properties` (README may still mention `org.fit4j`).
+
+## Test annotations
+
+- **`@IT`** — `@SpringBootTest` (default `MOCK`), `test` profile, `fit4j.testClass.isIntegrationTest=true`.
+- **`@FIT`** — on `@IT`: `fit4j.testClass.isFunctionalIntegrationTest=true`, **`Fit4JTestExtension`**, default random port, YAML fixtures. FIT-only beans: **`@EnableOnFIT`**.
+
+**Do not assume parallel `@FIT`/`@IT`** — `Fit4JTestExtension` holds static `ExtensionContext` (see its KDoc).
+
+## Packages (`org.fit4j`)
+
+`autoconfigure/` (entries in `META-INF/spring/...AutoConfiguration.imports`), `context/` (extension + context customizers), `kafka/`, `grpc/`, `http/`, `mock/declarative/`, `testcontainers/`, `helper/`, `dbcleanup/`, `scope/`. Extend the owning package for new features.
+
+Proto codegen: **test** source set in `build.gradle.kts`. Tests: `src/test/kotlin/org/fit4j/`.
