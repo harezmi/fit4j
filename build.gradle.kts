@@ -84,8 +84,9 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
-	minHeapSize = "2g"
-	maxHeapSize = "15g"
+	minHeapSize = "1g"
+	maxHeapSize = "5g"
+    maxParallelForks = 8
 }
 
 tasks.withType<PublishToMavenRepository> {
