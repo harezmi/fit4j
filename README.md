@@ -206,12 +206,12 @@ dependencies {
 <dependency>
     <groupId>org.fit4j</groupId>
     <artifactId>fit4j</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.17</version>
     <scope>test</scope>
 </dependency>
 ```
 
-### Snapshot Versions
+### Snapshot Versions -Currently snapshot release not available-
 
 To use SNAPSHOT versions, add the Sonatype snapshots repository:
 
