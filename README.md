@@ -190,14 +190,14 @@ FIT4J is published to Maven Central. Simply add the dependency to your `build.gr
 **Gradle (Kotlin DSL):**
 ```kotlin
 dependencies {
-    testImplementation("org.fit4j:fit4j:1.0.0-SNAPSHOT")
+    testImplementation("org.fit4j:fit4j:0.0.17")
 }
 ```
 
 **Gradle (Groovy DSL):**
 ```groovy
 dependencies {
-    testImplementation 'org.fit4j:fit4j:1.0.0-SNAPSHOT'
+    testImplementation 'org.fit4j:fit4j:0.0.17'
 }
 ```
 
