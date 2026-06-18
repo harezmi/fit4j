@@ -12,21 +12,25 @@ import org.fit4j.http.HttpServerWrapper
 import org.fit4j.http.HttpTestFixtureBuilder
 import org.fit4j.http.JsonToHttpResponseConverter
 import org.fit4j.http.MockWebServerProperties
+import org.fit4j.http.RestTemplateInterceptorSupport
 import org.fit4j.mock.MockResponseFactory
 import org.fit4j.mock.MockServiceCallTracker
 import org.fit4j.mock.declarative.DeclarativeTestFixtureProvider
 import org.fit4j.mock.declarative.ExpressionResolver
 import org.fit4j.mock.declarative.JsonContentExpressionResolver
 import org.fit4j.mock.declarative.PredicateEvaluator
+import org.springframework.beans.factory.ObjectProvider
+import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
-import org.springframework.boot.web.client.RestTemplateCustomizer
+import org.springframework.boot.restclient.RestTemplateCustomizer
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.context.ApplicationListener
+import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.context.annotation.Bean
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.getProperty
-import org.springframework.http.HttpHeaders
 
 @AutoConfiguration
 @EnableOnFIT
@@ -88,10 +92,39 @@ class TestHttpAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(HttpHeadersSource::class)
-    fun restTemplateCustomizer(httpHeadersSource: HttpHeadersSource) : RestTemplateCustomizer {
-        return RestTemplateCustomizer {
-            rt -> rt.interceptors.add(HttpHeadersRegisteringRequestInterceptor(httpHeadersSource = httpHeadersSource))
+    fun testRestTemplateCustomizerPostProcessor(): BeanPostProcessor = object : BeanPostProcessor {
+        override fun postProcessAfterInitialization(bean: Any, beanName: String): Any {
+            if (bean !is TestRestTemplate) {
+                return bean
+            }
+            val restTemplate = bean.getRestTemplate()
+            RestTemplateInterceptorSupport.updateInterceptors(restTemplate) { interceptors ->
+                if (interceptors.none { it is Fit4jExecutionIdClientHttpRequestInterceptor }) {
+                    interceptors.add(0, Fit4jExecutionIdClientHttpRequestInterceptor())
+                }
+            }
+            return bean
         }
     }
+
+    @Bean
+    fun httpHeadersTestRestTemplateConfigurer(): ApplicationListener<ContextRefreshedEvent> =
+        ApplicationListener { event ->
+            val context = event.applicationContext
+            val sources = context.getBeansOfType(HttpHeadersSource::class.java)
+            if (sources.isEmpty()) {
+                return@ApplicationListener
+            }
+            context.getBeansOfType(TestRestTemplate::class.java).values.forEach { template ->
+                val restTemplate = template.getRestTemplate()
+                RestTemplateInterceptorSupport.updateInterceptors(restTemplate) { interceptors ->
+                    sources.values.forEach { source ->
+                        val interceptor = HttpHeadersRegisteringRequestInterceptor(source)
+                        if (interceptors.none { it is HttpHeadersRegisteringRequestInterceptor }) {
+                            interceptors.add(interceptor)
+                        }
+                    }
+                }
+            }
+        }
 }

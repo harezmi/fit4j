@@ -1,14 +1,21 @@
 import com.google.protobuf.gradle.id
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val springBootVersion : String by project
 val protobufJavaVersion : String by project
 val grpcVersion: String by project
+val grpcKotlinStubVersion: String by project
+val javaToolchainVersion: String by project
+val javaBytecodeVersion: String by project
+val fit4jVersion: String by project
+val testcontainersVersion: String by project
+val elasticSearchVersion: String by project
 
 plugins {
     `java-library`
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.spring") version "2.0.20"
+    kotlin("jvm")
+    kotlin("plugin.spring")
     id("com.google.protobuf") version "0.9.4"
 }
 
@@ -17,19 +24,51 @@ repositories {
     mavenCentral()
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.testcontainers") {
+            useVersion(testcontainersVersion)
+            because("Boot 4 BOM pulls testcontainers 2.x; FIT4J modules are on 1.x until TC 2.0 migration")
+        }
+        if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
+            useVersion(elasticSearchVersion)
+            because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
+        }
+        if (requested.group == "org.elasticsearch.client") {
+            useVersion(elasticSearchVersion)
+            because("Align elasticsearch-rest-client with elasticsearch-java for Testcontainers ES 8.x")
+        }
+        if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
+            useVersion(grpcVersion)
+            because("Align gRPC Java artifacts with FIT4J")
+        }
+    }
+}
+
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
+    implementation("org.springframework.boot:spring-boot-starter-classic")
     implementation("com.google.protobuf:protobuf-java:${protobufJavaVersion}")
     implementation("com.google.protobuf:protobuf-java-util:${protobufJavaVersion}")
     implementation("io.grpc:grpc-api:${grpcVersion}")
     implementation("io.grpc:grpc-stub:${grpcVersion}")
-    implementation("io.grpc:grpc-kotlin-stub:1.4.3")
-    implementation("io.grpc:grpc-protobuf:1.63.0")
+    implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinStubVersion")
+    implementation("io.grpc:grpc-protobuf:$grpcVersion")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(javaToolchainVersion.toInt()))
+    }
+    sourceCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
+    targetCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        jvmTarget.set(JvmTarget.fromTarget(javaBytecodeVersion))
+    }
 }
 
 tasks.jar {
@@ -41,26 +80,55 @@ subprojects {
     apply(plugin = "kotlin")
     apply(plugin = "kotlin-spring")
 
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.testcontainers") {
+                useVersion(testcontainersVersion)
+                because("Boot 4 BOM pulls testcontainers 2.x; FIT4J modules are on 1.x until TC 2.0 migration")
+            }
+            if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
+                useVersion(elasticSearchVersion)
+                because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
+            }
+            if (requested.group == "org.elasticsearch.client") {
+                useVersion(elasticSearchVersion)
+                because("Align elasticsearch-rest-client with elasticsearch-java for Testcontainers ES 8.x")
+            }
+            if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
+                useVersion(grpcVersion)
+                because("Align gRPC Java artifacts with FIT4J")
+            }
+        }
+    }
+
     dependencies {
         testImplementation(project(":"))
 
         testImplementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
-        testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testImplementation("org.springframework.boot:spring-boot-starter-test-classic")
+        testImplementation("org.springframework.boot:spring-boot-jackson2")
+        testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+        testImplementation("org.springframework.boot:spring-boot-restclient")
+        testImplementation("org.springframework.boot:spring-boot-resttestclient")
+        testImplementation("org.springframework.boot:spring-boot-starter-webmvc")
 
-        testImplementation("io.github.harezmi:fit4j:0.0.14")
+        testImplementation("io.github.harezmi:fit4j:$fit4jVersion")
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(javaToolchainVersion.toInt()))
+        }
+        sourceCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
+        targetCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
     }
 
     tasks {
         withType<KotlinCompile>().configureEach {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjsr305=strict"
-                jvmTarget = "17"
+            compilerOptions {
+                freeCompilerArgs.add("-Xjsr305=strict")
+                jvmTarget.set(JvmTarget.fromTarget(javaBytecodeVersion))
             }
         }
 
@@ -68,26 +136,22 @@ subprojects {
             useJUnitPlatform()
             minHeapSize = "2g"
             maxHeapSize = "15g"
+            jvmArgs("--enable-native-access=ALL-UNNAMED")
         }
     }
 }
 
 protobuf {
-    // Configure the Protobuf compiler (protoc)
     protoc {
-        // This will download the correct protoc binary for your OS and architecture
-        artifact = "com.google.protobuf:protoc:3.21.2"
+        artifact = "com.google.protobuf:protoc:$protobufJavaVersion"
     }
 
-    // Configure the Protobuf plugins
     plugins {
-        // Specify the gRPC plugin
         id("grpc") {
-            // Use the correct platform-specific artifact for the gRPC code generator
-            artifact = "io.grpc:protoc-gen-grpc-java:1.63.0:osx-aarch_64"
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
         }
         id("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.3:jdk8@jar"
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:$grpcKotlinStubVersion:jdk8@jar"
         }
     }
 

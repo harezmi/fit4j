@@ -57,7 +57,7 @@ class KafkaConsumersYamlFileLoadFIT {
             Matchers.hasEntry("ackMode", AckMode.MANUAL_IMMEDIATE.name),
             Matchers.hasEntry("groupId", "sample-consumer-group-1")
         ))
-        val configs = ReflectionTestUtils.getField(containerFactory.consumerFactory, "configs") as Map<String,Any>
+        val configs = ReflectionTestUtils.getField(requireNotNull(containerFactory.consumerFactory), "configs") as Map<String, Any>
         Assertions.assertEquals(StringDeserializer::class.qualifiedName, configs["key.deserializer"])
         Assertions.assertEquals(StringDeserializer::class.qualifiedName, configs["value.deserializer"])
     }

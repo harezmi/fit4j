@@ -14,7 +14,10 @@ class TestGrpcChannelConfigurer(private val genericApplicationContext: GenericAp
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun postProcessBeanFactory(beanFactory: ConfigurableListableBeanFactory) {
-        val inProcessGrpcManagedChannelName = genericApplicationContext.environment.getProperty("grpc.server.inProcessName","NaN")
+        val inProcessGrpcManagedChannelName = genericApplicationContext.environment.getProperty(
+            "spring.grpc.server.inprocess.name",
+            "NaN"
+        )
         val managedChannelBeanNames = findManagedChannelBeanNames(beanFactory)
         logger.debug("Overriding managed channel beans with in-process channel: ${managedChannelBeanNames.contentToString()}"   )
         managedChannelBeanNames.forEach { name ->

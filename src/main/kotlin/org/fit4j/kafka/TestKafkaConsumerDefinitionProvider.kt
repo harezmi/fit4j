@@ -61,7 +61,7 @@ class TestKafkaConsumerDefinitionProvider(
             consumerFactory.valueDeserializer
             consumerFactory.keyDeserializer
             containerFactory = ConcurrentKafkaListenerContainerFactory<Any,Any>()
-            containerFactory.consumerFactory = consumerFactory
+            containerFactory.setConsumerFactory(consumerFactory)
             containerFactory.setConcurrency(1)
             containerFactory.setCommonErrorHandler(DefaultErrorHandler(FixedBackOff(0,1)))
             containerFactory.setApplicationContext(applicationContext)

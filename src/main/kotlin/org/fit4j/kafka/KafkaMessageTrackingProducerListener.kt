@@ -19,7 +19,7 @@ class KafkaMessageTrackingProducerListener(
         markPublished(record)
     }
 
-    override fun onError(record: ProducerRecord<Any, Any>, metadata: RecordMetadata?, exception: Exception?) {
+    override fun onError(record: ProducerRecord<Any, Any>, metadata: RecordMetadata?, exception: Exception) {
         markPublished(record)
     }
 

@@ -1,6 +1,6 @@
 package org.fit4j.examples.rest
 
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.restclient.RestTemplateBuilder
 
 class ExampleRestTemplate(val restTemplateBuilder: RestTemplateBuilder) {
     fun sayHello(helloRequest:ExampleRestRequest): ExampleRestResponse {

@@ -63,9 +63,12 @@ We welcome suggestions for improvements! Please create an issue with:
 
 ### Prerequisites
 
-- Java 17 or higher
-- Gradle 7.x or higher
-- Git
+- **JDK 25** for building FIT4J (Gradle auto-provisions via the Foojay toolchain resolver if not installed locally)
+- **Gradle 8.14+** (wrapper included)
+- **Git**
+- **Docker** (for Testcontainers-based tests)
+
+Consuming FIT4J in your own service requires **JDK 17+** and **Spring Boot 4.1.x** (FIT4J **0.1.0+**) — see [README.md](README.md#compatibility--requirements) and [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md).
 
 ### Building the Project
 

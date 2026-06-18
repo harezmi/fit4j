@@ -1,38 +1,73 @@
 import com.google.protobuf.gradle.id
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.security.MessageDigest
 
 
 plugins {
 	`java-library`
-	kotlin("jvm") version "2.0.20"
-	kotlin("plugin.spring") version "2.0.20"
+	kotlin("jvm")
+	kotlin("plugin.spring")
     id("com.google.protobuf") version "0.9.4"
     id("signing")
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
+val javaToolchainVersion: String by project
+val javaBytecodeVersion: String by project
+val protobufJavaVersion: String by project
+val springGrpcVersion: String by project // unused; gRPC starters ship with Boot 4.1
+val grpcVersion: String by project
+val grpcKotlinStubVersion: String by project
+val testcontainersVersion: String by project
+val elasticSearchVersion: String by project
+
 repositories {
 	mavenCentral()
 }
 
+configurations.all {
+	resolutionStrategy.eachDependency {
+		if (requested.group == "org.testcontainers") {
+			useVersion(testcontainersVersion)
+			because("Boot 4 BOM pulls testcontainers 2.x; FIT4J modules are on 1.x until TC 2.0 migration")
+		}
+		if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
+			useVersion(elasticSearchVersion)
+			because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
+		}
+		if (requested.group == "org.elasticsearch.client") {
+			useVersion(elasticSearchVersion)
+			because("Align elasticsearch-rest-client with elasticsearch-java for Testcontainers ES 8.x")
+		}
+		if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
+			useVersion(grpcVersion)
+			because("Align gRPC Java artifacts; spring-grpc-core 1.1 can pull a newer grpc-core than grpc-netty from the Boot BOM")
+		}
+	}
+}
+
 dependencies {
 	val springBootVersion : String by project
+	val springGrpcVersion : String by project
 	val kotlinVersion : String by project
-	val testcontainersVersion : String by project
-	val grpcSpringBootVersion : String by project
 	val mockkVersion : String by project
 	val protobufJavaVersion : String by project
 	val dynamoDBLocalVersion : String by project
-	val grpcVersion : String by project
 	val elasticSearchVersion: String by project
 	val redisVersion: String by project
 
 	implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-	implementation("org.springframework.boot:spring-boot-starter-aop")
-	implementation("org.springframework.boot:spring-boot-starter-test")
+	implementation("org.springframework.boot:spring-boot-starter-jdbc")
+	implementation("io.grpc:grpc-inprocess")
+	implementation("io.grpc:grpc-api")
+	implementation("io.grpc:grpc-stub")
+	testImplementation("io.grpc:grpc-kotlin-stub")
+	implementation("org.springframework.boot:spring-boot-test")
+	implementation("org.springframework.boot:spring-boot-restclient")
+	implementation("org.springframework.boot:spring-boot-resttestclient")
+	implementation("org.springframework.boot:spring-boot-starter-classic")
+	implementation("org.springframework.boot:spring-boot-jackson2")
 	implementation("com.h2database:h2")
 	implementation("org.springframework.kafka:spring-kafka-test")
 	implementation("org.springframework.kafka:spring-kafka")
@@ -41,14 +76,16 @@ dependencies {
 	implementation("org.apache.commons:commons-lang3")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-	implementation("io.grpc:grpc-api:$grpcVersion")
-	implementation("io.grpc:grpc-stub:$grpcVersion")
-    implementation("io.grpc:grpc-kotlin-stub:1.4.3")
+	implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 	implementation("com.google.protobuf:protobuf-java:$protobufJavaVersion")
 	implementation("com.google.protobuf:protobuf-java-util:$protobufJavaVersion")
 	implementation("io.mockk:mockk:$mockkVersion")
-	compileOnly("net.devh:grpc-spring-boot-starter:$grpcSpringBootVersion")
-    testImplementation("net.devh:grpc-spring-boot-starter:${grpcSpringBootVersion}")
+	api("org.springframework.boot:spring-boot-starter-grpc-server")
+	api("org.springframework.boot:spring-boot-starter-grpc-client")
+	testImplementation("org.springframework.boot:spring-boot-starter-grpc-server")
+	testImplementation("org.springframework.boot:spring-boot-starter-grpc-client")
+	testImplementation("org.springframework.boot:spring-boot-starter-grpc-server-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-grpc-client-test")
 	implementation("org.testcontainers:testcontainers:$testcontainersVersion")
 	implementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
 	implementation("org.testcontainers:kafka:$testcontainersVersion")
@@ -70,15 +107,18 @@ dependencies {
 
 	implementation("jakarta.annotation:jakarta.annotation-api")
 
+	testImplementation("org.springframework.boot:spring-boot-starter-test-classic")
+	testImplementation("org.springframework.boot:spring-boot-resttestclient")
+	testImplementation("org.springframework.boot:spring-boot-starter-webmvc")
 	testImplementation("com.mysql:mysql-connector-j")
     testImplementation("org.postgresql:postgresql")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 }
 
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs += "-Xjsr305=strict"
-		jvmTarget = "17"
+tasks.withType<KotlinCompile>().configureEach {
+	compilerOptions {
+		freeCompilerArgs.add("-Xjsr305=strict")
+		jvmTarget.set(JvmTarget.fromTarget(javaBytecodeVersion))
 	}
 }
 
@@ -86,7 +126,26 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 	minHeapSize = "1g"
 	maxHeapSize = "5g"
-    maxParallelForks = 8
+	maxParallelForks = 8
+	jvmArgs("--enable-native-access=ALL-UNNAMED")
+	// DynamoDBLocal embeds an older shaded kotlin.reflect; prefer Boot/Kotlin BOM jars first.
+	doFirst {
+		classpath = files(
+			classpath.files.sortedWith(
+				compareBy(
+					{ file ->
+						when {
+							file.name.startsWith("kotlin-stdlib") -> 0
+							file.name.startsWith("kotlin-reflect") -> 1
+							file.name.contains("DynamoDBLocal") -> 3
+							else -> 2
+						}
+					},
+					{ it.name },
+				)
+			)
+		)
+	}
 }
 
 tasks.withType<PublishToMavenRepository> {
@@ -94,20 +153,23 @@ tasks.withType<PublishToMavenRepository> {
 }
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(javaToolchainVersion.toInt()))
+	}
+	sourceCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
+	targetCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
 }
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.17.3"
+        artifact = "com.google.protobuf:protoc:$protobufJavaVersion"
     }
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.43.2"
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
         }
         id("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.1.0:jdk7@jar"
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:$grpcKotlinStubVersion:jdk8@jar"
         }
     }
     generateProtoTasks {

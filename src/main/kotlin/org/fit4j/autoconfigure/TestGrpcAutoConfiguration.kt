@@ -2,7 +2,7 @@ package org.fit4j.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.util.JsonFormat
-import net.devh.boot.grpc.server.serverfactory.InProcessGrpcServerFactory
+import org.springframework.grpc.server.InProcessGrpcServerFactory
 import org.fit4j.grpc.DefaultGrpcMockResponseProvider
 import org.fit4j.grpc.GrpcCallTraceFactory
 import org.fit4j.grpc.GrpcClassScanner
@@ -22,14 +22,16 @@ import org.fit4j.mock.declarative.JsonContentExpressionResolver
 import org.fit4j.mock.declarative.PredicateEvaluator
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.GenericApplicationContext
+import org.springframework.beans.factory.ObjectProvider
 
 @AutoConfiguration
-@AutoConfigureAfter(IntegrationTestGrpcAutoConfiguration::class)
-@ConditionalOnBean(InProcessGrpcServerFactory::class)
+@AutoConfigureAfter(
+    IntegrationTestGrpcAutoConfiguration::class,
+    name = ["org.springframework.boot.grpc.server.autoconfigure.InProcessGrpcServerConfiguration"],
+)
 @EnableOnFIT
 class TestGrpcAutoConfiguration {
 
@@ -82,7 +84,7 @@ class TestGrpcAutoConfiguration {
     @Bean
     fun testGrpcServiceConfigurer(mockServiceCallTracker: MockServiceCallTracker,
                                   mockResponseFactory: MockResponseFactory,
-                                  inProcessGrpcServerFactory: InProcessGrpcServerFactory,
+                                  inProcessGrpcServerFactory: ObjectProvider<InProcessGrpcServerFactory>,
                                   testGrpcServiceDefinitionProvider: TestGrpcServiceDefinitionProvider
     ) : TestGrpcServiceConfigurer {
         return TestGrpcServiceConfigurer(

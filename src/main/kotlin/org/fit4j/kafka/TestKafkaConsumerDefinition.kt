@@ -28,7 +28,7 @@ data class TestKafkaConsumerDefinition(
                 this.setContainerProperty(it.key,it.value,container.containerProperties)
             }
         }
-        container.containerProperties.messageListener = messageListener
+        container.containerProperties.setMessageListener(messageListener)
         container.setBeanName("test-message-listener-container-for-${this.topicName}")
         container.start()
         return container

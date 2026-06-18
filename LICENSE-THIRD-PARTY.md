@@ -15,7 +15,7 @@ This document lists all third-party dependencies used by FIT4J and their respect
 - **Kotlin Coroutines** (org.jetbrains.kotlinx:kotlinx-coroutines-core) - Apache 2.0
 - **gRPC** (io.grpc:grpc-*) - Apache 2.0
 - **MockK** (io.mockk:mockk) - Apache 2.0
-- **gRPC Spring Boot Starter** (net.devh:grpc-spring-boot-starter) - Apache 2.0
+- **spring-grpc Spring Boot Starter** (org.springframework.grpc:spring-grpc-spring-boot-starter) - Apache 2.0
 - **Elasticsearch REST Client** (org.elasticsearch.client:elasticsearch-rest-client) - Apache 2.0
 - **Elasticsearch Java Client** (co.elastic.clients:elasticsearch-java) - Apache 2.0
 - **Embedded Redis** (com.github.codemonstur:embedded-redis) - Apache 2.0
