@@ -1,16 +1,23 @@
 import com.google.protobuf.gradle.id
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.security.MessageDigest
 
 
 plugins {
 	`java-library`
-	kotlin("jvm") version "2.0.20"
-	kotlin("plugin.spring") version "2.0.20"
+	kotlin("jvm")
+	kotlin("plugin.spring")
     id("com.google.protobuf") version "0.9.4"
     id("signing")
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
+
+val javaToolchainVersion: String by project
+val javaBytecodeVersion: String by project
+val protobufJavaVersion: String by project
+val grpcVersion: String by project
+val grpcKotlinStubVersion: String by project
 
 repositories {
 	mavenCentral()
@@ -27,6 +34,7 @@ dependencies {
 	val grpcVersion : String by project
 	val elasticSearchVersion: String by project
 	val redisVersion: String by project
+	val grpcKotlinStubVersion: String by project
 
 	implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -43,7 +51,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 	implementation("io.grpc:grpc-api:$grpcVersion")
 	implementation("io.grpc:grpc-stub:$grpcVersion")
-    implementation("io.grpc:grpc-kotlin-stub:1.4.3")
+    implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinStubVersion")
 	implementation("com.google.protobuf:protobuf-java:$protobufJavaVersion")
 	implementation("com.google.protobuf:protobuf-java-util:$protobufJavaVersion")
 	implementation("io.mockk:mockk:$mockkVersion")
@@ -75,10 +83,10 @@ dependencies {
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 }
 
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs += "-Xjsr305=strict"
-		jvmTarget = "17"
+tasks.withType<KotlinCompile>().configureEach {
+	compilerOptions {
+		freeCompilerArgs.add("-Xjsr305=strict")
+		jvmTarget.set(JvmTarget.fromTarget(javaBytecodeVersion))
 	}
 }
 
@@ -86,7 +94,8 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 	minHeapSize = "1g"
 	maxHeapSize = "5g"
-    maxParallelForks = 8
+	maxParallelForks = 8
+	jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 
 tasks.withType<PublishToMavenRepository> {
@@ -94,20 +103,23 @@ tasks.withType<PublishToMavenRepository> {
 }
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(javaToolchainVersion.toInt()))
+	}
+	sourceCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
+	targetCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
 }
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.17.3"
+        artifact = "com.google.protobuf:protoc:$protobufJavaVersion"
     }
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.43.2"
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
         }
         id("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.1.0:jdk7@jar"
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:$grpcKotlinStubVersion:jdk8@jar"
         }
     }
     generateProtoTasks {

@@ -1,7 +1,6 @@
 package org.fit4j.autoconfigure
 
 import org.fit4j.context.ApplicationContextLifecycleListener
-import org.fit4j.mock.CallTrace
 import org.fit4j.mock.CallTraceFactory
 import org.fit4j.mock.MockResponseFactory
 import org.fit4j.mock.MockResponseProvider
@@ -22,8 +21,8 @@ class TestMockAutoConfiguration {
     }
 
     @Bean
-    fun mockServiceCallTracker(callTaceFactoryList: List<CallTraceFactory<*,*,*>>) : MockServiceCallTracker {
-        return MockServiceCallTracker(callTaceFactoryList as List<CallTraceFactory<Any,Any, CallTrace<*,*>>>)
+    fun mockServiceCallTracker(callTaceFactoryList: List<CallTraceFactory<*, *, *>>): MockServiceCallTracker {
+        return MockServiceCallTracker(callTaceFactoryList)
     }
 
     @Bean

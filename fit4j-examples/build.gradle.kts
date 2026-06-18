@@ -1,14 +1,19 @@
 import com.google.protobuf.gradle.id
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val springBootVersion : String by project
 val protobufJavaVersion : String by project
 val grpcVersion: String by project
+val grpcKotlinStubVersion: String by project
+val javaToolchainVersion: String by project
+val javaBytecodeVersion: String by project
+val fit4jVersion: String by project
 
 plugins {
     `java-library`
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.spring") version "2.0.20"
+    kotlin("jvm")
+    kotlin("plugin.spring")
     id("com.google.protobuf") version "0.9.4"
 }
 
@@ -23,13 +28,23 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java-util:${protobufJavaVersion}")
     implementation("io.grpc:grpc-api:${grpcVersion}")
     implementation("io.grpc:grpc-stub:${grpcVersion}")
-    implementation("io.grpc:grpc-kotlin-stub:1.4.3")
-    implementation("io.grpc:grpc-protobuf:1.63.0")
+    implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinStubVersion")
+    implementation("io.grpc:grpc-protobuf:$grpcVersion")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(javaToolchainVersion.toInt()))
+    }
+    sourceCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
+    targetCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        jvmTarget.set(JvmTarget.fromTarget(javaBytecodeVersion))
+    }
 }
 
 tasks.jar {
@@ -48,19 +63,22 @@ subprojects {
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-        testImplementation("io.github.harezmi:fit4j:0.0.14")
+        testImplementation("io.github.harezmi:fit4j:$fit4jVersion")
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(javaToolchainVersion.toInt()))
+        }
+        sourceCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
+        targetCompatibility = JavaVersion.toVersion(javaBytecodeVersion)
     }
 
     tasks {
         withType<KotlinCompile>().configureEach {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjsr305=strict"
-                jvmTarget = "17"
+            compilerOptions {
+                freeCompilerArgs.add("-Xjsr305=strict")
+                jvmTarget.set(JvmTarget.fromTarget(javaBytecodeVersion))
             }
         }
 
@@ -68,26 +86,22 @@ subprojects {
             useJUnitPlatform()
             minHeapSize = "2g"
             maxHeapSize = "15g"
+            jvmArgs("--enable-native-access=ALL-UNNAMED")
         }
     }
 }
 
 protobuf {
-    // Configure the Protobuf compiler (protoc)
     protoc {
-        // This will download the correct protoc binary for your OS and architecture
-        artifact = "com.google.protobuf:protoc:3.21.2"
+        artifact = "com.google.protobuf:protoc:$protobufJavaVersion"
     }
 
-    // Configure the Protobuf plugins
     plugins {
-        // Specify the gRPC plugin
         id("grpc") {
-            // Use the correct platform-specific artifact for the gRPC code generator
-            artifact = "io.grpc:protoc-gen-grpc-java:1.63.0:osx-aarch_64"
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
         }
         id("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.3:jdk8@jar"
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:$grpcKotlinStubVersion:jdk8@jar"
         }
     }
 

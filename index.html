@@ -1952,15 +1952,18 @@ graph TD
 </ul>
 <p>Version examples:</p>
 <pre><code class="language-properties"># Root project
-# See gradle.properties:1-13
-springBootVersion=3.3.7
+# See gradle.properties:1-17
+javaToolchainVersion=25
+javaBytecodeVersion=17
+kotlinPluginVersion=2.3.0
+springBootVersion=3.5.15
 grpcSpringBootVersion=3.1.0.RELEASE
-protobufJavaVersion=3.21.2
-testcontainersVersion=1.15.3
-elasticSearchVersion=8.9.1
-redisVersion=4.2.3
+protobufJavaVersion=3.25.5
+testcontainersVersion=1.21.4
+elasticSearchVersion=8.15.5
+redisVersion=5.2.0
 dynamodbVersion=1.12.717
-grpcVersion=1.58.0
+grpcVersion=1.63.0
 </code></pre>
 <hr />
 <h2>Spring Boot Auto-Configuration Layer</h2>
@@ -2377,7 +2380,7 @@ logging.level.org.springframework.boot=debug
 </ul>
 <p><strong>Version</strong></p>
 <ul>
-<li><code>kotlinVersion=1.6.21</code> in <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L4-L6"><code>gradle.properties:4-6</code></a></li>
+<li><code>kotlinVersion=2.3.0</code> in <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L4-L8"><code>gradle.properties:4-8</code></a></li>
 </ul>
 <p><strong>Usage</strong></p>
 <ul>
@@ -2394,15 +2397,15 @@ logging.level.org.springframework.boot=debug
 <li>gRPC server/client stubs (Java/Kotlin compatible)</li>
 <li>Testcontainers core library (Java)</li>
 </ul>
-<p>Ensure any raw Java code is compiled with a JVM version compatible with Spring Boot 3.3.x (Jakarta namespace).</p>
+<p>Ensure any raw Java code is compiled with a JVM version compatible with Spring Boot 3.5.x (Jakarta namespace).</p>
 <hr />
 <h2>Application &amp; Framework Layer</h2>
 <h3>Spring Boot &amp; Spring Test</h3>
 <p><strong>Version</strong></p>
 <ul>
-<li><code>springBootVersion=3.3.7</code> in:</li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L3-L5"><code>gradle.properties:3-5</code></a></li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/gradle.properties#L1-L3"><code>fit4j-examples/gradle.properties:1-3</code></a></li>
+<li><code>springBootVersion=3.5.15</code> in:</li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L3-L7"><code>gradle.properties:3-7</code></a></li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/gradle.properties#L1-L4"><code>fit4j-examples/gradle.properties:1-4</code></a></li>
 </ul>
 <p><strong>Typical Components</strong></p>
 <ul>
@@ -2800,20 +2803,23 @@ every { service.call() } returns &quot;OK&quot;
 <li><a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/gradle.properties#L1-L8"><code>fit4j-examples/gradle.properties:1-8</code></a> for examples</li>
 </ul>
 <p>Key properties:</p>
-<pre><code class="language-properties"># See gradle.properties:1-11
+<pre><code class="language-properties"># See gradle.properties:1-17
 group = io.github.harezmi
-version = 0.0.12
+version = 0.0.17
 
-springBootVersion=3.3.7
-kotlinVersion=1.6.21
-testcontainersVersion=1.15.3
+javaToolchainVersion=25
+javaBytecodeVersion=17
+kotlinPluginVersion=2.3.0
+springBootVersion=3.5.15
+kotlinVersion=2.3.0
+testcontainersVersion=1.21.4
 grpcSpringBootVersion=3.1.0.RELEASE
-mockkVersion=1.9.1
-protobufJavaVersion=3.21.2
-dynamoDBLocalVersion=2.2.1
-grpcVersion=1.58.0
-elasticSearchVersion=8.9.1
-redisVersion=4.2.3
+mockkVersion=1.14.11
+protobufJavaVersion=3.25.5
+dynamoDBLocalVersion=2.6.1
+grpcVersion=1.63.0
+elasticSearchVersion=8.15.5
+redisVersion=5.2.0
 </code></pre>
 <p>These properties should be consumed from module <a href="https://github.com/harezmi/fit4j/blob/main/build.gradle.kts"><code>build.gradle.kts</code></a>/<a href="https://github.com/harezmi/fit4j/blob/main/build.gradle"><code>build.gradle</code></a> via Gradle’s <code>extra</code> properties or <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties"><code>gradle.properties</code></a> lookup. When upgrading versions, update here first to keep modules consistent.</p>
 <h3>Maven (Conceptual)</h3>
@@ -8959,13 +8965,13 @@ tests:
 <h2>Version &amp; Dependency Notes</h2>
 <p>Integration libraries used (see <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L1-L20"><code>gradle.properties:1-20</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/gradle.properties#L1-L15"><code>fit4j-examples/gradle.properties:1-15</code></a>):</p>
 <ul>
-<li>Spring Boot: <code>springBootVersion=3.3.7</code></li>
-<li>gRPC: <code>grpcVersion=1.58.0</code> / <code>1.63.0</code></li>
-<li>Protobuf: <code>protobufJavaVersion=3.21.2</code></li>
-<li>Testcontainers: <code>testcontainersVersion=1.15.3</code></li>
-<li>DynamoDB local: <code>dynamoDBLocalVersion=2.2.1</code></li>
-<li>Elasticsearch: <code>elasticSearchVersion=8.9.1</code></li>
-<li>Redis (Jedis): <code>redisVersion=4.2.3</code></li>
+<li>Spring Boot: <code>springBootVersion=3.5.15</code></li>
+<li>gRPC: <code>grpcVersion=1.63.0</code></li>
+<li>Protobuf: <code>protobufJavaVersion=3.25.5</code></li>
+<li>Testcontainers: <code>testcontainersVersion=1.21.4</code></li>
+<li>DynamoDB local: <code>dynamoDBLocalVersion=2.6.1</code></li>
+<li>Elasticsearch: <code>elasticSearchVersion=8.15.5</code></li>
+<li>Redis (Jedis): <code>redisVersion=5.2.0</code></li>
 </ul>
 <p>Third-party clients and infrastructure libraries are licence-checked in <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L1-L40"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:1-40</code></a>.</p>
 <hr />
@@ -9361,8 +9367,8 @@ sequenceDiagram
 <h2>1. Prerequisites</h2>
 <p>Before you start:</p>
 <ul>
-<li><strong>JDK</strong>: Java 17+ (recommended; match your service baseline).</li>
-<li><strong>Build tool</strong>: Gradle (Kotlin or Groovy DSL) or Maven.</li>
+<li><strong>JDK</strong>: Java 17+ to consume FIT4J; <strong>JDK 25</strong> for building FIT4J itself (Gradle toolchain auto-provisions via Foojay).</li>
+<li><strong>Build tool</strong>: Gradle <strong>8.14+</strong> (Kotlin or Groovy DSL) or Maven.</li>
 <li><strong>Git</strong>: To clone the repository.</li>
 <li><strong>Docker</strong>: Required only for Testcontainers-based examples (Kafka, DBs, Redis, etc.).</li>
 </ul>
@@ -9831,8 +9837,8 @@ graph TD
 <h3>Prerequisites</h3>
 <p>From <a href="https://github.com/harezmi/fit4j/blob/main//CONTRIBUTING.md"><code>/CONTRIBUTING.md</code></a>:</p>
 <ul>
-<li>Java 17 or higher</li>
-<li>Gradle 7.x or higher</li>
+<li>JDK <strong>25</strong> for building FIT4J (auto-provisioned by Gradle if missing)</li>
+<li>Gradle <strong>8.14+</strong></li>
 <li>Git</li>
 </ul>
 <p>For additional environment details and library usage, see <a href="https://github.com/harezmi/fit4j/blob/main//README.md"><code>/README.md</code></a>.</p>

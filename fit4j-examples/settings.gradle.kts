@@ -1,4 +1,18 @@
-rootProject.name = "fit4j-examples"
+pluginManagement {
+    val kotlinPluginVersion: String by settings
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        kotlin("jvm") version kotlinPluginVersion
+        kotlin("plugin.spring") version kotlinPluginVersion
+    }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
+}
 
 dependencyResolutionManagement {
 	repositories {
@@ -6,6 +20,8 @@ dependencyResolutionManagement {
 		mavenLocal()
 	}
 }
+
+rootProject.name = "fit4j-examples"
 
 include("example-basic")
 include("example-kafka")

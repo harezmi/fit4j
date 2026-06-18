@@ -15,7 +15,7 @@ alwaysApply: true
 
 ## Build
 
-Java **17**, Kotlin, Spring Boot from `gradle.properties`. Coordinates: **`io.github.harezmi:fit4j`** + version in `gradle.properties` (README may still mention `org.fit4j`).
+Java **17 bytecode** (`javaBytecodeVersion`), built and tested with **JDK 25** toolchain (`javaToolchainVersion`), Kotlin **2.3**, Spring Boot from `gradle.properties`. Coordinates: **`io.github.harezmi:fit4j`** + version in `gradle.properties` (README may still mention `org.fit4j`).
 
 ## Test annotations
 

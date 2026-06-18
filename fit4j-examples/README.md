@@ -1,8 +1,10 @@
 # Functional Integration Tests Library Usage Examples
 
-This project contains examples of how to use FIT with various other libraries and frameworks. The example projects are completely self-contained. They can be run independently. 
-Aside from the library dependency itself, the other dependencies listed in each example project's `build.gradle.kts` file is sufficient 
-to  make use of the example in your own service.
+This project contains examples of how to use FIT with various other libraries and frameworks. The example projects are completely self-contained. They can be run independently.
+Aside from the library dependency itself, the other dependencies listed in each example project's `build.gradle.kts` file is sufficient
+to make use of the example in your own service.
+
+**Build notes:** Examples share the same toolchain as the main library — JDK **25** for compile/test (Gradle auto-provisioned), **Java 17** bytecode, Spring Boot **3.5.x**. Version pins live in [`gradle.properties`](gradle.properties).
 
 Here is the list of examples:
 * [Basic](example-basic/) contains test examples to demonstrate how to start writing FITs using the library.
