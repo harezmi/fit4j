@@ -45,9 +45,6 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Publish FIT4J to Maven Local
-        run: ./gradlew publishToMavenLocal -x signMavenPublication --no-daemon
-
-      - name: Test examples
+      - name: Test examples (composite build)
         working-directory: fit4j-examples
-        run: ../gradlew test --no-daemon
+        run: ./gradlew test --no-daemon --max-workers=2

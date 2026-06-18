@@ -32,7 +32,7 @@ class EnableEmbeddedKafkaContextCustomizer : EmbeddedKafkaContextCustomizer() {
         if(!bf.containsBeanDefinition(EmbeddedKafkaBroker.BEAN_NAME)) {
             bf.registerBeanDefinition(
                 EmbeddedKafkaBroker.BEAN_NAME,
-                RootBeanDefinition(EmbeddedKafkaBroker::class.java) { embeddedKafkaBroker }
+                RootBeanDefinition(EmbeddedKafkaBroker::class.java) { requireNotNull(embeddedKafkaBroker) }
             )
         }
         super.customizeContext(context, mergedConfig)

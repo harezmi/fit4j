@@ -26,5 +26,10 @@ class ExampleRestClient(private val restClient: RestClient) {
     }
 }
 
-data class ExampleRestRequest(val name: String)
-data class ExampleRestResponse(val message: String)
+class ExampleRestRequest {
+    var name: String = ""
+}
+
+class ExampleRestResponse {
+    var message: String = ""
+}

@@ -18,10 +18,10 @@ class GrpcContextCustomizer : ContextCustomizer {
             MapPropertySource(
                 "fit4j-grpc-property-source",
                 mapOf(
-                    "grpc.server.port" to -1,
-                    "grpc.server.enable-keep-alive" to false,
-                    "grpc.server.inProcessName" to "$randomName",
-                    "grpc.client.inProcess.address" to "in-process:$randomName"
+                    "spring.grpc.server.port" to 0,
+                    "spring.grpc.server.inprocess.name" to randomName,
+                    "spring.grpc.server.reflection.enabled" to false,
+                    "spring.grpc.client.channel.testGrpcService.target" to "in-process:$randomName",
                 )
             )
         )

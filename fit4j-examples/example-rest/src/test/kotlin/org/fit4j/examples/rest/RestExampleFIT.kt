@@ -22,19 +22,19 @@ class RestExampleFIT {
 
     @Test
     fun `rest call using RestTemplate should work`() {
-        val response = exampleRestTemplate.sayHello(ExampleRestRequest(testFixture.helloName))
+        val response = exampleRestTemplate.sayHello(ExampleRestRequest().apply { name = testFixture.helloName })
         Assertions.assertEquals("Hello, John!", response.message)
 
-        val response2 = exampleRestTemplate.sayBye(ExampleRestRequest(testFixture.byeName))
+        val response2 = exampleRestTemplate.sayBye(ExampleRestRequest().apply { name = testFixture.byeName })
         Assertions.assertEquals("Bye, Joe!", response2.message)
     }
 
     @Test
     fun `rest call using RestClient should work`() {
-        val response = exampleRestClient.sayHello(ExampleRestRequest(testFixture.helloName))
+        val response = exampleRestClient.sayHello(ExampleRestRequest().apply { name = testFixture.helloName })
         Assertions.assertEquals("Hello, John!", response.message)
 
-        val response2 = exampleRestClient.sayBye(ExampleRestRequest(testFixture.byeName))
+        val response2 = exampleRestClient.sayBye(ExampleRestRequest().apply { name = testFixture.byeName })
         Assertions.assertEquals("Bye, Joe!", response2.message)
     }
 

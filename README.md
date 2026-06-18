@@ -7,6 +7,7 @@
 - [Why Should You Use This Library in Your Service?](#why-should-you-use-this-library-in-your-service)
 - [Examples](#-examples)
 - [Compatibility & Requirements](#compatibility--requirements)
+- [Spring Boot 4 migration](#spring-boot-4-migration)
 - [How to Start Working with This Library?](#how-to-start-working-with-this-library)
     * [Add the Library Dependency](#add-the-library-dependency)
     * [Create a Test Class](#create-a-test-class)
@@ -105,19 +106,25 @@ FIT4J is built and tested against the versions below. Your service should use a 
 |-----------|---------|-------|
 | **JDK (run tests)** | **17+** | Minimum for consuming services. FIT4J itself is built and tested on **JDK 25** (see `javaToolchainVersion` in `gradle.properties`). |
 | **JDK (bytecode)** | **17** | The published JAR targets Java 17 (`javaBytecodeVersion=17`). You do not need JDK 25 to use FIT4J unless your own project requires it. |
-| **Spring Boot** | **3.5.x** (3.5.15) | Required. FIT4J targets Spring Boot 3.x and uses the Spring Boot 3.5.15 dependency BOM. Spring Boot 2.x is not supported. |
-| **Kotlin** | **2.3+** (stdlib 2.3.0) | Optional — only if your service is written in Kotlin. Java-only services do not need Kotlin on the classpath. Kotlin projects should use a version compatible with Spring Boot 3.5.x. |
+| **FIT4J** | **0.1.0+** | This release line targets Spring Boot **4.1.x**. Use FIT4J **0.0.x** (or earlier) with Spring Boot 3.5. |
+| **Spring Boot** | **4.1.x** (4.1.0) | Required. FIT4J on this branch targets Spring Boot 4.x. Spring Boot 2.x and 3.x are not supported by this artifact — use an earlier FIT4J release on Boot 3.5. See [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md). |
+| **gRPC** | Boot **4.1** starters (`spring-boot-starter-grpc-server` / `spring-boot-starter-grpc-client`) | Replaces `net.devh:grpc-spring-boot-starter` and `org.springframework.grpc:spring-grpc-*`. Required when your service uses gRPC. |
+| **Kotlin** | **2.3+** (stdlib 2.3.0) | Optional — only if your service is written in Kotlin. Java-only services do not need Kotlin on the classpath. Kotlin projects should use a version compatible with Spring Boot 4.x. |
 | **JUnit** | **5** (JUnit Platform) | Required. FIT4J uses JUnit 5 extensions (`@ExtendWith`, `@FIT` / `@IT`). JUnit 4 is not supported. |
 | **Docker** | — | Required when using Testcontainers-based infrastructure (MySQL, PostgreSQL, Kafka, Redis, Elasticsearch, etc.). Embedded alternatives (embedded Kafka, embedded Redis, embedded DynamoDB) do not require Docker. |
 | **Gradle / Maven** | Gradle 8.14+ or Maven 3.6+ | Either build tool works for consuming FIT4J from Maven Central. FIT4J development uses Gradle 8.14.4 with the Foojay toolchain resolver (JDK 25 auto-provisioning). |
 
 ### Version alignment with your service
 
-- **Java:** Run your tests on JDK 17 or newer. FIT4J is verified on **JDK 25**; use Spring Boot **3.5.5+** if you run tests on JDK 25.
-- **Spring Boot:** Align your application's Spring Boot version with **3.5.x** when possible. Minor differences within the 3.5 line are usually safe; if you are on an older 3.x release, verify `@SpringBootTest` and starter compatibility in your project.
-- **Kotlin:** If you use Kotlin, ensure your Kotlin compiler targets JVM 17 (`jvmTarget = "17"`) and that your Kotlin version is compatible with your Spring Boot release. FIT4J itself is built with Kotlin Gradle plugin **2.3.0**; consuming projects are not required to match that plugin version.
+- **Java:** Run your tests on JDK 17 or newer. FIT4J is built and verified on **JDK 25** with **Java 17** bytecode.
+- **Spring Boot:** Use **4.1.x** with FIT4J **0.1.0+**. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers pins).
+- **Kotlin:** If you use Kotlin, ensure your Kotlin compiler targets JVM 17 (`jvmTarget = "17"`) and that your Kotlin version is compatible with your Spring Boot release. FIT4J itself is built with Kotlin Gradle plugin **2.3.21**; consuming projects are not required to match that plugin version.
 
-Version pins for the FIT4J build itself live in [`gradle.properties`](gradle.properties) (`springBootVersion`, `javaToolchainVersion`, `javaBytecodeVersion`, `kotlinPluginVersion`, etc.).
+Version pins for the FIT4J build itself live in [`gradle.properties`](gradle.properties) (`springBootVersion`, `springGrpcVersion`, `javaToolchainVersion`, `javaBytecodeVersion`, `kotlinPluginVersion`, etc.).
+
+## Spring Boot 4 migration
+
+FIT4J on this branch requires **Spring Boot 4.1.x**. If you are upgrading from FIT4J on Boot 3.5, read **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** for dependency, gRPC (`@ImportGrpcClients`), HTTP (`@AutoConfigureTestRestTemplate`), Jackson, and Testcontainers changes.
 
 
 
@@ -215,23 +222,23 @@ FIT4J is published to Maven Central. Simply add the dependency to your `build.gr
 **Gradle (Kotlin DSL):**
 ```kotlin
 dependencies {
-    testImplementation("org.fit4j:fit4j:0.0.17")
+    testImplementation("io.github.harezmi:fit4j:0.1.0")
 }
 ```
 
 **Gradle (Groovy DSL):**
 ```groovy
 dependencies {
-    testImplementation 'org.fit4j:fit4j:0.0.17'
+    testImplementation 'io.github.harezmi:fit4j:0.1.0'
 }
 ```
 
 **Maven:**
 ```xml
 <dependency>
-    <groupId>org.fit4j</groupId>
+    <groupId>io.github.harezmi</groupId>
     <artifactId>fit4j</artifactId>
-    <version>0.0.17</version>
+    <version>0.1.0</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -464,25 +471,21 @@ service call.
 
 If your service configures gRPC communication via defining `ManagedChannel` bean definitions, the FIT4J library
 already detects those bean definitions and replaces them with the `InProcessChannel` instances. Therefore, you don't need
-to do anything for your gRPC calls to hit at the mock gRPC server. However, if your configuration involves `@GrpcClient`
-annotation to obtain a stub (as below) then you need to override client name property definition in your
-`application-test.yml` file.
+to do anything for your gRPC calls to hit at the mock gRPC server. However, if your tests inject gRPC stubs via **spring-grpc** (see [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)), use `@ImportGrpcClients` with channel target **`testGrpcService`** — FIT4J wires that channel to the in-process mock server automatically.
 
 ```kotlin
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.grpc.client.ImportGrpcClients
 
-@Component
-class FooServiceAdapter {
-    @GrpcClient("inProcess")
+@ImportGrpcClients(target = "testGrpcService", types = [FooServiceGrpc.FooServiceBlockingStub::class])
+@FIT
+class MyFIT {
+    @Autowired
     private lateinit var fooGrpcService: FooServiceGrpc.FooServiceBlockingStub
 }
 ```
 
-```properties
-grpc:
-  client:
-    fooGrpcService:
-      address: in-process:${grpc.server.inProcessName}
-```
+For production service code that uses named channels under `spring.grpc.client.channel.*`, keep your channel names in `application-test` aligned with Boot gRPC property layout (`spring.grpc.client.channel.<name>.target`).
 ## Define Request-Response Trainings for External HTTP/REST Endpoints
 
 In case your service hits some REST endpoints of any other service, you will need to provide request-response
@@ -726,49 +729,43 @@ submitting a Kafka message.
 
 ## Calling gRPC Endpoints of Your Service
 
-You can call a particular grpc endpoint of your service via a grpc stub instance injected into your test class as follows.
+You can call a particular grpc endpoint of your service via a gRPC stub injected into your test class. With **spring-grpc 1.0**:
 
 ```kotlin
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.grpc.client.ImportGrpcClients
+
+@ImportGrpcClients(target = "testGrpcService", types = [FooGrpcServiceGrpc.FooGrpcServiceBlockingStub::class])
 @FIT
 class SampleFIT {
-    @GrpcClient("inProcess")
+    @Autowired
     private lateinit var grpcClient: FooGrpcServiceGrpc.FooGrpcServiceBlockingStub
   
     @Test
     fun `test something`() {
-        //given (arrange)
         val request = GetFooByIdRequest.newBuilder()
           .setId(123).build()
-        //when (act)
         val response = grpcClient.getFooByIdResponse(request)
-        //then (assert)
         Assertions.assertNotNull(response)
     }
 }
 ```
-After defining an instance variable of your particular grpc service stub class, you need to annotate it with `@GrpcClient`
-annotation. The library automatically configures the `inProcess` client name which points to the in-process gRPC server.
-If your service code uses a different client name, you can override it in your test configuration:
 
-```properties
-grpc.client.yourServiceName.address=in-process:${grpc.server.inProcessName}
-```
-
-The library automatically sets up `grpc.client.inProcess.address` to point to the in-process server.
+FIT4J sets `spring.grpc.client.channel.testGrpcService.target` to the in-process mock server at runtime. See [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md) for migrating from `@GrpcClient` / `grpc.*` properties.
 
 ## Calling REST Endpoints of Your Service
 
-`@SpringBootTest` annotation which is inherited by `@FIT` annotation by default creates a real embedded web server at a 
-random port. That way you can test your REST endpoints either using a `RestTemplate` object you instantiate in your test, 
-or make use of `TestRestTemplate` bean provided by Spring Boot. You can change the webEnvironment attribute value to MOCK
-via the same `@FIT` annotation like `@FIT((webEnvironment = SpringBootTest.WebEnvironment.MOCK)` so that mock servlet context 
-should be created instead. In the MOCK web environment case, the Spring Boot application context is started but the web server 
-itself is not. Instead of starting a real server, a mock server environment is created using Spring's `MockMvc` framework. Only 
-in the RANDOM_PORT case the application is fully initialized including the embedded server, and tests can interact with the 
-server using actual HTTP requests at the cost of running a bit slower compared to MOCK WebEnvironment.
+`@SpringBootTest` (via `@FIT`) defaults to `webEnvironment = RANDOM_PORT`, which starts a real embedded web server at a 
+random port. You can test REST endpoints with a `RestTemplate`/`RestClient` you configure yourself, or with Spring's
+`TestRestTemplate` — add **`@AutoConfigureTestRestTemplate`** on the test class (not on `@FIT` globally) and ensure
+`spring-boot-starter-webmvc` + `spring-boot-resttestclient` are on the test classpath. See [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md).
 
 ```kotlin
-@FIT(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
+
+@FIT
+@AutoConfigureTestRestTemplate
 class SampleFIT {
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -779,15 +776,9 @@ class SampleFIT {
         Assertions.assertEquals("Hello World!", response)
     }
 }
-
-@RestController
-class TestRestController {
-    @GetMapping("/sayHello")
-    fun sayHello(): String {
-        return "Hello World!"
-    }
-}
 ```
+
+Use `@FIT(webEnvironment = SpringBootTest.WebEnvironment.MOCK)` for `MockMvc`-style tests without a real embedded port.
 
 ## Publishing Kafka Messages to be Consumed by Your Service
 
@@ -1527,14 +1518,14 @@ written with those annotations. Here is a more detailed table that lists availab
 | DynamoDBEmbedded is exposed as a Spring bean if @EmbeddedDynamoDB annotation is used in test class                                                                                                                                                                  | Yes              | Yes             | Yes                                                            |
 | spring.kafka.bootstrap-servers property is set if @EnableEmbeddedKafka or @EmbeddedKafka is used in test class                                                                                                                                                      | Yes              | Yes             | Yes                                                            |
 | EmbeddedRedisServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedRedisServer.port if @EmbeddedRedis annotation is used in test class                                                                                    | Yes              | Yes             | Yes                                                            |
-| gRPC server is run in-process mode at random port along with in-process name assigned random name and `grpc.client.inProcess.address` is automatically configured                                                                                                   | Yes              | Yes             | Yes                                                            |
+| gRPC server runs in-process; FIT4J sets `spring.grpc.client.channel.testGrpcService.target` to the mock server channel | Yes              | Yes             | Yes                                                            |
 | okhttp3 MockWebServer is exposed as a Spring bean along with its host and port values as environment properties fit4j.mockWebServer.host, fit4j.mockWebServer.port if it is available in test classpath | Yes              | Yes             | Yes                                                            |
 | Declarative Test Container support is enabled if @Testcontainers annotation is used in test class                                                                                                                                                                   | Yes              | Yes             | Yes                                                            |
 | gRPC & HTTP request-response training and call tracking capability is enabled                                                                                                                                                                                       | No               | Yes             | Yes                                                            |
 | gRPC automatic service and type descriptor discovery capability is enabled                                                                                                                                                                                          | No               | Yes             | Yes                                                            |
 | Kafka message tracking capability is enabled                                                                                                                                                                                                                        | No               | Yes             | Yes                                                            |
 | Google JsonFormat Printer & Parser classes are exposed as Spring bean if they are in class path                                                                                                                                                                     | No               | Yes             | Yes                                                            |
-| Spring TestRestTemplate bean is enabled                                                                                                                                                                                                                             | No               | No              | Yes                                                            |
+| `TestRestTemplate` (requires `@AutoConfigureTestRestTemplate` on the test class + webmvc on test classpath)                                                                                                                                                         | No               | No              | Yes (when annotated)                                           |
 
 
 

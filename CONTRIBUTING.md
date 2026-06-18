@@ -68,7 +68,7 @@ We welcome suggestions for improvements! Please create an issue with:
 - **Git**
 - **Docker** (for Testcontainers-based tests)
 
-Consuming FIT4J in your own service only requires **JDK 17+** and a compatible Spring Boot 3.5.x stack — see [README.md](README.md#compatibility--requirements).
+Consuming FIT4J in your own service requires **JDK 17+** and **Spring Boot 4.1.x** (FIT4J **0.1.0+**) — see [README.md](README.md#compatibility--requirements) and [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md).
 
 ### Building the Project
 

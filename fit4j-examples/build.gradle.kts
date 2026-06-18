@@ -9,6 +9,8 @@ val grpcKotlinStubVersion: String by project
 val javaToolchainVersion: String by project
 val javaBytecodeVersion: String by project
 val fit4jVersion: String by project
+val testcontainersVersion: String by project
+val elasticSearchVersion: String by project
 
 plugins {
     `java-library`
@@ -22,8 +24,30 @@ repositories {
     mavenCentral()
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.testcontainers") {
+            useVersion(testcontainersVersion)
+            because("Boot 4 BOM pulls testcontainers 2.x; FIT4J modules are on 1.x until TC 2.0 migration")
+        }
+        if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
+            useVersion(elasticSearchVersion)
+            because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
+        }
+        if (requested.group == "org.elasticsearch.client") {
+            useVersion(elasticSearchVersion)
+            because("Align elasticsearch-rest-client with elasticsearch-java for Testcontainers ES 8.x")
+        }
+        if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
+            useVersion(grpcVersion)
+            because("Align gRPC Java artifacts with FIT4J")
+        }
+    }
+}
+
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
+    implementation("org.springframework.boot:spring-boot-starter-classic")
     implementation("com.google.protobuf:protobuf-java:${protobufJavaVersion}")
     implementation("com.google.protobuf:protobuf-java-util:${protobufJavaVersion}")
     implementation("io.grpc:grpc-api:${grpcVersion}")
@@ -56,12 +80,38 @@ subprojects {
     apply(plugin = "kotlin")
     apply(plugin = "kotlin-spring")
 
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.testcontainers") {
+                useVersion(testcontainersVersion)
+                because("Boot 4 BOM pulls testcontainers 2.x; FIT4J modules are on 1.x until TC 2.0 migration")
+            }
+            if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
+                useVersion(elasticSearchVersion)
+                because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
+            }
+            if (requested.group == "org.elasticsearch.client") {
+                useVersion(elasticSearchVersion)
+                because("Align elasticsearch-rest-client with elasticsearch-java for Testcontainers ES 8.x")
+            }
+            if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
+                useVersion(grpcVersion)
+                because("Align gRPC Java artifacts with FIT4J")
+            }
+        }
+    }
+
     dependencies {
         testImplementation(project(":"))
 
         testImplementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
-        testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testImplementation("org.springframework.boot:spring-boot-starter-test-classic")
+        testImplementation("org.springframework.boot:spring-boot-jackson2")
+        testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+        testImplementation("org.springframework.boot:spring-boot-restclient")
+        testImplementation("org.springframework.boot:spring-boot-resttestclient")
+        testImplementation("org.springframework.boot:spring-boot-starter-webmvc")
 
         testImplementation("io.github.harezmi:fit4j:$fit4jVersion")
     }

@@ -3,26 +3,27 @@ package org.fit4j.mock.declarative
 
 import com.example.fit4j.grpc.FooGrpcServiceGrpc
 import com.example.fit4j.grpc.TestGrpc
-import net.devh.boot.grpc.client.inject.GrpcClient
 import org.fit4j.annotation.FIT
 import org.fit4j.annotation.FixtureForFIT
 import org.fit4j.http.MockWebServerProperties
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
+import org.springframework.grpc.client.ImportGrpcClients
 import org.springframework.test.context.TestPropertySource
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestRestTemplate
 @FIT("classpath:declarative-response-generation-fixture.yml")
 @TestPropertySource(properties = [
     "fit4j.declarativeTestFixtureDrivenResponseGeneration.enabled=true",
-    "grpc.client.testGrpcService.address=in-process:\${grpc.server.inProcessName}"
-    ])
+    "spring.grpc.client.channel.testGrpcService.target=in-process:\${spring.grpc.server.inprocess.name}",
+])
+@ImportGrpcClients(target = "testGrpcService", types = [FooGrpcServiceGrpc.FooGrpcServiceBlockingStub::class])
 class DeclarativeTestFixtureDrivenResponseGenerationFIT {
 
-    @GrpcClient("testGrpcService")
+    @Autowired
     private lateinit var fooGrpcService: FooGrpcServiceGrpc.FooGrpcServiceBlockingStub
 
     @Autowired
@@ -50,6 +51,6 @@ class DeclarativeTestFixtureDrivenResponseGenerationFIT {
 
         val httpResponse1= restTemplate.getForEntity("${mockWebServerProperties.baseUrl()}/test-1",Void::class.java)
 
-        Assertions.assertEquals(200,httpResponse1.statusCodeValue)
+        Assertions.assertEquals(200, httpResponse1.statusCode.value())
     }
 }

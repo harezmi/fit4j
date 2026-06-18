@@ -44,10 +44,10 @@ class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallba
         throw throwable
     }
 
-    override fun beforeTestExecution(context: ExtensionContext?) {
+    override fun beforeTestExecution(context: ExtensionContext) {
     }
 
-    override fun afterTestExecution(context: ExtensionContext?) {
+    override fun afterTestExecution(context: ExtensionContext) {
         failIfThereExistsFailedCalls()
     }
 

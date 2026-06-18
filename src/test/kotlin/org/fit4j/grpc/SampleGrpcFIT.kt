@@ -2,16 +2,22 @@ package org.fit4j.grpc
 
 import com.example.fit4j.grpc.FooGrpcServiceGrpc
 import com.example.fit4j.grpc.TestGrpc
-import net.devh.boot.grpc.client.inject.GrpcClient
 import org.fit4j.annotation.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.grpc.client.ImportGrpcClients
 import org.springframework.test.context.TestPropertySource
 
-@TestPropertySource(properties = ["grpc.client.testGrpcService.address=in-process:\${grpc.server.inProcessName}"])
+@TestPropertySource(
+    properties = [
+        "spring.grpc.client.channel.testGrpcService.target=in-process:\${spring.grpc.server.inprocess.name}",
+    ]
+)
+@ImportGrpcClients(target = "testGrpcService", types = [FooGrpcServiceGrpc.FooGrpcServiceBlockingStub::class])
 @FIT
 class SampleGrpcFIT {
-    @GrpcClient("testGrpcService")
+    @Autowired
     private lateinit var fooGrpcService: FooGrpcServiceGrpc.FooGrpcServiceBlockingStub
 
     @Test

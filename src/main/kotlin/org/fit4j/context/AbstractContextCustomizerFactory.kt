@@ -1,5 +1,6 @@
 package org.fit4j.context
 
+import org.fit4j.annotation.FIT
 import org.fit4j.annotation.IT
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.test.context.ContextConfigurationAttributes
@@ -21,11 +22,8 @@ abstract class AbstractContextCustomizerFactory : ContextCustomizerFactory {
     }
 
     private fun isIntegrationTest(testClass: Class<*>): Boolean {
-        val foundAnnotation = AnnotatedElementUtils.findMergedAnnotation(
-            testClass,
-            IT::class.java
-        )
-        return foundAnnotation != null
+        return AnnotatedElementUtils.findMergedAnnotation(testClass, IT::class.java) != null
+            || AnnotatedElementUtils.findMergedAnnotation(testClass, FIT::class.java) != null
     }
 
     protected fun isAnnotationPresent(testClass: Class<*>, annotationClass:Class<out Annotation>) : Boolean  {

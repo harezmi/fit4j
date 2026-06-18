@@ -21,7 +21,7 @@ This document analyzes all FIT4J dependencies for compatibility with Apache Lice
 | gRPC | io.grpc | grpc-* | Apache 2.0 | ✅ Compatible |
 | Protobuf | com.google.protobuf | protobuf-java | BSD-3-Clause | ✅ Compatible |
 | MockK | io.mockk | mockk | Apache 2.0 | ✅ Compatible |
-| gRPC Spring Boot | net.devh | grpc-spring-boot-starter | Apache 2.0 | ✅ Compatible |
+| spring-grpc Spring Boot | org.springframework.grpc | spring-grpc-spring-boot-starter | Apache 2.0 | ✅ Compatible |
 | Testcontainers | org.testcontainers | testcontainers | MIT | ✅ Compatible |
 | Elasticsearch Client | org.elasticsearch.client | elasticsearch-rest-client | Apache 2.0 | ✅ Compatible |
 | Elasticsearch Java | co.elastic.clients | elasticsearch-java | Apache 2.0 | ✅ Compatible |

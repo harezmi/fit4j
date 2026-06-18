@@ -1941,7 +1941,7 @@ graph TD
 <h2>Technology Stack</h2>
 <p>Key external dependencies (see <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE-THIRD-PARTY.md"><code>LICENSE-THIRD-PARTY.md</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md"><code>LICENSE_COMPATIBILITY_ANALYSIS.md</code></a>):</p>
 <ul>
-<li><strong>Spring Boot 3.x</strong>: core app &amp; test context (<a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L4-L7"><code>gradle.properties:4-7</code></a>)</li>
+<li><strong>Spring Boot 4.0.x</strong>: core app &amp; test context (<a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L4-L7"><code>gradle.properties:4-7</code></a>)</li>
 <li><strong>Kotlin</strong>: implementation language (<a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L3-L4"><code>gradle.properties:3-4</code></a>)</li>
 <li><strong>gRPC &amp; Protobuf</strong>: for gRPC endpoints (<a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L8-L11"><code>gradle.properties:8-11</code></a>)</li>
 <li><strong>Spring Kafka + Kafka Test</strong>: for Kafka producer/consumer integration</li>
@@ -1956,7 +1956,7 @@ graph TD
 javaToolchainVersion=25
 javaBytecodeVersion=17
 kotlinPluginVersion=2.3.0
-springBootVersion=3.5.15
+springBootVersion=4.1.0
 grpcSpringBootVersion=3.1.0.RELEASE
 protobufJavaVersion=3.25.5
 testcontainersVersion=1.21.4
@@ -2356,7 +2356,7 @@ logging.level.org.springframework.boot=debug
 <p>At a high level, the project is:</p>
 <ul>
 <li><strong>Language-centric</strong>: Kotlin (with Java interop) on top of the JVM.</li>
-<li><strong>Framework-centric</strong>: Spring Boot 3.x for application and test wiring.</li>
+<li><strong>Framework-centric</strong>: Spring Boot 4.0.x for application and test wiring.</li>
 <li><strong>Test-centric</strong>: JUnit 5, Spring Boot Test, Testcontainers, and embedded services (Kafka, Redis, DynamoDB, H2).</li>
 <li><strong>Integration-heavy</strong>: Kafka, Redis, Elasticsearch, MySQL/Postgres (via JDBC), AWS DynamoDB SDK.</li>
 <li><strong>Build-tool agnostic</strong>: Primarily Gradle, but easily mappable to Maven.</li>
@@ -2397,13 +2397,13 @@ logging.level.org.springframework.boot=debug
 <li>gRPC server/client stubs (Java/Kotlin compatible)</li>
 <li>Testcontainers core library (Java)</li>
 </ul>
-<p>Ensure any raw Java code is compiled with a JVM version compatible with Spring Boot 3.5.x (Jakarta namespace).</p>
+<p>Ensure any raw Java code is compiled with a JVM version compatible with Spring Boot 4.0.x (Jakarta namespace).</p>
 <hr />
 <h2>Application &amp; Framework Layer</h2>
 <h3>Spring Boot &amp; Spring Test</h3>
 <p><strong>Version</strong></p>
 <ul>
-<li><code>springBootVersion=3.5.15</code> in:</li>
+<li><code>springBootVersion=4.1.0</code> in:</li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L3-L7"><code>gradle.properties:3-7</code></a></li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/gradle.properties#L1-L4"><code>fit4j-examples/gradle.properties:1-4</code></a></li>
 </ul>
@@ -2741,7 +2741,7 @@ every { service.call() } returns &quot;OK&quot;
 <p><strong>Dependencies</strong></p>
 <ul>
 <li>gRPC core: <code>io.grpc:grpc-*</code> – <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE-THIRD-PARTY.md#L4-L8"><code>LICENSE-THIRD-PARTY.md:4-8</code></a></li>
-<li>Spring Boot gRPC starter: <code>net.devh:grpc-spring-boot-starter</code> – <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE-THIRD-PARTY.md#L4-L8"><code>LICENSE-THIRD-PARTY.md:4-8</code></a>, <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L7-L13"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:7-13</code></a></li>
+<li>Spring Boot gRPC starter: <code>org.springframework.grpc:spring-grpc-spring-boot-starter</code> – <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE-THIRD-PARTY.md#L4-L8"><code>LICENSE-THIRD-PARTY.md:4-8</code></a>, <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L7-L13"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:7-13</code></a></li>
 </ul>
 <p><strong>Usage</strong></p>
 <p>The project supports FITs against gRPC endpoints:</p>
@@ -2805,12 +2805,12 @@ every { service.call() } returns &quot;OK&quot;
 <p>Key properties:</p>
 <pre><code class="language-properties"># See gradle.properties:1-17
 group = io.github.harezmi
-version = 0.0.17
+version = 0.1.0
 
 javaToolchainVersion=25
 javaBytecodeVersion=17
 kotlinPluginVersion=2.3.0
-springBootVersion=3.5.15
+springBootVersion=4.1.0
 kotlinVersion=2.3.0
 testcontainersVersion=1.21.4
 grpcSpringBootVersion=3.1.0.RELEASE
@@ -2913,7 +2913,7 @@ graph TD
 <li>Activates Spring <code>test</code> profile.</li>
 <li>Enables bean definition override in the <code>ApplicationContext</code>.</li>
 <li>Runs gRPC server <strong>in-process</strong> at a random port and assigns a random in‑process name.</li>
-<li>Auto‑configures <code>grpc.client.inProcess.address</code>.</li>
+<li>Auto‑configures <code>spring.grpc.client.channels.testGrpcService.address</code>.</li>
 <li>Exposes <strong>Embedded Kafka</strong> as a Spring bean and property if <code>@EnableEmbeddedKafka</code> is present.</li>
 <li>Exposes <strong>Embedded Redis</strong> as a Spring bean and property if <code>@EmbeddedRedis</code> is present.</li>
 <li>Enables <strong>declarative Testcontainers</strong> support if <code>@Testcontainers</code> is used.</li>
@@ -3363,9 +3363,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 <ul>
 <li><strong>gRPC in‑process configuration</strong> (driven by <code>@IT</code>):</li>
 <li>A random in‑process server name and port are chosen.</li>
-<li>Property like <code>grpc.client.inProcess.address</code> is auto‑configured.</li>
+<li>Property like <code>spring.grpc.client.channels.testGrpcService.address</code> is auto‑configured.</li>
 <li>
-<p>Clients using <code>@GrpcClient("inProcess")</code> (or equivalent) are wired to the in‑process server.</p>
+<p>Clients using <code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code> are wired to the in-process mock server.</p>
 </li>
 <li>
 <p><strong>Kafka configuration</strong>:</p>
@@ -5949,7 +5949,7 @@ val actualResponse = mockResponseFactory.getResponseFor(request) as HttpResponse
 <pre><code class="language-kotlin">// See README example in /tmp/repo_fun8n87l/README.md
 @FIT
 class SampleFIT {
-    @GrpcClient(&quot;inProcess&quot;)
+    @ImportGrpcClients(target = &quot;testGrpcService&quot;, types = [...])
     private lateinit var grpcClient: FooGrpcServiceGrpc.FooGrpcServiceBlockingStub
 
     @Test
@@ -5968,7 +5968,7 @@ class SampleFIT {
 <p>Flow:</p>
 <ol>
 <li><code>@IT</code> / <code>@FIT</code> infrastructure configures an <strong>in-process gRPC server</strong> for your service.</li>
-<li><code>@GrpcClient("inProcess")</code> injects a stub pointing to this in-process channel.</li>
+<li><code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code> injects a stub pointing to the FIT4J in-process mock channel.</li>
 <li>When the test calls <code>grpcClient.getFooByIdResponse(...)</code>, the request goes straight into your service’s gRPC controller.</li>
 <li>If there are outbound calls to other gRPC services from your service, FIT4J’s mocking infrastructure can intercept and respond using declarative fixtures (similar to HTTP).</li>
 </ol>
@@ -6810,7 +6810,7 @@ class IntegrationTestGrpcAutoConfiguration {
 </code></pre>
 <p>Key points:</p>
 <ul>
-<li>Depends on <code>GrpcServerFactoryAutoConfiguration</code> from <code>net.devh.boot.grpc.server</code>.</li>
+<li>Depends on spring-grpc server auto-configuration (<code>org.springframework.grpc</code>).</li>
 <li>Only active when <code>InProcessGrpcServerFactory</code> is available.</li>
 <li>Provides the base prerequisite for setting up gRPC tests (the server factory), while the real test wiring is done by <code>TestGrpcAutoConfiguration</code>.</li>
 </ul>
@@ -7014,7 +7014,7 @@ class IntegrationTestGrpcAutoConfiguration {
   }</code></p>
 <ul>
 <li>Configures client channels to talk to the in‑process server.</li>
-<li>Typically sets <code>grpc.client.inProcess.address</code> and similar properties (see README).</li>
+<li>Typically sets <code>spring.grpc.client.channels.testGrpcService.address</code> and similar properties (see README).</li>
 </ul>
 <hr />
 <h2>Protobuf JSON &amp; Type Registry Auto-Configuration</h2>
@@ -7371,7 +7371,7 @@ class GrpcMockServiceResponseFactoryFIT {
 ])
 class DeclarativeTestFixtureDrivenResponseGenerationFIT {
 
-    @GrpcClient(&quot;inProcess&quot;)
+    @ImportGrpcClients(target = &quot;testGrpcService&quot;, types = [...])
     lateinit var fooClient: FooGrpcServiceGrpc.FooGrpcServiceBlockingStub
 
     @Autowired
@@ -7441,7 +7441,7 @@ sequenceDiagram
 <ol>
 <li>
 <p><strong>TestCode → gRPC client</strong><br />
-   In your test, you use a <code>@GrpcClient</code> stub (e.g., <code>FooGrpcServiceBlockingStub</code>) to call a method.</p>
+   In your test, use an <code>@ImportGrpcClients</code> stub (e.g., <code>FooGrpcServiceBlockingStub</code>) to call a method.</p>
 </li>
 <li>
 <p><strong>Client → InProcessServer</strong><br />
@@ -7490,7 +7490,7 @@ sequenceDiagram
 <ul>
 <li>Annotate your test with <code>@FIT</code> or use a FIT configuration.</li>
 <li>Ensure your gRPC service stubs and protobuf messages are in the test classpath.</li>
-<li>Ensure <code>net.devh.boot.grpc.server</code> and <code>net.devh.boot.grpc.client</code> dependencies are present.</li>
+<li>Ensure <code>org.springframework.grpc:spring-grpc-spring-boot-starter</code> is on the classpath.</li>
 </ul>
 <h3>2. Provide Declarative Fixtures</h3>
 <ul>
@@ -7518,8 +7518,7 @@ sequenceDiagram
 <ul>
 <li>
 <p><strong>gRPC in‑process server address</strong><br />
-  Automatically configured by <code>TestGrpcChannelConfigurer</code> so that <code>@GrpcClient</code> stubs work without manual configuration.<br />
-  If you need to override it, you can rely on standard <code>grpc.client.*</code> Spring Boot properties, masking any credentials (<code>password=********</code>).</p>
+  FIT4J sets <code>spring.grpc.client.channels.testGrpcService.address</code> at runtime. Override via <code>spring.grpc.client.channels.*</code> properties if needed.</p>
 </li>
 <li>
 <p><strong>Fixture location</strong><br />
@@ -8581,7 +8580,7 @@ tests:
 </li>
 <li><code>http</code>: Intercepts REST calls (typically via Spring MVC/WebClient/RestTemplate).</li>
 <li>
-<p><code>grpc</code>: Intercepts gRPC calls (via grpc-spring-boot starter).</p>
+<p><code>grpc</code>: Intercepts gRPC calls (via spring-grpc).</p>
 </li>
 <li>
 <p><strong>HTTP fixtures</strong>  </p>
@@ -8965,7 +8964,7 @@ tests:
 <h2>Version &amp; Dependency Notes</h2>
 <p>Integration libraries used (see <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L1-L20"><code>gradle.properties:1-20</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/gradle.properties#L1-L15"><code>fit4j-examples/gradle.properties:1-15</code></a>):</p>
 <ul>
-<li>Spring Boot: <code>springBootVersion=3.5.15</code></li>
+<li>Spring Boot: <code>springBootVersion=4.1.0</code></li>
 <li>gRPC: <code>grpcVersion=1.63.0</code></li>
 <li>Protobuf: <code>protobufJavaVersion=3.25.5</code></li>
 <li>Testcontainers: <code>testcontainersVersion=1.21.4</code></li>
@@ -11952,7 +11951,7 @@ graph TD
 <p>Example dependency after a release (from <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L191-L205"><code>MAVEN_CENTRAL_SETUP.md:191-205</code></a>):</p>
 <pre><code class="language-kotlin">// build.gradle.kts
 dependencies {
-    testImplementation(&quot;org.fit4j:fit4j:1.0.0&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.0&quot;)
 }
 </code></pre>
 <p>Update <code>group</code> and version to match whichever group ID is used (<code>org.fit4j</code> or <code>io.github.ksevindik</code>).</p>
@@ -11997,7 +11996,7 @@ dependencies {
 <li>Add dependency:
      <code>kotlin
      dependencies {
-         testImplementation("org.fit4j:fit4j:1.0.0")
+         testImplementation("io.github.harezmi:fit4j:0.1.0")
      }</code></li>
 <li>
 <p>Run a build to confirm the coordinates resolve.</p>
@@ -12624,11 +12623,11 @@ sequenceDiagram
 <pre><code class="language-properties">grpc:
   client:
     fooGrpcService:
-      address: in-process:${grpc.server.inProcessName}
+      address: in-process:${spring.grpc.server.inprocess.name}
 </code></pre>
 <p>Key points:</p>
 <ul>
-<li>Client stubs (annotated with <code>@GrpcClient</code>) should be configured to use <code>in-process:${grpc.server.inProcessName}</code> in test environments.</li>
+<li>Client stubs (via <code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code>) are wired to <code>in-process:${spring.grpc.server.inprocess.name}</code> by FIT4J in tests.</li>
 <li><code>TestGrpcAutoConfiguration</code> provides a <code>TestGrpcChannelConfigurer</code> bean to help with this wiring:</li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt#L23-L31"><code>src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt:23-31</code></a></li>
 </ul>
@@ -12650,7 +12649,7 @@ sequenceDiagram
 <pre><code class="language-yaml">grpc:
   client:
     fooGrpcService:
-      address: in-process:${grpc.server.inProcessName}
+      address: in-process:${spring.grpc.server.inprocess.name}
       # If authentication is used, mask secrets:
       # authToken: token-****
 </code></pre>
@@ -12783,7 +12782,7 @@ sequenceDiagram
 <li><code>org.jetbrains.kotlinx:kotlinx-coroutines-core</code></li>
 <li><code>io.grpc:grpc-*</code></li>
 <li><code>io.mockk:mockk</code></li>
-<li><code>net.devh:grpc-spring-boot-starter</code></li>
+<li><code>org.springframework.grpc:spring-grpc-spring-boot-starter</code></li>
 <li><code>org.elasticsearch.client:elasticsearch-rest-client</code></li>
 <li><code>co.elastic.clients:elasticsearch-java</code></li>
 <li><code>com.github.codemonstur:embedded-redis</code></li>

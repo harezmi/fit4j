@@ -3,15 +3,17 @@ package org.fit4j.examples.grpc
 
 import com.example.fit4j.grpc.FooGrpcService
 import com.example.fit4j.grpc.FooServiceGrpc
-import net.devh.boot.grpc.client.inject.GrpcClient
 import org.fit4j.annotation.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.grpc.client.ImportGrpcClients
 
+@ImportGrpcClients(target = "testGrpcService", types = [FooServiceGrpc.FooServiceBlockingStub::class])
 @FIT
 class GrpcExampleWithDeclarativeFixtureFIT  {
 
-    @GrpcClient("inProcess")
+    @Autowired
     private lateinit var fooService: FooServiceGrpc.FooServiceBlockingStub
 
     @Test

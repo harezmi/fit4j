@@ -2,7 +2,7 @@ package org.fit4j.grpc
 
 import com.google.protobuf.GeneratedMessageV3
 import io.grpc.BindableService
-import net.devh.boot.grpc.server.service.GrpcService
+import org.springframework.grpc.server.service.GrpcService
 import org.fit4j.helper.ClassScanner
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

@@ -9,8 +9,8 @@ import io.grpc.StatusRuntimeException
 import io.grpc.stub.ServerCalls
 import io.grpc.stub.ServerCalls.UnaryMethod
 import jakarta.annotation.PostConstruct
-import net.devh.boot.grpc.server.serverfactory.InProcessGrpcServerFactory
-import net.devh.boot.grpc.server.service.GrpcServiceDefinition
+import org.springframework.beans.factory.ObjectProvider
+import org.springframework.grpc.server.InProcessGrpcServerFactory
 import org.fit4j.mock.MockResponseFactory
 import org.fit4j.mock.MockServiceCallTracker
 import org.slf4j.Logger
@@ -18,7 +18,7 @@ import org.slf4j.Logger
 class TestGrpcServiceConfigurer(
     private val mockServiceCallTracker: MockServiceCallTracker,
     private val mockResponseFactory: MockResponseFactory,
-    private val inProcessGrpcServerFactory: InProcessGrpcServerFactory,
+    private val inProcessGrpcServerFactory: ObjectProvider<InProcessGrpcServerFactory>,
     private val testGrpcServiceDefinitionProvider: TestGrpcServiceDefinitionProvider)  {
 
     private val logger:Logger = org.slf4j.LoggerFactory.getLogger(TestGrpcServiceConfigurer::class.java)
@@ -37,10 +37,7 @@ class TestGrpcServiceConfigurer(
             newServiceDefinition,
             Fit4jGrpcServerExecutionIdInterceptor()
         )
-        inProcessGrpcServerFactory.addService(
-            GrpcServiceDefinition(testGrpcServiceDefinition.getBindableServiceJavaClass().name,
-                testGrpcServiceDefinition.getBindableServiceJavaClass(), intercepted)
-        )
+        inProcessGrpcServerFactory.getObject().addService(intercepted)
     }
 
     private fun createNewServerServiceDefinition(testGrpcServiceDefinition: TestGrpcServiceDefinition): ServerServiceDefinition? {

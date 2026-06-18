@@ -21,6 +21,12 @@ dependencyResolutionManagement {
 	}
 }
 
+includeBuild("..") {
+	dependencySubstitution {
+		substitute(module("io.github.harezmi:fit4j")).using(project(":"))
+	}
+}
+
 rootProject.name = "fit4j-examples"
 
 include("example-basic")
