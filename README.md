@@ -6,6 +6,7 @@
 - [What is This Library About?](#what-is-this-library-about)
 - [Why Should You Use This Library in Your Service?](#why-should-you-use-this-library-in-your-service)
 - [Examples](#-examples)
+- [Compatibility & Requirements](#compatibility--requirements)
 - [How to Start Working with This Library?](#how-to-start-working-with-this-library)
     * [Add the Library Dependency](#add-the-library-dependency)
     * [Create a Test Class](#create-a-test-class)
@@ -95,6 +96,29 @@ The examples cover:
 - **AWS** - S3 using Localstack
 
 Each example project is completely self-contained and can be run independently. See the **[fit4j-examples/README.md](fit4j-examples/README.md)** for the full list and descriptions.
+
+# Compatibility & Requirements
+
+FIT4J is built and tested against the versions below. Your service should use a compatible stack when adding FIT4J as a test dependency.
+
+| Component | Version | Notes |
+|-----------|---------|-------|
+| **JDK** | **17+** | Required. The library is compiled for Java 17 (`sourceCompatibility` / `targetCompatibility` = 17). |
+| **Spring Boot** | **3.3.x** (3.3.7) | Required. FIT4J targets Spring Boot 3.x and uses the Spring Boot 3.3.7 dependency BOM. Spring Boot 2.x is not supported. |
+| **Kotlin** | **1.6+** (stdlib 1.6.21) | Optional — only if your service is written in Kotlin. Java-only services do not need Kotlin on the classpath. Kotlin projects should use a version compatible with Spring Boot 3.3.x. |
+| **JUnit** | **5** (JUnit Platform) | Required. FIT4J uses JUnit 5 extensions (`@ExtendWith`, `@FIT` / `@IT`). JUnit 4 is not supported. |
+| **Docker** | — | Required when using Testcontainers-based infrastructure (MySQL, PostgreSQL, Kafka, Redis, Elasticsearch, etc.). Embedded alternatives (embedded Kafka, embedded Redis, embedded DynamoDB) do not require Docker. |
+| **Gradle / Maven** | Gradle 7.x+ or Maven 3.6+ | Either build tool works for consuming FIT4J from Maven Central. |
+
+### Version alignment with your service
+
+- **Java:** Run your tests on JDK 17 or newer. Newer JDK versions (e.g. 21) are generally fine as long as your Spring Boot version supports them.
+- **Spring Boot:** Align your application's Spring Boot version with 3.3.x when possible. Minor differences within the 3.3 line are usually safe; if you are on an older 3.x release, verify `@SpringBootTest` and starter compatibility in your project.
+- **Kotlin:** If you use Kotlin, ensure your Kotlin compiler targets JVM 17 (`jvmTarget = "17"`) and that your Kotlin version is compatible with your Spring Boot release. FIT4J itself is built with Kotlin Gradle plugin 2.0.20; consuming projects are not required to match that plugin version.
+
+Version pins for the FIT4J build itself live in [`gradle.properties`](gradle.properties) (`springBootVersion`, `kotlinVersion`, etc.).
+
+
 
 ## ⚠️ Important Limitations
 
