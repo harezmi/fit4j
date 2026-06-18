@@ -42,20 +42,17 @@
     - host
 - container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elastic-search
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   exposedPorts:
     - 9200
     - 9300
   env:
-    - ELASTICSEARCH_USERNAME: root
-    - ELASTICSEARCH_PASSWORD: root
-    - xpack.security.enabled: false
     - bootstrap.memory_lock: true
     - cluster.routing.allocation.disk.threshold_enabled: false
-    - JAVA_TOOL_OPTIONS: -Xmx10G
+    - ES_JAVA_OPTS: -Xms512m -Xmx512m
 - container: org.testcontainers.containers.GenericContainer
   name: kafka-service-bus
-  image: confluentinc/cp-kafka:5.4.3
+  image: confluentinc/cp-kafka:7.6.1
   reuse: true
 - container: org.testcontainers.containers.GenericContainer
   name: dynamodb

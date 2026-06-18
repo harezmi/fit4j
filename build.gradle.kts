@@ -19,8 +19,6 @@ val protobufJavaVersion: String by project
 val springGrpcVersion: String by project // unused; gRPC starters ship with Boot 4.1
 val grpcVersion: String by project
 val grpcKotlinStubVersion: String by project
-val testcontainersVersion: String by project
-val elasticSearchVersion: String by project
 
 repositories {
 	mavenCentral()
@@ -28,18 +26,6 @@ repositories {
 
 configurations.all {
 	resolutionStrategy.eachDependency {
-		if (requested.group == "org.testcontainers") {
-			useVersion(testcontainersVersion)
-			because("Boot 4 BOM pulls testcontainers 2.x; FIT4J modules are on 1.x until TC 2.0 migration")
-		}
-		if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
-			useVersion(elasticSearchVersion)
-			because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
-		}
-		if (requested.group == "org.elasticsearch.client") {
-			useVersion(elasticSearchVersion)
-			because("Align elasticsearch-rest-client with elasticsearch-java for Testcontainers ES 8.x")
-		}
 		if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
 			useVersion(grpcVersion)
 			because("Align gRPC Java artifacts; spring-grpc-core 1.1 can pull a newer grpc-core than grpc-netty from the Boot BOM")
@@ -54,7 +40,6 @@ dependencies {
 	val mockkVersion : String by project
 	val protobufJavaVersion : String by project
 	val dynamoDBLocalVersion : String by project
-	val elasticSearchVersion: String by project
 	val redisVersion: String by project
 
 	implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
@@ -86,14 +71,13 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-grpc-client")
 	testImplementation("org.springframework.boot:spring-boot-starter-grpc-server-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-grpc-client-test")
-	implementation("org.testcontainers:testcontainers:$testcontainersVersion")
-	implementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
-	implementation("org.testcontainers:kafka:$testcontainersVersion")
-	implementation("org.testcontainers:elasticsearch:$testcontainersVersion")
-	implementation("org.testcontainers:mysql:$testcontainersVersion")
-    implementation("org.testcontainers:postgresql:${testcontainersVersion}")
-	implementation("org.elasticsearch.client:elasticsearch-rest-client:$elasticSearchVersion")
-	implementation("co.elastic.clients:elasticsearch-java:$elasticSearchVersion")
+	implementation("org.testcontainers:testcontainers")
+	implementation("org.testcontainers:testcontainers-junit-jupiter")
+	implementation("org.testcontainers:testcontainers-kafka")
+	implementation("org.testcontainers:testcontainers-elasticsearch")
+	implementation("org.testcontainers:testcontainers-mysql")
+	implementation("org.testcontainers:testcontainers-postgresql")
+	implementation("co.elastic.clients:elasticsearch-java")
 	implementation("redis.clients:jedis:$redisVersion")
 	implementation("com.github.codemonstur:embedded-redis:1.4.3")
 

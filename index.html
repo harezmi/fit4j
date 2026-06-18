@@ -1959,8 +1959,7 @@ kotlinPluginVersion=2.3.0
 springBootVersion=4.1.0
 grpcSpringBootVersion=3.1.0.RELEASE
 protobufJavaVersion=3.25.5
-testcontainersVersion=1.21.4
-elasticSearchVersion=8.15.5
+Testcontainers 2.0.5 (via Spring Boot 4.1 BOM)
 redisVersion=5.2.0
 dynamodbVersion=1.12.717
 grpcVersion=1.63.0
@@ -2241,19 +2240,16 @@ spring.kafka.template.default-topic=fit4j-test-topic
 <pre><code class="language-yaml"># See src/test/resources/fit4j-test-containers-sample.yml:21-34
 - container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elastic-search
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   exposedPorts:
     - 9200
     - 9300
   env:
-    - ELASTICSEARCH_USERNAME: root
-    - ELASTICSEARCH_PASSWORD: ********
-    - xpack.security.enabled: false
     - bootstrap.memory_lock: true
     - cluster.routing.allocation.disk.threshold_enabled: false
-    - JAVA_TOOL_OPTIONS: -Xmx10G
+    - ES_JAVA_OPTS: -Xms512m -Xmx512m
 </code></pre>
-<p>(Password masked to <code>********</code>.)</p>
+<p>Elasticsearch 9.x enables TLS by default; Testcontainers sets <code>ELASTIC_PASSWORD</code> (default <code>changeme</code>). Use <code>ElasticsearchConnectionProperties.fromElasticsearchContainer(container)</code> in tests.</p>
 <ul>
 <li>
 <p>Fit4J exposes properties like <code>fit4j.elasticSearchContainerDefinition.host</code> and <code>fit4j.elasticSearchContainerDefinition.port</code>, which are then mapped in <a href="https://github.com/harezmi/fit4j/blob/main/application-test.properties#L4-L7"><code>application-test.properties:4-7</code></a>.</p>
@@ -2481,9 +2477,8 @@ every { service.call() } returns &quot;OK&quot;
 <h3>Testcontainers Core</h3>
 <p><strong>Version</strong></p>
 <ul>
-<li><code>testcontainersVersion=1.15.3</code> in:</li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L5-L7"><code>gradle.properties:5-7</code></a></li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/gradle.properties#L4-L6"><code>fit4j-examples/gradle.properties:4-6</code></a></li>
+<li>Testcontainers <strong>2.0.5</strong> via Spring Boot 4.1 BOM (<code>springBootVersion=4.1.0</code> in <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties"><code>gradle.properties</code></a>)</li>
+<li>No explicit <code>testcontainersVersion</code> pin — module artifacts use the <code>testcontainers-</code> prefix (e.g. <code>testcontainers-junit-jupiter</code>)</li>
 </ul>
 <p><strong>Dependency</strong></p>
 <ul>
@@ -2578,7 +2573,7 @@ every { service.call() } returns &quot;OK&quot;
 <p><code>yaml
  - container: org.testcontainers.containers.GenericContainer
    name: kafka-service-bus
-   image: confluentinc/cp-kafka:5.4.3
+   image: confluentinc/cp-kafka:7.6.1
    reuse: true</code></p>
 </li>
 </ol>
@@ -2668,8 +2663,7 @@ every { service.call() } returns &quot;OK&quot;
 <h3>Elasticsearch</h3>
 <p><strong>Dependencies</strong></p>
 <ul>
-<li>REST Client: <code>org.elasticsearch.client:elasticsearch-rest-client</code></li>
-<li>Java Client: <code>co.elastic.clients:elasticsearch-java</code><br />
+<li>Java Client: <code>co.elastic.clients:elasticsearch-java</code> (Spring Boot BOM, 9.x)</li>
   Both listed in <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE-THIRD-PARTY.md#L6-L10"><code>LICENSE-THIRD-PARTY.md:6-10</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L19-L23"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:19-23</code></a>.</li>
 </ul>
 <p><strong>Testcontainers</strong></p>
@@ -2682,15 +2676,13 @@ every { service.call() } returns &quot;OK&quot;
 <pre><code class="language-yaml"># See src/test/resources/fit4j-test-containers-sample.yml:20-32
 - container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elasticSearchContainerDefinition
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   exposedPorts:
     - 9200
     - 9300
   env:
-    - ELASTICSEARCH_USERNAME: root
-    - ELASTICSEARCH_PASSWORD: ********
-    - xpack.security.enabled: false
     - bootstrap.memory_lock: true
+    - ES_JAVA_OPTS: -Xms512m -Xmx512m
 </code></pre>
 <p>Application properties map host/port to <code>elasticSearch.host</code> and <code>elasticSearch.port</code> in <a href="https://github.com/harezmi/fit4j/blob/main/src/test/resources/application-test.properties#L4-L8"><code>src/test/resources/application-test.properties:4-8</code></a>.</p>
 <h3>AWS DynamoDB</h3>
@@ -2812,13 +2804,12 @@ javaBytecodeVersion=17
 kotlinPluginVersion=2.3.0
 springBootVersion=4.1.0
 kotlinVersion=2.3.0
-testcontainersVersion=1.21.4
+Testcontainers 2.0.5 (via Spring Boot 4.1 BOM)
 grpcSpringBootVersion=3.1.0.RELEASE
 mockkVersion=1.14.11
 protobufJavaVersion=3.25.5
 dynamoDBLocalVersion=2.6.1
 grpcVersion=1.63.0
-elasticSearchVersion=8.15.5
 redisVersion=5.2.0
 </code></pre>
 <p>These properties should be consumed from module <a href="https://github.com/harezmi/fit4j/blob/main/build.gradle.kts"><code>build.gradle.kts</code></a>/<a href="https://github.com/harezmi/fit4j/blob/main/build.gradle"><code>build.gradle</code></a> via Gradle’s <code>extra</code> properties or <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties"><code>gradle.properties</code></a> lookup. When upgrading versions, update here first to keep modules consistent.</p>
@@ -2913,7 +2904,7 @@ graph TD
 <li>Activates Spring <code>test</code> profile.</li>
 <li>Enables bean definition override in the <code>ApplicationContext</code>.</li>
 <li>Runs gRPC server <strong>in-process</strong> at a random port and assigns a random in‑process name.</li>
-<li>Auto‑configures <code>spring.grpc.client.channels.testGrpcService.address</code>.</li>
+<li>Auto‑configures <code>spring.grpc.client.channel.testGrpcService.target</code> (in-process mock server).</li>
 <li>Exposes <strong>Embedded Kafka</strong> as a Spring bean and property if <code>@EnableEmbeddedKafka</code> is present.</li>
 <li>Exposes <strong>Embedded Redis</strong> as a Spring bean and property if <code>@EmbeddedRedis</code> is present.</li>
 <li>Enables <strong>declarative Testcontainers</strong> support if <code>@Testcontainers</code> is used.</li>
@@ -3363,7 +3354,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 <ul>
 <li><strong>gRPC in‑process configuration</strong> (driven by <code>@IT</code>):</li>
 <li>A random in‑process server name and port are chosen.</li>
-<li>Property like <code>spring.grpc.client.channels.testGrpcService.address</code> is auto‑configured.</li>
+<li>Property like <code>spring.grpc.client.channel.testGrpcService.target</code> is auto‑configured.</li>
 <li>
 <p>Clients using <code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code> are wired to the in-process mock server.</p>
 </li>
@@ -4637,14 +4628,13 @@ aws.secretAccessKey=********
 # Elasticsearch with initScript
 - container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elasticSearchContainerDefinition
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   initScript: scripts/elasticsearch_initial_data.yml
   exposedPorts:
     - 9200
     - 9300
   env:
-    - ELASTICSEARCH_USERNAME: root
-    - ELASTICSEARCH_PASSWORD: ********
+    - bootstrap.memory_lock: true
 </code></pre>
 <p>Key points:</p>
 <ul>
@@ -5034,8 +5024,8 @@ graph TD
 </ul>
 <p>Mask any credentials in configs:</p>
 <pre><code class="language-yaml">env:
-  - ELASTICSEARCH_USERNAME: root
-  - ELASTICSEARCH_PASSWORD: ********
+  - bootstrap.memory_lock: true
+  - ES_JAVA_OPTS: -Xms512m -Xmx512m
 </code></pre>
 <hr />
 <h2>When to Adjust Data Initialization</h2>
@@ -6999,23 +6989,10 @@ class IntegrationTestGrpcAutoConfiguration {
 <p>Feeds into protobuf JSON parsing (<code>TestProtobufAutoConfiguration</code>).</p>
 </li>
 <li>
-<p><strong>TestGrpcChannelConfigurer (companion object bean)</strong></p>
+<p><strong>fit4jGrpcExecutionIdChannelCustomizer</strong></p>
 </li>
 </ul>
-<p><a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt#L116-L121"><code>src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt:116-121</code></a></p>
-<p><code>kotlin
-  companion object {
-      @Bean
-      fun testGrpcChannelNameConfigurer(
-          genericApplicationContext: GenericApplicationContext
-      ): TestGrpcChannelConfigurer {
-          return TestGrpcChannelConfigurer(genericApplicationContext)
-      }
-  }</code></p>
-<ul>
-<li>Configures client channels to talk to the in‑process server.</li>
-<li>Typically sets <code>spring.grpc.client.channels.testGrpcService.address</code> and similar properties (see README).</li>
-</ul>
+<p>Registers <code>Fit4jGrpcClientExecutionIdInterceptor</code> on spring-grpc client channels via <code>GrpcChannelBuilderCustomizer</code>. In-process routing uses <code>GrpcContextCustomizer</code> (<code>spring.grpc.client.channel.testGrpcService.target</code>) and <code>Fit4jGrpcVirtualTargets</code> — not a <code>ManagedChannel</code> bean override.</p>
 <hr />
 <h2>Protobuf JSON &amp; Type Registry Auto-Configuration</h2>
 <h3>TestProtobufAutoConfiguration</h3>
@@ -7518,7 +7495,7 @@ sequenceDiagram
 <ul>
 <li>
 <p><strong>gRPC in‑process server address</strong><br />
-  FIT4J sets <code>spring.grpc.client.channels.testGrpcService.address</code> at runtime. Override via <code>spring.grpc.client.channels.*</code> properties if needed.</p>
+  FIT4J sets <code>spring.grpc.client.channel.testGrpcService.target</code> at runtime. For production-style channel names, set <code>spring.grpc.client.channel.&lt;name&gt;.target</code> (see <code>GrpcCustomChannelRoutingFIT</code>).</p>
 </li>
 <li>
 <p><strong>Fixture location</strong><br />
@@ -8139,7 +8116,7 @@ class TestContainerDefinitionInheritanceFIT : BaseTest() {
 
 - container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elasticSearchContainerDefinition
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   initScript: scripts/elasticsearch_initial_data.yml
   exposedPorts:
     - 9200
@@ -8278,7 +8255,7 @@ class RedisDataPopulatorFIT {
 <pre><code class="language-yaml"># See src/test/resources/fit4j-test-containers.yml:20-33
 - container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elasticSearchContainerDefinition
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   initScript: scripts/elasticsearch_initial_data.yml
   exposedPorts:
     - 9200
@@ -8671,7 +8648,7 @@ tests:
 <p>You define the Kafka container in YAML (see <a href="https://github.com/harezmi/fit4j/blob/main/src/test/resources/fit4j-test-containers-sample.yml#L40-L70"><code>src/test/resources/fit4j-test-containers-sample.yml:40-70</code></a>):</p>
 <pre><code class="language-yaml">- container: org.testcontainers.containers.GenericContainer
   name: kafka-service-bus
-  image: confluentinc/cp-kafka:5.4.3
+  image: confluentinc/cp-kafka:7.6.1
   reuse: true
 </code></pre>
 <p>How this affects data flow:</p>
@@ -8837,18 +8814,15 @@ tests:
 <p>From <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L200-L235"><code>README.md:200-235</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/src/test/resources/fit4j-test-containers.yml#L70-L110"><code>src/test/resources/fit4j-test-containers.yml:70-110</code></a>:</p>
 <pre><code class="language-yaml">- container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elasticSearchContainerDefinition
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   initScript: scripts/elasticsearch_initial_data.yml
   exposedPorts:
     - 9200
     - 9300
   env:
-    - ELASTICSEARCH_USERNAME: root
-    - ELASTICSEARCH_PASSWORD: ********
-    - xpack.security.enabled: false
     - bootstrap.memory_lock: true
     - cluster.routing.allocation.disk.threshold_enabled: false
-    - JAVA_TOOL_OPTIONS: -Xmx10G
+    - ES_JAVA_OPTS: -Xms512m -Xmx512m
 </code></pre>
 <p>Features (from <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L60-L100"><code>README.md:60-100</code></a>):</p>
 <ul>
@@ -8967,9 +8941,9 @@ tests:
 <li>Spring Boot: <code>springBootVersion=4.1.0</code></li>
 <li>gRPC: <code>grpcVersion=1.63.0</code></li>
 <li>Protobuf: <code>protobufJavaVersion=3.25.5</code></li>
-<li>Testcontainers: <code>testcontainersVersion=1.21.4</code></li>
+<li>Testcontainers: <code>Testcontainers 2.0.5 (via Spring Boot 4.1 BOM)</code></li>
 <li>DynamoDB local: <code>dynamoDBLocalVersion=2.6.1</code></li>
-<li>Elasticsearch: <code>elasticSearchVersion=8.15.5</code></li>
+<li>Elasticsearch: <code></code></li>
 <li>Redis (Jedis): <code>redisVersion=5.2.0</code></li>
 </ul>
 <p>Third-party clients and infrastructure libraries are licence-checked in <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L1-L40"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:1-40</code></a>.</p>
@@ -12627,19 +12601,9 @@ sequenceDiagram
 </code></pre>
 <p>Key points:</p>
 <ul>
-<li>Client stubs (via <code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code>) are wired to <code>in-process:${spring.grpc.server.inprocess.name}</code> by FIT4J in tests.</li>
-<li><code>TestGrpcAutoConfiguration</code> provides a <code>TestGrpcChannelConfigurer</code> bean to help with this wiring:</li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt#L23-L31"><code>src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt:23-31</code></a></li>
+<li>Client stubs (via <code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code>) are wired to <code>in-process:${spring.grpc.server.inprocess.name}</code> by FIT4J via <code>GrpcContextCustomizer</code>.</li>
+<li><code>TestGrpcAutoConfiguration</code> attaches the execution-id client interceptor through <code>GrpcChannelBuilderCustomizer</code> (see <code>fit4jGrpcExecutionIdChannelCustomizer</code>).</li>
 </ul>
-<pre><code class="language-kotlin">companion object {
-    @Bean
-    fun testGrpcChannelNameConfigurer(
-        genericApplicationContext: GenericApplicationContext
-    ): TestGrpcChannelConfigurer {
-        return TestGrpcChannelConfigurer(genericApplicationContext)
-    }
-}
-</code></pre>
 <p>If the client does not point to the in-process server:</p>
 <ul>
 <li>Calls will bypass the mock and will <strong>not be tracked</strong>.</li>
@@ -12783,8 +12747,7 @@ sequenceDiagram
 <li><code>io.grpc:grpc-*</code></li>
 <li><code>io.mockk:mockk</code></li>
 <li><code>org.springframework.grpc:spring-grpc-spring-boot-starter</code></li>
-<li><code>org.elasticsearch.client:elasticsearch-rest-client</code></li>
-<li><code>co.elastic.clients:elasticsearch-java</code></li>
+<li><code>co.elastic.clients:elasticsearch-java</code> (9.x, HTTPS via <code>ElasticsearchConnectionProperties.fromElasticsearchContainer</code>)</li>
 <li><code>com.github.codemonstur:embedded-redis</code></li>
 <li><code>io.github.resilience4j:resilience4j-*</code></li>
 <li><code>com.amazonaws:DynamoDBLocal</code></li>

@@ -102,29 +102,29 @@ Each example project is completely self-contained and can be run independently. 
 
 FIT4J is built and tested against the versions below. Your service should use a compatible stack when adding FIT4J as a test dependency.
 
-| Component | Version | Notes |
-|-----------|---------|-------|
-| **JDK (run tests)** | **17+** | Minimum for consuming services. FIT4J itself is built and tested on **JDK 25** (see `javaToolchainVersion` in `gradle.properties`). |
-| **JDK (bytecode)** | **17** | The published JAR targets Java 17 (`javaBytecodeVersion=17`). You do not need JDK 25 to use FIT4J unless your own project requires it. |
-| **FIT4J** | **0.1.0+** | This release line targets Spring Boot **4.1.x**. Use FIT4J **0.0.x** (or earlier) with Spring Boot 3.5. |
-| **Spring Boot** | **4.1.x** (4.1.0) | Required. FIT4J on this branch targets Spring Boot 4.x. Spring Boot 2.x and 3.x are not supported by this artifact — use an earlier FIT4J release on Boot 3.5. See [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md). |
+| Component | Version                                                                                      | Notes |
+|-----------|----------------------------------------------------------------------------------------------|-------|
+| **JDK (run tests)** | **17+**                                                                                      | Minimum for consuming services. FIT4J itself is built and tested on **JDK 25** (see `javaToolchainVersion` in `gradle.properties`). |
+| **JDK (bytecode)** | **17**                                                                                       | The published JAR targets Java 17 (`javaBytecodeVersion=17`). You do not need JDK 25 to use FIT4J unless your own project requires it. |
+| **FIT4J** | **0.1.1+**                                                                                   | This release line targets Spring Boot **4.1.x**. Use FIT4J **0.0.x** (or earlier) with Spring Boot 3.5. |
+| **Spring Boot** | **4.1.x** (4.1.0)                                                                            | Required. FIT4J on this branch targets Spring Boot 4.x. Spring Boot 2.x and 3.x are not supported by this artifact — use an earlier FIT4J release on Boot 3.5. See [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md). |
 | **gRPC** | Boot **4.1** starters (`spring-boot-starter-grpc-server` / `spring-boot-starter-grpc-client`) | Replaces `net.devh:grpc-spring-boot-starter` and `org.springframework.grpc:spring-grpc-*`. Required when your service uses gRPC. |
-| **Kotlin** | **2.3+** (stdlib 2.3.0) | Optional — only if your service is written in Kotlin. Java-only services do not need Kotlin on the classpath. Kotlin projects should use a version compatible with Spring Boot 4.x. |
-| **JUnit** | **5** (JUnit Platform) | Required. FIT4J uses JUnit 5 extensions (`@ExtendWith`, `@FIT` / `@IT`). JUnit 4 is not supported. |
-| **Docker** | — | Required when using Testcontainers-based infrastructure (MySQL, PostgreSQL, Kafka, Redis, Elasticsearch, etc.). Embedded alternatives (embedded Kafka, embedded Redis, embedded DynamoDB) do not require Docker. |
-| **Gradle / Maven** | Gradle 8.14+ or Maven 3.6+ | Either build tool works for consuming FIT4J from Maven Central. FIT4J development uses Gradle 8.14.4 with the Foojay toolchain resolver (JDK 25 auto-provisioning). |
+| **Kotlin** | **2.3+** (stdlib 2.3.0)                                                                      | Optional — only if your service is written in Kotlin. Java-only services do not need Kotlin on the classpath. Kotlin projects should use a version compatible with Spring Boot 4.x. |
+| **JUnit** | **5** (JUnit Platform)                                                                       | Required. FIT4J uses JUnit 5 extensions (`@ExtendWith`, `@FIT` / `@IT`). JUnit 4 is not supported. |
+| **Docker** | —                                                                                            | Required when using Testcontainers-based infrastructure (MySQL, PostgreSQL, Kafka, Redis, Elasticsearch, etc.). Embedded alternatives (embedded Kafka, embedded Redis, embedded DynamoDB) do not require Docker. |
+| **Gradle / Maven** | Gradle 8.14+ or Maven 3.6+                                                                   | Either build tool works for consuming FIT4J from Maven Central. FIT4J development uses Gradle 8.14.4 with the Foojay toolchain resolver (JDK 25 auto-provisioning). |
 
 ### Version alignment with your service
 
 - **Java:** Run your tests on JDK 17 or newer. FIT4J is built and verified on **JDK 25** with **Java 17** bytecode.
-- **Spring Boot:** Use **4.1.x** with FIT4J **0.1.0+**. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers pins).
+- **Spring Boot:** Use **4.1.x** with FIT4J **0.1.1+**. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers 2.0).
 - **Kotlin:** If you use Kotlin, ensure your Kotlin compiler targets JVM 17 (`jvmTarget = "17"`) and that your Kotlin version is compatible with your Spring Boot release. FIT4J itself is built with Kotlin Gradle plugin **2.3.21**; consuming projects are not required to match that plugin version.
 
 Version pins for the FIT4J build itself live in [`gradle.properties`](gradle.properties) (`springBootVersion`, `springGrpcVersion`, `javaToolchainVersion`, `javaBytecodeVersion`, `kotlinPluginVersion`, etc.).
 
 ## Spring Boot 4 migration
 
-FIT4J on this branch requires **Spring Boot 4.1.x**. If you are upgrading from FIT4J on Boot 3.5, read **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** for dependency, gRPC (`@ImportGrpcClients`), HTTP (`@AutoConfigureTestRestTemplate`), Jackson, and Testcontainers changes.
+FIT4J on this branch requires **Spring Boot 4.1.x**. If you are upgrading from FIT4J on Boot 3.5, read **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** for dependency, gRPC (`@ImportGrpcClients`), HTTP (`@AutoConfigureTestRestTemplate`), Jackson, and Testcontainers 2.0 changes.
 
 
 
@@ -200,7 +200,7 @@ To use only one JVM:
 FIT4J registers a **per-test-method execution id** and resolves the correct JUnit `ExtensionContext` on mock **HTTP** and **gRPC** worker threads by propagating that id on each outgoing call:
 
 - **HTTP:** header `X-Fit4j-Test-Execution-Id` — added automatically for Spring `RestTemplate` beans via a `RestTemplateCustomizer` (runs with highest precedence so it combines with optional custom `HttpHeadersSource` beans).
-- **gRPC:** metadata key `x-fit4j-test-execution-id` — attached on in-process `ManagedChannel` beans and read by a server interceptor on the mock gRPC server.
+- **gRPC:** metadata key `x-fit4j-test-execution-id` — attached on spring-grpc client channels via `GrpcChannelBuilderCustomizer` and read by a server interceptor on the mock gRPC server.
 
 If you use **WebClient**, raw `HttpURLConnection`, or a non-Spring HTTP client, add the same header yourself on outbound calls to FIT mock servers, using the current value from `Fit4jTestExecutionRegistry.currentExecutionId()` when present.
 
@@ -222,14 +222,14 @@ FIT4J is published to Maven Central. Simply add the dependency to your `build.gr
 **Gradle (Kotlin DSL):**
 ```kotlin
 dependencies {
-    testImplementation("io.github.harezmi:fit4j:0.1.0")
+    testImplementation("io.github.harezmi:fit4j:0.1.1")
 }
 ```
 
 **Gradle (Groovy DSL):**
 ```groovy
 dependencies {
-    testImplementation 'io.github.harezmi:fit4j:0.1.0'
+    testImplementation 'io.github.harezmi:fit4j:0.1.1'
 }
 ```
 
@@ -238,7 +238,7 @@ dependencies {
 <dependency>
     <groupId>io.github.harezmi</groupId>
     <artifactId>fit4j</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -469,9 +469,7 @@ service call.
 
 ### How the gRPC Communication is Redirected to the Mock gRPC Server?
 
-If your service configures gRPC communication via defining `ManagedChannel` bean definitions, the FIT4J library
-already detects those bean definitions and replaces them with the `InProcessChannel` instances. Therefore, you don't need
-to do anything for your gRPC calls to hit at the mock gRPC server. However, if your tests inject gRPC stubs via **spring-grpc** (see [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)), use `@ImportGrpcClients` with channel target **`testGrpcService`** — FIT4J wires that channel to the in-process mock server automatically.
+Use **spring-grpc** client stubs in FIT tests (see [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)). Annotate your test with `@ImportGrpcClients` and point the channel at the in-process mock server — FIT4J sets this up automatically via `GrpcContextCustomizer` (`spring.grpc.client.channel.testGrpcService.target=in-process:<random-name>`).
 
 ```kotlin
 import org.springframework.beans.factory.annotation.Autowired
@@ -485,7 +483,7 @@ class MyFIT {
 }
 ```
 
-For production service code that uses named channels under `spring.grpc.client.channel.*`, keep your channel names in `application-test` aligned with Boot gRPC property layout (`spring.grpc.client.channel.<name>.target`).
+For production service code that uses named channels under `spring.grpc.client.channel.*`, keep your channel names in `application-test` aligned with Boot gRPC property layout (`spring.grpc.client.channel.<name>.target`). If you still define raw `ManagedChannel` `@Bean`s, configure them to use `in-process:${spring.grpc.server.inprocess.name}` yourself — FIT4J does not override those beans.
 ## Define Request-Response Trainings for External HTTP/REST Endpoints
 
 In case your service hits some REST endpoints of any other service, you will need to provide request-response
@@ -1044,6 +1042,8 @@ In the examples above:
 
 # How to Work with TestContainers?
 
+FIT4J uses **Testcontainers 2.x** (aligned with the Spring Boot 4.1 BOM). Legacy 1.x container class names in YAML (e.g. `org.testcontainers.containers.MySQLContainer`) are resolved automatically. For Confluent Kafka images use **7.x+** (`confluentinc/cp-kafka` with KRaft); FIT4J selects `ConfluentKafkaContainer` for Confluent images.
+
 The FIT4J test library provides you with the ability to run your service against a real database, Kafka broker, Redis etc.
 using Testcontainers in a completely declarative fashion. In order to enable this feature, you need to add `@Testcontainers` annotation
 on top of your test class.
@@ -1098,17 +1098,15 @@ example to get started.
   reuse: true
 - container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elasticSearchContainerDefinition
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   initScript: scripts/elasticsearch_initial_data.yml
   exposedPorts:
     - 9200
     - 9300
   env:
-    - ELASTICSEARCH_USERNAME: root
-    - ELASTICSEARCH_PASSWORD: root
-    - xpack.security.enabled: false
     - bootstrap.memory_lock: true
     - cluster.routing.allocation.disk.threshold_enabled: false
+    - ES_JAVA_OPTS: -Xms512m -Xmx512m
   reuse: false
 ```
 

@@ -18,7 +18,6 @@ import org.springframework.test.context.TestPropertySource
 @FIT("classpath:declarative-response-generation-fixture.yml")
 @TestPropertySource(properties = [
     "fit4j.declarativeTestFixtureDrivenResponseGeneration.enabled=true",
-    "spring.grpc.client.channel.testGrpcService.target=in-process:\${spring.grpc.server.inprocess.name}",
 ])
 @ImportGrpcClients(target = "testGrpcService", types = [FooGrpcServiceGrpc.FooGrpcServiceBlockingStub::class])
 class DeclarativeTestFixtureDrivenResponseGenerationFIT {

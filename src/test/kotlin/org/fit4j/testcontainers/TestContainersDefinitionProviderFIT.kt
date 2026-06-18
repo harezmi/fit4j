@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.testcontainers.containers.MySQLContainer
+import org.testcontainers.mysql.MySQLContainer
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 
 @FIT
@@ -32,7 +32,7 @@ class TestContainersDefinitionProviderFIT  {
     private fun verifyFirstContainer(cd:TestContainerDefinition) {
         try {
             cd.startContainer()
-            val container = cd.getContainer() as MySQLContainer<*>
+            val container = cd.getContainer() as MySQLContainer
             Assertions.assertEquals("v1", cd.beanName)
             Assertions.assertEquals("mysql:8.0.37", cd.getImageName())
             Assertions.assertEquals(listOf(3306), container.getExposedPorts())
@@ -65,7 +65,7 @@ class TestContainersDefinitionProviderFIT  {
     private fun verifySecondContainer(cd:TestContainerDefinition) {
         try {
             cd.startContainer()
-            val container = cd.getContainer() as MySQLContainer<*>
+            val container = cd.getContainer() as MySQLContainer
             Assertions.assertEquals("omega", cd.beanName)
             Assertions.assertEquals("mysql:8.0.37", cd.getImageName())
             Assertions.assertEquals(listOf(3306), container.getExposedPorts())
@@ -119,23 +119,20 @@ class TestContainersDefinitionProviderFIT  {
             cd.startContainer()
             val container = cd.getContainer() as ElasticsearchContainer
             Assertions.assertEquals("elastic-search", cd.beanName)
-            Assertions.assertEquals("docker.elastic.co/elasticsearch/elasticsearch:8.10.2", cd.getImageName())
+            Assertions.assertEquals("elasticsearch:9.0.4", cd.getImageName())
             Assertions.assertEquals(listOf(9200,9300), container.getExposedPorts())
-            Assertions.assertEquals(mapOf(
-                "discovery.type" to "single-node",
-                "JAVA_TOOL_OPTIONS" to "-Xmx10G",
-                "ELASTICSEARCH_USERNAME" to "root",
-                "ELASTIC_PASSWORD" to "changeme",
-                "xpack.security.enabled" to "false",
-                "bootstrap.memory_lock" to "true",
-                "cluster.routing.allocation.disk.threshold_enabled" to "false",
-                "ELASTICSEARCH_PASSWORD" to "root",
-                ), container.getEnvMap())
+            val env = container.envMap
+            Assertions.assertEquals("true", env["bootstrap.memory_lock"])
+            Assertions.assertEquals("false", env["cluster.routing.allocation.disk.threshold_enabled"])
+            Assertions.assertEquals("-Xms512m -Xmx512m", env["ES_JAVA_OPTS"])
+            Assertions.assertEquals("single-node", env["discovery.type"])
+            Assertions.assertEquals(ElasticsearchContainer.ELASTICSEARCH_DEFAULT_PASSWORD, env["ELASTIC_PASSWORD"])
+            val propertySource = cd.getPropertySource().source as Map<String, Any>
+            Assertions.assertEquals(container.host, propertySource["fit4j.elastic-search.host"])
+            Assertions.assertEquals(container.firstMappedPort, propertySource["fit4j.elastic-search.port"])
             Assertions.assertEquals(
-                mapOf(
-                    "fit4j.elastic-search.host" to container.getHost(),
-                    "fit4j.elastic-search.port" to container.getFirstMappedPort()
-                ), cd.getPropertySource().source
+                "https://${container.httpHostAddress}",
+                propertySource["fit4j.elastic-search.httpHostAddress"],
             )
             Assertions.assertEquals(container.isShouldBeReused(),false)
         } finally {
@@ -148,7 +145,7 @@ class TestContainersDefinitionProviderFIT  {
             cd.startContainer()
             val container = cd.getContainer()
             Assertions.assertEquals("kafka-service-bus", cd.beanName)
-            Assertions.assertEquals("confluentinc/cp-kafka:5.4.3", cd.getImageName())
+            Assertions.assertEquals("confluentinc/cp-kafka:7.6.1", cd.getImageName())
             Assertions.assertEquals(listOf<Int>(), container.getExposedPorts())
             Assertions.assertEquals(
                 mapOf(

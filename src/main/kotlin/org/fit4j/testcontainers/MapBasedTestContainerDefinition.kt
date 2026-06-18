@@ -48,13 +48,20 @@ open class MapBasedTestContainerDefinition(map:Map<String,Any?>) : TestContainer
         }
         imageName = map["image"] as String
 
-        val containerClass = Class.forName(map["container"] as String)
+        var containerClassName = TestContainerClassAliases.resolve(map["container"] as String)
+        if (TestContainerClassAliases.isKafkaContainer(containerClassName) && imageName.startsWith("confluentinc/")) {
+            containerClassName = "org.testcontainers.kafka.ConfluentKafkaContainer"
+        }
+        val containerClass = Class.forName(containerClassName)
         val constructor = containerClass.getConstructor(DockerImageName::class.java)
 
         var din = DockerImageName.parse(getImageName())
-        if(map.containsKey("compatibleSubstituteFor")) {
+        if (map.containsKey("compatibleSubstituteFor")) {
             val compatibleSubstitute = map["compatibleSubstituteFor"] as String
             din = din.asCompatibleSubstituteFor(compatibleSubstitute)
+        } else if (TestContainerClassAliases.isKafkaContainer(containerClassName)) {
+            // Testcontainers 2.x KafkaContainer defaults to apache/kafka; Confluent images need explicit compatibility.
+            din = din.asCompatibleSubstituteFor("apache/kafka")
         }
         return constructor.newInstance(din) as GenericContainer<*>
     }

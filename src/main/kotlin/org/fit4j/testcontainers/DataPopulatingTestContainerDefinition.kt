@@ -24,7 +24,14 @@ abstract class DataPopulatingTestContainerDefinition(map:Map<String,Any?>) : Map
                 initScript = "classpath:$initScript"
             }
             val resource = resourceLoader.getResource(initScript!!)
-            dataPopulator().populateData(resource)
+            val populator = dataPopulator()
+            try {
+                populator.populateData(resource)
+            } finally {
+                if (populator is AutoCloseable) {
+                    populator.close()
+                }
+            }
         }
     }
 
