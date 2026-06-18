@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.testcontainers.containers.MySQLContainer
+import org.testcontainers.mysql.MySQLContainer
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 
 @FIT
@@ -32,7 +32,7 @@ class TestContainersDefinitionProviderFIT  {
     private fun verifyFirstContainer(cd:TestContainerDefinition) {
         try {
             cd.startContainer()
-            val container = cd.getContainer() as MySQLContainer<*>
+            val container = cd.getContainer() as MySQLContainer
             Assertions.assertEquals("v1", cd.beanName)
             Assertions.assertEquals("mysql:8.0.37", cd.getImageName())
             Assertions.assertEquals(listOf(3306), container.getExposedPorts())
@@ -65,7 +65,7 @@ class TestContainersDefinitionProviderFIT  {
     private fun verifySecondContainer(cd:TestContainerDefinition) {
         try {
             cd.startContainer()
-            val container = cd.getContainer() as MySQLContainer<*>
+            val container = cd.getContainer() as MySQLContainer
             Assertions.assertEquals("omega", cd.beanName)
             Assertions.assertEquals("mysql:8.0.37", cd.getImageName())
             Assertions.assertEquals(listOf(3306), container.getExposedPorts())
@@ -148,7 +148,7 @@ class TestContainersDefinitionProviderFIT  {
             cd.startContainer()
             val container = cd.getContainer()
             Assertions.assertEquals("kafka-service-bus", cd.beanName)
-            Assertions.assertEquals("confluentinc/cp-kafka:5.4.3", cd.getImageName())
+            Assertions.assertEquals("confluentinc/cp-kafka:7.6.1", cd.getImageName())
             Assertions.assertEquals(listOf<Int>(), container.getExposedPorts())
             Assertions.assertEquals(
                 mapOf(

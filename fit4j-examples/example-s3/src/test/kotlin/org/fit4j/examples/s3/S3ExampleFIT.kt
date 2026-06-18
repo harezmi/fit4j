@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import org.testcontainers.containers.localstack.LocalStackContainer
+import org.testcontainers.localstack.LocalStackContainer
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.core.sync.RequestBody
@@ -35,11 +35,11 @@ class S3ExampleFIT {
         fun s3Client() : S3Client {
             val localStack = localstackContainerDefinition.getContainer() as LocalStackContainer
             val s3Client = S3Client.builder()
-                .endpointOverride(localStack.getEndpointOverride(LocalStackContainer.Service.S3))
+                .endpointOverride(localStack.endpoint)
                 .credentialsProvider(StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(localStack.getAccessKey(), localStack.getSecretKey())))
-                .region(Region.of(localStack.getRegion()))
-                .build();
+                    AwsBasicCredentials.create(localStack.accessKey, localStack.secretKey)))
+                .region(Region.of(localStack.region))
+                .build()
             return s3Client
         }
     }

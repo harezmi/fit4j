@@ -62,7 +62,7 @@
   reuse: false
 - container: org.testcontainers.containers.KafkaContainer
   name: kafkaContainerDefinition
-  image: confluentinc/cp-kafka:5.4.3
+  image: confluentinc/cp-kafka:7.6.1
   reuse: false
   exposedProperties:
    - bootstrapServers

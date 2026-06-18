@@ -80,9 +80,10 @@ class TestContainersDefinitionProvider(
      * @return The appropriate TestContainerDefinition instance
      */
     private fun createDefinition(containerMap: Map<String, Any?>): TestContainerDefinition {
-        return if (containerMap.containsKey("initScript") && 
-                   containerMap["container"] != "org.testcontainers.containers.MySQLContainer") {
-            if (containerMap["container"] == "org.testcontainers.elasticsearch.ElasticsearchContainer") {
+        val containerClass = containerMap["container"] as String
+        return if (containerMap.containsKey("initScript") &&
+            !TestContainerClassAliases.isMySqlContainer(containerClass)) {
+            if (TestContainerClassAliases.isElasticsearchContainer(containerClass)) {
                 ElasticsearchTestContainerDefinition(containerMap)
             } else {
                 RedisTestContainerDefinition(containerMap)

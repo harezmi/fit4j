@@ -9,7 +9,6 @@ val grpcKotlinStubVersion: String by project
 val javaToolchainVersion: String by project
 val javaBytecodeVersion: String by project
 val fit4jVersion: String by project
-val testcontainersVersion: String by project
 val elasticSearchVersion: String by project
 
 plugins {
@@ -26,10 +25,6 @@ repositories {
 
 configurations.all {
     resolutionStrategy.eachDependency {
-        if (requested.group == "org.testcontainers") {
-            useVersion(testcontainersVersion)
-            because("Boot 4 BOM pulls testcontainers 2.x; FIT4J modules are on 1.x until TC 2.0 migration")
-        }
         if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
             useVersion(elasticSearchVersion)
             because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
@@ -82,10 +77,6 @@ subprojects {
 
     configurations.all {
         resolutionStrategy.eachDependency {
-            if (requested.group == "org.testcontainers") {
-                useVersion(testcontainersVersion)
-                because("Boot 4 BOM pulls testcontainers 2.x; FIT4J modules are on 1.x until TC 2.0 migration")
-            }
             if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
                 useVersion(elasticSearchVersion)
                 because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")

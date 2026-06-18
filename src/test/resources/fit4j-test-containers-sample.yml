@@ -55,7 +55,7 @@
     - JAVA_TOOL_OPTIONS: -Xmx10G
 - container: org.testcontainers.containers.GenericContainer
   name: kafka-service-bus
-  image: confluentinc/cp-kafka:5.4.3
+  image: confluentinc/cp-kafka:7.6.1
   reuse: true
 - container: org.testcontainers.containers.GenericContainer
   name: dynamodb

@@ -1959,7 +1959,7 @@ kotlinPluginVersion=2.3.0
 springBootVersion=4.1.0
 grpcSpringBootVersion=3.1.0.RELEASE
 protobufJavaVersion=3.25.5
-testcontainersVersion=1.21.4
+Testcontainers 2.0.5 (via Spring Boot 4.1 BOM)
 elasticSearchVersion=8.15.5
 redisVersion=5.2.0
 dynamodbVersion=1.12.717
@@ -2481,9 +2481,8 @@ every { service.call() } returns &quot;OK&quot;
 <h3>Testcontainers Core</h3>
 <p><strong>Version</strong></p>
 <ul>
-<li><code>testcontainersVersion=1.15.3</code> in:</li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L5-L7"><code>gradle.properties:5-7</code></a></li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/gradle.properties#L4-L6"><code>fit4j-examples/gradle.properties:4-6</code></a></li>
+<li>Testcontainers <strong>2.0.5</strong> via Spring Boot 4.1 BOM (<code>springBootVersion=4.1.0</code> in <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties"><code>gradle.properties</code></a>)</li>
+<li>No explicit <code>testcontainersVersion</code> pin — module artifacts use the <code>testcontainers-</code> prefix (e.g. <code>testcontainers-junit-jupiter</code>)</li>
 </ul>
 <p><strong>Dependency</strong></p>
 <ul>
@@ -2578,7 +2577,7 @@ every { service.call() } returns &quot;OK&quot;
 <p><code>yaml
  - container: org.testcontainers.containers.GenericContainer
    name: kafka-service-bus
-   image: confluentinc/cp-kafka:5.4.3
+   image: confluentinc/cp-kafka:7.6.1
    reuse: true</code></p>
 </li>
 </ol>
@@ -2812,7 +2811,7 @@ javaBytecodeVersion=17
 kotlinPluginVersion=2.3.0
 springBootVersion=4.1.0
 kotlinVersion=2.3.0
-testcontainersVersion=1.21.4
+Testcontainers 2.0.5 (via Spring Boot 4.1 BOM)
 grpcSpringBootVersion=3.1.0.RELEASE
 mockkVersion=1.14.11
 protobufJavaVersion=3.25.5
@@ -8671,7 +8670,7 @@ tests:
 <p>You define the Kafka container in YAML (see <a href="https://github.com/harezmi/fit4j/blob/main/src/test/resources/fit4j-test-containers-sample.yml#L40-L70"><code>src/test/resources/fit4j-test-containers-sample.yml:40-70</code></a>):</p>
 <pre><code class="language-yaml">- container: org.testcontainers.containers.GenericContainer
   name: kafka-service-bus
-  image: confluentinc/cp-kafka:5.4.3
+  image: confluentinc/cp-kafka:7.6.1
   reuse: true
 </code></pre>
 <p>How this affects data flow:</p>
@@ -8967,7 +8966,7 @@ tests:
 <li>Spring Boot: <code>springBootVersion=4.1.0</code></li>
 <li>gRPC: <code>grpcVersion=1.63.0</code></li>
 <li>Protobuf: <code>protobufJavaVersion=3.25.5</code></li>
-<li>Testcontainers: <code>testcontainersVersion=1.21.4</code></li>
+<li>Testcontainers: <code>Testcontainers 2.0.5 (via Spring Boot 4.1 BOM)</code></li>
 <li>DynamoDB local: <code>dynamoDBLocalVersion=2.6.1</code></li>
 <li>Elasticsearch: <code>elasticSearchVersion=8.15.5</code></li>
 <li>Redis (Jedis): <code>redisVersion=5.2.0</code></li>

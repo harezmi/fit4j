@@ -13,7 +13,7 @@ This guide summarizes what you need to change in **your service tests** when upg
 | Kotlin | 2.0.x | **2.3.21** (align with Boot 4.1 BOM) |
 | JUnit | JUnit 5 | **JUnit 6** (via `spring-boot-starter-test-classic`) |
 | Jackson (default HTTP) | Jackson 2 | **Jackson 3** (`tools.jackson.*`) |
-| Testcontainers (BOM) | 1.x | Boot 4 BOM pulls **2.x** — FIT4J still pins **1.21.4** (see below) |
+| Testcontainers (BOM) | 1.x | **2.0.5** (via Boot 4.1 BOM — no pin required) |
 
 Pins for the FIT4J build: [`gradle.properties`](gradle.properties).
 
@@ -59,24 +59,33 @@ configurations.all {
 }
 ```
 
-### Testcontainers version pin
+### Testcontainers 2.0
 
-Boot 4's BOM manages Testcontainers **2.x**. FIT4J modules are still on **1.21.4** until a full TC 2.0 migration is done. Pin **all** `org.testcontainers` artifacts in consuming projects:
+FIT4J **0.1.0+** uses Testcontainers **2.x** from the Spring Boot 4.1 BOM. **Do not** pin Testcontainers to 1.x — mixed 1.x/2.x classpaths cause `NoClassDefFoundError: org/testcontainers/shaded/...` at runtime.
+
+Module artifact IDs changed in 2.0 (prefix `testcontainers-`):
+
+| 1.x artifact | 2.x artifact |
+|--------------|--------------|
+| `junit-jupiter` | `testcontainers-junit-jupiter` |
+| `kafka` | `testcontainers-kafka` |
+| `mysql` | `testcontainers-mysql` |
+| `postgresql` | `testcontainers-postgresql` |
+| `elasticsearch` | `testcontainers-elasticsearch` |
+| `localstack` | `testcontainers-localstack` |
+
+Let the Boot BOM manage versions — declare dependencies without an explicit version:
 
 ```kotlin
-val testcontainersVersion = "1.21.4"
-
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.testcontainers") {
-            useVersion(testcontainersVersion)
-            because("FIT4J Testcontainers support is on 1.x until TC 2.0 migration")
-        }
-    }
-}
+testImplementation("org.testcontainers:testcontainers")
+testImplementation("org.testcontainers:testcontainers-junit-jupiter")
 ```
 
-**Do not** use `enforcedPlatform` for the Boot BOM if it forces TC 2.x over this pin — use `platform(...)` plus the resolution strategy above.
+**YAML container class names:** FIT4J resolves legacy 1.x FQCNs (e.g. `org.testcontainers.containers.MySQLContainer`) to their 2.x packages automatically. Updating YAML to canonical names (e.g. `org.testcontainers.mysql.MySQLContainer`) is optional.
+
+**Confluent Kafka:** Testcontainers 2.x `KafkaContainer` targets `apache/kafka` (KRaft). For `confluentinc/cp-kafka` images, use **7.x+** (FIT4J auto-selects `ConfluentKafkaContainer` for Confluent images). Zookeeper-era images such as `cp-kafka:5.x` no longer work.
+
+**LocalStack:** use `localStack.getEndpoint()` (not `getEndpointOverride(Service.S3)`). Package: `org.testcontainers.localstack.LocalStackContainer`.
 
 ### Elasticsearch client pin
 
@@ -175,12 +184,6 @@ Boot 4 uses **Jackson 3** for HTTP message conversion by default. Kotlin `data c
 3. Adopt a Jackson 3 Kotlin module when available in your stack.
 
 See [`fit4j-examples/example-rest`](fit4j-examples/example-rest/) for a working Boot 4 example.
-
-## Testcontainers 2.0 (deferred)
-
-A full migration to Testcontainers 2.x (matching the Boot 4 BOM without pins) is **not** complete. Symptoms of a mixed 1.x/2.x classpath include `NoClassDefFoundError: org/testcontainers/shaded/...` at runtime.
-
-Until FIT4J ships native TC 2.0 support, keep the **1.21.4** pin for all `org.testcontainers` modules in both FIT4J and your test project.
 
 ## Running `fit4j-examples` locally
 

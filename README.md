@@ -117,14 +117,14 @@ FIT4J is built and tested against the versions below. Your service should use a 
 ### Version alignment with your service
 
 - **Java:** Run your tests on JDK 17 or newer. FIT4J is built and verified on **JDK 25** with **Java 17** bytecode.
-- **Spring Boot:** Use **4.1.x** with FIT4J **0.1.0+**. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers pins).
+- **Spring Boot:** Use **4.1.x** with FIT4J **0.1.0+**. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers 2.0).
 - **Kotlin:** If you use Kotlin, ensure your Kotlin compiler targets JVM 17 (`jvmTarget = "17"`) and that your Kotlin version is compatible with your Spring Boot release. FIT4J itself is built with Kotlin Gradle plugin **2.3.21**; consuming projects are not required to match that plugin version.
 
 Version pins for the FIT4J build itself live in [`gradle.properties`](gradle.properties) (`springBootVersion`, `springGrpcVersion`, `javaToolchainVersion`, `javaBytecodeVersion`, `kotlinPluginVersion`, etc.).
 
 ## Spring Boot 4 migration
 
-FIT4J on this branch requires **Spring Boot 4.1.x**. If you are upgrading from FIT4J on Boot 3.5, read **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** for dependency, gRPC (`@ImportGrpcClients`), HTTP (`@AutoConfigureTestRestTemplate`), Jackson, and Testcontainers changes.
+FIT4J on this branch requires **Spring Boot 4.1.x**. If you are upgrading from FIT4J on Boot 3.5, read **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** for dependency, gRPC (`@ImportGrpcClients`), HTTP (`@AutoConfigureTestRestTemplate`), Jackson, and Testcontainers 2.0 changes.
 
 
 
@@ -1043,6 +1043,8 @@ In the examples above:
 - The third test shows non-blocking message checking
 
 # How to Work with TestContainers?
+
+FIT4J uses **Testcontainers 2.x** (aligned with the Spring Boot 4.1 BOM). Legacy 1.x container class names in YAML (e.g. `org.testcontainers.containers.MySQLContainer`) are resolved automatically. For Confluent Kafka images use **7.x+** (`confluentinc/cp-kafka` with KRaft); FIT4J selects `ConfluentKafkaContainer` for Confluent images.
 
 The FIT4J test library provides you with the ability to run your service against a real database, Kafka broker, Redis etc.
 using Testcontainers in a completely declarative fashion. In order to enable this feature, you need to add `@Testcontainers` annotation
