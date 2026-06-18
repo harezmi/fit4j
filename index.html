@@ -2912,7 +2912,7 @@ graph TD
 <li>Activates Spring <code>test</code> profile.</li>
 <li>Enables bean definition override in the <code>ApplicationContext</code>.</li>
 <li>Runs gRPC server <strong>in-process</strong> at a random port and assigns a random in‑process name.</li>
-<li>Auto‑configures <code>spring.grpc.client.channels.testGrpcService.address</code>.</li>
+<li>Auto‑configures <code>spring.grpc.client.channel.testGrpcService.target</code> (in-process mock server).</li>
 <li>Exposes <strong>Embedded Kafka</strong> as a Spring bean and property if <code>@EnableEmbeddedKafka</code> is present.</li>
 <li>Exposes <strong>Embedded Redis</strong> as a Spring bean and property if <code>@EmbeddedRedis</code> is present.</li>
 <li>Enables <strong>declarative Testcontainers</strong> support if <code>@Testcontainers</code> is used.</li>
@@ -3362,7 +3362,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 <ul>
 <li><strong>gRPC in‑process configuration</strong> (driven by <code>@IT</code>):</li>
 <li>A random in‑process server name and port are chosen.</li>
-<li>Property like <code>spring.grpc.client.channels.testGrpcService.address</code> is auto‑configured.</li>
+<li>Property like <code>spring.grpc.client.channel.testGrpcService.target</code> is auto‑configured.</li>
 <li>
 <p>Clients using <code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code> are wired to the in-process mock server.</p>
 </li>
@@ -6998,23 +6998,10 @@ class IntegrationTestGrpcAutoConfiguration {
 <p>Feeds into protobuf JSON parsing (<code>TestProtobufAutoConfiguration</code>).</p>
 </li>
 <li>
-<p><strong>TestGrpcChannelConfigurer (companion object bean)</strong></p>
+<p><strong>fit4jGrpcExecutionIdChannelCustomizer</strong></p>
 </li>
 </ul>
-<p><a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt#L116-L121"><code>src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt:116-121</code></a></p>
-<p><code>kotlin
-  companion object {
-      @Bean
-      fun testGrpcChannelNameConfigurer(
-          genericApplicationContext: GenericApplicationContext
-      ): TestGrpcChannelConfigurer {
-          return TestGrpcChannelConfigurer(genericApplicationContext)
-      }
-  }</code></p>
-<ul>
-<li>Configures client channels to talk to the in‑process server.</li>
-<li>Typically sets <code>spring.grpc.client.channels.testGrpcService.address</code> and similar properties (see README).</li>
-</ul>
+<p>Registers <code>Fit4jGrpcClientExecutionIdInterceptor</code> on spring-grpc client channels via <code>GrpcChannelBuilderCustomizer</code>. In-process routing uses <code>GrpcContextCustomizer</code> (<code>spring.grpc.client.channel.testGrpcService.target</code>) and <code>Fit4jGrpcVirtualTargets</code> — not a <code>ManagedChannel</code> bean override.</p>
 <hr />
 <h2>Protobuf JSON &amp; Type Registry Auto-Configuration</h2>
 <h3>TestProtobufAutoConfiguration</h3>
@@ -7517,7 +7504,7 @@ sequenceDiagram
 <ul>
 <li>
 <p><strong>gRPC in‑process server address</strong><br />
-  FIT4J sets <code>spring.grpc.client.channels.testGrpcService.address</code> at runtime. Override via <code>spring.grpc.client.channels.*</code> properties if needed.</p>
+  FIT4J sets <code>spring.grpc.client.channel.testGrpcService.target</code> at runtime. For production-style channel names, set <code>spring.grpc.client.channel.&lt;name&gt;.target</code> (see <code>GrpcCustomChannelRoutingFIT</code>).</p>
 </li>
 <li>
 <p><strong>Fixture location</strong><br />
@@ -12626,19 +12613,9 @@ sequenceDiagram
 </code></pre>
 <p>Key points:</p>
 <ul>
-<li>Client stubs (via <code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code>) are wired to <code>in-process:${spring.grpc.server.inprocess.name}</code> by FIT4J in tests.</li>
-<li><code>TestGrpcAutoConfiguration</code> provides a <code>TestGrpcChannelConfigurer</code> bean to help with this wiring:</li>
-<li><a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt#L23-L31"><code>src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt:23-31</code></a></li>
+<li>Client stubs (via <code>@ImportGrpcClients(target = &quot;testGrpcService&quot;, ...)</code>) are wired to <code>in-process:${spring.grpc.server.inprocess.name}</code> by FIT4J via <code>GrpcContextCustomizer</code>.</li>
+<li><code>TestGrpcAutoConfiguration</code> attaches the execution-id client interceptor through <code>GrpcChannelBuilderCustomizer</code> (see <code>fit4jGrpcExecutionIdChannelCustomizer</code>).</li>
 </ul>
-<pre><code class="language-kotlin">companion object {
-    @Bean
-    fun testGrpcChannelNameConfigurer(
-        genericApplicationContext: GenericApplicationContext
-    ): TestGrpcChannelConfigurer {
-        return TestGrpcChannelConfigurer(genericApplicationContext)
-    }
-}
-</code></pre>
 <p>If the client does not point to the in-process server:</p>
 <ul>
 <li>Calls will bypass the mock and will <strong>not be tracked</strong>.</li>

@@ -16,6 +16,16 @@ tests:
               foo:
                 id: 123
                 name: "Foo"
+  - name: GrpcCustomChannelRoutingFIT
+    fixtures:
+      - request:
+          protocol: grpc
+          type: com.example.fit4j.grpc.TestGrpc$GetFooByIdRequest
+          response:
+            body:
+              foo:
+                id: 123
+                name: "Foo"
   - name: SampleGrpcFIT
     fixtures:
       - request:

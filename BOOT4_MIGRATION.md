@@ -135,6 +135,8 @@ FIT4J's `GrpcContextCustomizer` wires the in-process mock server channel automat
 
 You normally **do not** need extra `application-test` properties for FIT mock redirection. For production-style channel names in your service code, map them under `spring.grpc.client.channel.*` in your test profile.
 
+FIT4J attaches the test execution-id metadata on spring-grpc client channels via `GrpcChannelBuilderCustomizer` (`fit4jGrpcExecutionIdChannelCustomizer` in `TestGrpcAutoConfiguration`). Use `@ImportGrpcClients` rather than raw `ManagedChannel` `@Bean` definitions; if you must keep `ManagedChannel` beans, point them at `in-process:${spring.grpc.server.inprocess.name}` and add `Fit4jGrpcClientExecutionIdInterceptor` yourself.
+
 ### Properties migration (`grpc.*` → `spring.grpc.*`)
 
 | Boot 3 / net.devh | Boot 4.1 / Boot gRPC |

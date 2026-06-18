@@ -200,7 +200,7 @@ To use only one JVM:
 FIT4J registers a **per-test-method execution id** and resolves the correct JUnit `ExtensionContext` on mock **HTTP** and **gRPC** worker threads by propagating that id on each outgoing call:
 
 - **HTTP:** header `X-Fit4j-Test-Execution-Id` — added automatically for Spring `RestTemplate` beans via a `RestTemplateCustomizer` (runs with highest precedence so it combines with optional custom `HttpHeadersSource` beans).
-- **gRPC:** metadata key `x-fit4j-test-execution-id` — attached on in-process `ManagedChannel` beans and read by a server interceptor on the mock gRPC server.
+- **gRPC:** metadata key `x-fit4j-test-execution-id` — attached on spring-grpc client channels via `GrpcChannelBuilderCustomizer` and read by a server interceptor on the mock gRPC server.
 
 If you use **WebClient**, raw `HttpURLConnection`, or a non-Spring HTTP client, add the same header yourself on outbound calls to FIT mock servers, using the current value from `Fit4jTestExecutionRegistry.currentExecutionId()` when present.
 
@@ -469,9 +469,7 @@ service call.
 
 ### How the gRPC Communication is Redirected to the Mock gRPC Server?
 
-If your service configures gRPC communication via defining `ManagedChannel` bean definitions, the FIT4J library
-already detects those bean definitions and replaces them with the `InProcessChannel` instances. Therefore, you don't need
-to do anything for your gRPC calls to hit at the mock gRPC server. However, if your tests inject gRPC stubs via **spring-grpc** (see [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)), use `@ImportGrpcClients` with channel target **`testGrpcService`** — FIT4J wires that channel to the in-process mock server automatically.
+Use **spring-grpc** client stubs in FIT tests (see [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)). Annotate your test with `@ImportGrpcClients` and point the channel at the in-process mock server — FIT4J sets this up automatically via `GrpcContextCustomizer` (`spring.grpc.client.channel.testGrpcService.target=in-process:<random-name>`).
 
 ```kotlin
 import org.springframework.beans.factory.annotation.Autowired
@@ -485,7 +483,7 @@ class MyFIT {
 }
 ```
 
-For production service code that uses named channels under `spring.grpc.client.channel.*`, keep your channel names in `application-test` aligned with Boot gRPC property layout (`spring.grpc.client.channel.<name>.target`).
+For production service code that uses named channels under `spring.grpc.client.channel.*`, keep your channel names in `application-test` aligned with Boot gRPC property layout (`spring.grpc.client.channel.<name>.target`). If you still define raw `ManagedChannel` `@Bean`s, configure them to use `in-process:${spring.grpc.server.inprocess.name}` yourself — FIT4J does not override those beans.
 ## Define Request-Response Trainings for External HTTP/REST Endpoints
 
 In case your service hits some REST endpoints of any other service, you will need to provide request-response
