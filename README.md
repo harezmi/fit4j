@@ -1098,17 +1098,15 @@ example to get started.
   reuse: true
 - container: org.testcontainers.elasticsearch.ElasticsearchContainer
   name: elasticSearchContainerDefinition
-  image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+  image: elasticsearch:9.0.4
   initScript: scripts/elasticsearch_initial_data.yml
   exposedPorts:
     - 9200
     - 9300
   env:
-    - ELASTICSEARCH_USERNAME: root
-    - ELASTICSEARCH_PASSWORD: root
-    - xpack.security.enabled: false
     - bootstrap.memory_lock: true
     - cluster.routing.allocation.disk.threshold_enabled: false
+    - ES_JAVA_OPTS: -Xms512m -Xmx512m
   reuse: false
 ```
 

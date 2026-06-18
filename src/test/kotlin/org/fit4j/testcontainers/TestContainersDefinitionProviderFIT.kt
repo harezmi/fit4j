@@ -119,23 +119,20 @@ class TestContainersDefinitionProviderFIT  {
             cd.startContainer()
             val container = cd.getContainer() as ElasticsearchContainer
             Assertions.assertEquals("elastic-search", cd.beanName)
-            Assertions.assertEquals("docker.elastic.co/elasticsearch/elasticsearch:8.10.2", cd.getImageName())
+            Assertions.assertEquals("elasticsearch:9.0.4", cd.getImageName())
             Assertions.assertEquals(listOf(9200,9300), container.getExposedPorts())
-            Assertions.assertEquals(mapOf(
-                "discovery.type" to "single-node",
-                "JAVA_TOOL_OPTIONS" to "-Xmx10G",
-                "ELASTICSEARCH_USERNAME" to "root",
-                "ELASTIC_PASSWORD" to "changeme",
-                "xpack.security.enabled" to "false",
-                "bootstrap.memory_lock" to "true",
-                "cluster.routing.allocation.disk.threshold_enabled" to "false",
-                "ELASTICSEARCH_PASSWORD" to "root",
-                ), container.getEnvMap())
+            val env = container.envMap
+            Assertions.assertEquals("true", env["bootstrap.memory_lock"])
+            Assertions.assertEquals("false", env["cluster.routing.allocation.disk.threshold_enabled"])
+            Assertions.assertEquals("-Xms512m -Xmx512m", env["ES_JAVA_OPTS"])
+            Assertions.assertEquals("single-node", env["discovery.type"])
+            Assertions.assertEquals(ElasticsearchContainer.ELASTICSEARCH_DEFAULT_PASSWORD, env["ELASTIC_PASSWORD"])
+            val propertySource = cd.getPropertySource().source as Map<String, Any>
+            Assertions.assertEquals(container.host, propertySource["fit4j.elastic-search.host"])
+            Assertions.assertEquals(container.firstMappedPort, propertySource["fit4j.elastic-search.port"])
             Assertions.assertEquals(
-                mapOf(
-                    "fit4j.elastic-search.host" to container.getHost(),
-                    "fit4j.elastic-search.port" to container.getFirstMappedPort()
-                ), cd.getPropertySource().source
+                "https://${container.httpHostAddress}",
+                propertySource["fit4j.elastic-search.httpHostAddress"],
             )
             Assertions.assertEquals(container.isShouldBeReused(),false)
         } finally {

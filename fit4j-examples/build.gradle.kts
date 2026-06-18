@@ -9,7 +9,6 @@ val grpcKotlinStubVersion: String by project
 val javaToolchainVersion: String by project
 val javaBytecodeVersion: String by project
 val fit4jVersion: String by project
-val elasticSearchVersion: String by project
 
 plugins {
     `java-library`
@@ -25,14 +24,6 @@ repositories {
 
 configurations.all {
     resolutionStrategy.eachDependency {
-        if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
-            useVersion(elasticSearchVersion)
-            because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
-        }
-        if (requested.group == "org.elasticsearch.client") {
-            useVersion(elasticSearchVersion)
-            because("Align elasticsearch-rest-client with elasticsearch-java for Testcontainers ES 8.x")
-        }
         if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
             useVersion(grpcVersion)
             because("Align gRPC Java artifacts with FIT4J")
@@ -77,14 +68,6 @@ subprojects {
 
     configurations.all {
         resolutionStrategy.eachDependency {
-            if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
-                useVersion(elasticSearchVersion)
-                because("Boot 4 BOM pulls elasticsearch-java 9.x; FIT4J test containers use Elasticsearch 8.x images")
-            }
-            if (requested.group == "org.elasticsearch.client") {
-                useVersion(elasticSearchVersion)
-                because("Align elasticsearch-rest-client with elasticsearch-java for Testcontainers ES 8.x")
-            }
             if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
                 useVersion(grpcVersion)
                 because("Align gRPC Java artifacts with FIT4J")

@@ -87,24 +87,40 @@ testImplementation("org.testcontainers:testcontainers-junit-jupiter")
 
 **LocalStack:** use `localStack.getEndpoint()` (not `getEndpointOverride(Service.S3)`). Package: `org.testcontainers.localstack.LocalStackContainer`.
 
-### Elasticsearch client pin
+### Elasticsearch 9.x (Testcontainers)
 
-Boot 4 BOM pulls `elasticsearch-java` **9.x**. FIT4J Testcontainer fixtures use Elasticsearch **8.x** images. Pin the client to match your ES image (FIT4J uses **8.15.5**):
+FIT4J Testcontainer fixtures use Elasticsearch **9.x** images with TLS enabled. The Java client version comes from the Spring Boot BOM (`elasticsearch-java` 9.x) — **do not pin** to 8.x.
+
+**Container YAML** — use a 9.x image; security is enabled by default (do not set `xpack.security.enabled: false`):
+
+```yaml
+- container: org.testcontainers.elasticsearch.ElasticsearchContainer
+  name: elasticSearchContainerDefinition
+  image: elasticsearch:9.0.4
+  initScript: scripts/elasticsearch_initial_data.yml
+  env:
+    - bootstrap.memory_lock: true
+    - ES_JAVA_OPTS: -Xms512m -Xmx512m
+```
+
+**Connecting in tests** — use HTTPS and the container CA (Testcontainers sets `ELASTIC_PASSWORD` to `changeme` by default):
 
 ```kotlin
-val elasticSearchVersion = "8.15.5"
+import org.fit4j.testcontainers.ElasticsearchConnectionProperties
+import org.fit4j.testcontainers.ElasticsearchDataPopulator
+import org.testcontainers.elasticsearch.ElasticsearchContainer
 
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "co.elastic.clients" && requested.name == "elasticsearch-java") {
-            useVersion(elasticSearchVersion)
-        }
-        if (requested.group == "org.elasticsearch.client") {
-            useVersion(elasticSearchVersion)
-        }
-    }
+val container = elasticsearchDefinition.getContainer() as ElasticsearchContainer
+val props = ElasticsearchConnectionProperties.fromElasticsearchContainer(container)
+ElasticsearchDataPopulator(props).use { populator ->
+    val client = populator.getElasticSearchClient()
+    // ...
 }
 ```
+
+Exposed property: `fit4j.<containerName>.httpHostAddress` (e.g. `https://localhost:32768`).
+
+If you previously pinned `elasticSearchVersion=8.15.5` and forced `elasticsearch-java` / `elasticsearch-rest-client` in Gradle, **remove those overrides** when upgrading FIT4J.
 
 ## gRPC client stubs in tests
 
