@@ -1,6 +1,7 @@
 org.fit4j.autoconfigure.TestScopeAutoConfiguration
 org.fit4j.autoconfigure.IntegrationTestGrpcAutoConfiguration
 org.fit4j.autoconfigure.TestGrpcAutoConfiguration
+org.fit4j.autoconfigure.TestGrpcInProcessChannelAutoConfiguration
 org.fit4j.autoconfigure.TestHttpAutoConfiguration
 org.fit4j.autoconfigure.TestKafkaAutoConfiguration
 org.fit4j.autoconfigure.TestMockAutoConfiguration

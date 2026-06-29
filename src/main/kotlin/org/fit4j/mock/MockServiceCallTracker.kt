@@ -1,7 +1,7 @@
 package org.fit4j.mock
 
 import com.google.protobuf.MessageLite
-import org.fit4j.grpc.GrpcCallTrace
+import org.fit4j.helper.GrpcClasspath
 import org.fit4j.http.HttpCallTrace
 import org.fit4j.http.HttpRequest
 import org.slf4j.LoggerFactory
@@ -13,6 +13,13 @@ class MockServiceCallTracker(val callTraceFactoryList: List<CallTraceFactory<*,*
     private val traces: MutableList<CallTrace<*,*>> = mutableListOf()
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
+
+    companion object {
+        private const val GRPC_CALL_TRACE_CLASS = "org.fit4j.grpc.GrpcCallTrace"
+    }
+
+    private fun isGrpcCallTrace(trace: CallTrace<*, *>): Boolean =
+        GrpcClasspath.isPresent() && trace.javaClass.name == GRPC_CALL_TRACE_CLASS
 
     private fun callTrace(request: Any, response: Any?, exception: Throwable? = null): CallTrace<*,*>? {
         var callTrace: CallTrace<*,*>? = null
@@ -71,8 +78,11 @@ class MockServiceCallTracker(val callTraceFactoryList: List<CallTraceFactory<*,*
     }
 
     fun hasGrpcError(statusCode: Int): Boolean {
+        if (!GrpcClasspath.isPresent()) {
+            return false
+        }
         synchronized(traces) {
-            return getTraceList().filter { it is GrpcCallTrace }.filter { it.getStatus() == statusCode }.isNotEmpty()
+            return getTraceList().filter { isGrpcCallTrace(it) }.any { it.getStatus() == statusCode }
         }
     }
 
@@ -85,9 +95,12 @@ class MockServiceCallTracker(val callTraceFactoryList: List<CallTraceFactory<*,*
     }
 
     fun <T: MessageLite> getGrpcRequest(type: Class<T>): List<T> {
+        if (!GrpcClasspath.isPresent()) {
+            return emptyList()
+        }
         synchronized(traces) {
             return getTraceList()
-                .filter { it is GrpcCallTrace }
+                .filter { isGrpcCallTrace(it) }
                 .filter { it.matchesRequestPath(type.name) }.map { it.getRequest() as T}
         }
     }

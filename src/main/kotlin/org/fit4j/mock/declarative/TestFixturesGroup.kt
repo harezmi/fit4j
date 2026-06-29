@@ -1,7 +1,7 @@
 package org.fit4j.mock.declarative
 
 import com.google.protobuf.Message
-import org.fit4j.grpc.GrpcTestFixture
+import org.fit4j.helper.GrpcFixtureSupport
 import org.fit4j.http.HttpRequest
 import org.fit4j.http.HttpTestFixture
 
@@ -17,8 +17,8 @@ data class TestFixturesGroup(val name:String, val primaryTestFixtures:List<TestF
 
     private fun build(request: Message): String? {
         val testFixture = primaryTestFixtures.firstOrNull { it.isApplicableFor(request) }
-        if(testFixture != null) {
-            return (testFixture as GrpcTestFixture).build(request)
+        if (testFixture != null) {
+            GrpcFixtureSupport.buildGrpcFixture(testFixture, request)?.let { return it }
         }
         if(globalTestFixtures != null) {
             return globalTestFixtures!!.build(request)

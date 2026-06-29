@@ -20,12 +20,11 @@ import org.fit4j.mock.MockServiceCallTracker
 import org.fit4j.mock.declarative.DeclarativeTestFixtureProvider
 import org.fit4j.mock.declarative.JsonContentExpressionResolver
 import org.fit4j.mock.declarative.PredicateEvaluator
-import io.grpc.inprocess.InProcessChannelBuilder
-import org.springframework.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
-import org.springframework.grpc.client.GrpcChannelBuilderCustomizer
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.beans.factory.ObjectProvider
@@ -33,6 +32,13 @@ import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 
 @AutoConfiguration
+@ConditionalOnClass(
+    name = [
+        "org.springframework.grpc.server.InProcessGrpcServerFactory",
+        "org.springframework.grpc.client.GrpcChannelBuilderCustomizer",
+        "org.springframework.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration",
+    ],
+)
 @AutoConfigureBefore(GrpcClientAutoConfiguration::class)
 @AutoConfigureAfter(
     IntegrationTestGrpcAutoConfiguration::class,
@@ -109,23 +115,5 @@ class TestGrpcAutoConfiguration {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     fun fit4jGrpcClientExecutionIdInterceptor(): Fit4jGrpcClientExecutionIdInterceptor {
         return Fit4jGrpcClientExecutionIdInterceptor()
-    }
-
-    /**
-     * [@ImportGrpcClients] channels use [org.springframework.grpc.client.ChannelBuilderOptions.defaults],
-     * which does not merge global [io.grpc.ClientInterceptor] beans — apply the execution-id interceptor
-     * via [GrpcChannelBuilderCustomizer] instead (same pattern as Boot property customizers).
-     *
-     * Typed to [InProcessChannelBuilder] because FIT mock routing uses the in-process channel factory;
-     * [Fit4jGrpcVirtualTargets] resolves logical channel names to in-process targets.
-     */
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    fun fit4jGrpcExecutionIdChannelCustomizer(
-        interceptor: Fit4jGrpcClientExecutionIdInterceptor,
-    ): GrpcChannelBuilderCustomizer<InProcessChannelBuilder> {
-        return GrpcChannelBuilderCustomizer { _, builder ->
-            builder.intercept(interceptor)
-        }
     }
 }

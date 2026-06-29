@@ -1,5 +1,6 @@
 package org.fit4j.context
 
+import org.fit4j.helper.GrpcClasspath
 import org.springframework.test.context.ContextConfigurationAttributes
 import org.springframework.test.context.ContextCustomizer
 
@@ -11,7 +12,7 @@ class GrpcContextCustomizerFactory : AbstractContextCustomizerFactory() {
         testClass: Class<*>,
         configAttributes: MutableList<ContextConfigurationAttributes>
     ): ContextCustomizer? {
-        return if (isClassPresent("io.grpc.inprocess.InProcessServer")) {
+        return if (GrpcClasspath.isPresent()) {
             customizer
         } else {
             null

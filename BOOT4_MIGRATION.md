@@ -33,17 +33,22 @@ testImplementation("org.springframework.boot:spring-boot-restclient")   // RestT
 testImplementation("org.springframework.boot:spring-boot-jackson2")       // optional: Jackson 2 stack
 ```
 
-### gRPC (Boot 4.1 built-in starters)
+### gRPC (optional — only for gRPC FIT tests)
 
-Remove `net.devh:grpc-spring-boot-starter` and `org.springframework.grpc:spring-grpc-*` starters. Add:
+FIT4J does **not** force `spring-boot-starter-grpc-*` on your classpath. HTTP-only, Kafka-only, or DB-only FITs work with FIT4J alone (plus the Boot BOM).
+
+Add Boot gRPC starters **only when** you write gRPC FITs (`@ImportGrpcClients`, protobuf fixtures, etc.):
 
 ```kotlin
 testImplementation("org.springframework.boot:spring-boot-starter-grpc-server")
 testImplementation("org.springframework.boot:spring-boot-starter-grpc-client")
+testImplementation("io.grpc:grpc-inprocess")
 // optional test transport helpers:
 testImplementation("org.springframework.boot:spring-boot-starter-grpc-server-test")
 testImplementation("org.springframework.boot:spring-boot-starter-grpc-client-test")
 ```
+
+When starters are present, FIT4J auto-registers the in-process mock gRPC server (`IntegrationTestGrpcAutoConfiguration` + `TestGrpcAutoConfiguration`). Without them, those autoconfigurations stay off.
 
 Pin `io.grpc` artifacts to a single version if the BOM and spring-grpc-core disagree (FIT4J uses **1.81.0**):
 

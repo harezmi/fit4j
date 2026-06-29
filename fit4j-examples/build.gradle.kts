@@ -33,7 +33,8 @@ configurations.all {
 
 dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
-    implementation("org.springframework.boot:spring-boot-starter-classic")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-kafka")
     implementation("com.google.protobuf:protobuf-java:${protobufJavaVersion}")
     implementation("com.google.protobuf:protobuf-java-util:${protobufJavaVersion}")
     implementation("io.grpc:grpc-api:${grpcVersion}")
@@ -80,7 +81,7 @@ subprojects {
 
         testImplementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
-        testImplementation("org.springframework.boot:spring-boot-starter-test-classic")
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("org.springframework.boot:spring-boot-jackson2")
         testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
         testImplementation("org.springframework.boot:spring-boot-restclient")

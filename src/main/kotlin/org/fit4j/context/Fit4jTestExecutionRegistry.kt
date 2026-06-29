@@ -1,6 +1,6 @@
 package org.fit4j.context
 
-import org.fit4j.grpc.Fit4jGrpcExecutionContext
+import org.fit4j.helper.GrpcExecutionIdSupport
 import org.junit.jupiter.api.extension.ExtensionContext
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -39,7 +39,7 @@ object Fit4jTestExecutionRegistry {
 
     fun resolveExtensionContext(fallback: ExtensionContext?): ExtensionContext? {
         currentExecutionId.get()?.let { contextByExecutionId[it] }?.let { return it }
-        Fit4jGrpcExecutionContext.getExecutionId()
+        GrpcExecutionIdSupport.currentExecutionId()
             ?.let { contextByExecutionId[it] }
             ?.let { return it }
         return fallback

@@ -6,18 +6,26 @@ import io.grpc.ServiceDescriptor
 import org.fit4j.grpc.Fit4jGrpcVirtualTargets
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.grpc.client.autoconfigure.GrpcChannelFactoryCustomizer
-import org.springframework.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration
 import org.springframework.boot.grpc.client.autoconfigure.GrpcClientProperties
-import org.springframework.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.core.env.Environment
 import org.springframework.grpc.client.InProcessGrpcChannelFactory
 
 @AutoConfiguration
+@ConditionalOnClass(
+    name = [
+        "io.grpc.BindableService",
+        "org.springframework.grpc.server.InProcessGrpcServerFactory",
+        "org.springframework.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration",
+    ],
+)
 @AutoConfigureBefore(
-    GrpcServerAutoConfiguration::class,
-    GrpcClientAutoConfiguration::class,
+    name = [
+        "org.springframework.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration",
+        "org.springframework.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration",
+    ],
 )
 @EnableOnIT
 class IntegrationTestGrpcAutoConfiguration {
