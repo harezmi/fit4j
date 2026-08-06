@@ -1,6 +1,6 @@
 package org.fit4j.http
 
-import org.fit4j.mock.declarative.ExpressionResolver
+import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.mock.declarative.TestFixture
 import org.fit4j.mock.declarative.TestFixturePredicate
 import java.util.*
@@ -9,7 +9,7 @@ data class HttpTestFixture(
     val requestPath: String? = null,
     val method: String? = null,
     val predicate: TestFixturePredicate? = null,
-    val expressionResolver: ExpressionResolver,
+    val expressionResolver: PropertyAndExpressionResolver,
     val responses: List<HttpTestFixtureResponse> = listOf(HttpTestFixtureResponse(200))
 ) : TestFixture(predicate), HttpResponseJsonBuilder {
 
@@ -33,7 +33,11 @@ data class HttpTestFixture(
     }
 
     private fun checkIfPathMatches(request: HttpRequest): Boolean {
-        return if(requestPath!= null) expressionResolver.resolve(requestPath,request) == request.path else true
+        return if (requestPath != null) {
+            expressionResolver.resolve(requestPath, mapOf("request" to request)) == request.path
+        } else {
+            true
+        }
     }
 
     private fun checkIfMethodMatches(request: HttpRequest): Boolean {

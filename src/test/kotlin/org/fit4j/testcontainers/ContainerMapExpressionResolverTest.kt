@@ -372,6 +372,18 @@ class ContainerMapExpressionResolverTest {
         assertEquals("postgres:16.1", result["image"])
         assertEquals("testdb", result["databaseName"])
     }
+
+    @Test
+    fun `resolve embedded property placeholders in JDBC URL style string`() {
+        val input = mapOf(
+            "name" to "container",
+            "jdbcUrl" to "jdbc:postgresql://\${test.db.username}:\${test.port}/testdb"
+        )
+
+        val result = resolver.resolveExpressions(input)
+
+        assertEquals("jdbc:postgresql://testuser:5432/testdb", result["jdbcUrl"])
+    }
     
     // ==================== Error Handling Tests ====================
     

@@ -2,7 +2,7 @@ package org.fit4j.mock
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.fit4j.annotation.FIT
-import org.fit4j.mock.declarative.ExpressionResolver
+import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.mock.declarative.JsonContentExpressionResolver
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -11,11 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.test.context.TestPropertySource
 import java.sql.Timestamp
 import java.util.*
 
 
 @FIT
+@TestPropertySource(properties = [
+    "fit4j.mockWebServer.host=localhost",
+    "fit4j.mockWebServer.port=8080"
+])
 class JsonContentExpressionResolverFIT {
 
     @Autowired
@@ -26,11 +31,11 @@ class JsonContentExpressionResolverFIT {
 
     private lateinit var jsonContentExpressionResolver: JsonContentExpressionResolver
 
-    private lateinit var expressionResolver: ExpressionResolver
+    private lateinit var expressionResolver: PropertyAndExpressionResolver
 
     @BeforeEach
     fun setUp() {
-        expressionResolver = ExpressionResolver(applicationContext)
+        expressionResolver = PropertyAndExpressionResolver(applicationContext)
         jsonContentExpressionResolver = JsonContentExpressionResolver(jsonMapper, expressionResolver)
     }
 
@@ -104,7 +109,24 @@ class JsonContentExpressionResolverFIT {
     }
 
     @Test
-    fun `it should evalue given spel expression using application context beans`() {
+    fun `it should resolve property placeholders embedded in json string values`() {
+        val jsonContent = """
+            {
+                "url": "http://${'$'}{fit4j.mockWebServer.host}:${'$'}{fit4j.mockWebServer.port}/callback"
+            }
+        """.trimIndent()
+
+        val convertedJsonContent = jsonContentExpressionResolver.resolveExpressions(jsonContent)
+        val expectedJsonContent = """
+            {
+              "url" : "http://localhost:8080/callback"
+            }
+        """.trimIndent()
+        Assertions.assertEquals(expectedJsonContent, convertedJsonContent)
+    }
+
+    @Test
+    fun `it should evaluate given spel expression using application context beans`() {
         val exprString = "#{@testFixture.variables.a + @testFixture.variables.b}"
         val result = expressionResolver.resolve(exprString)
         Assertions.assertEquals("3", result)
@@ -118,11 +140,12 @@ class JsonContentExpressionResolverFIT {
 data class TestFixtureData(
     val variables: Variables
 ) {
-    fun currentTimestamp():Timestamp {
+    fun currentTimestamp(): Timestamp {
         return Timestamp(Date().time)
     }
 }
 
 data class Variables(
     val a: Int,
-    val b: Int)
+    val b: Int
+)

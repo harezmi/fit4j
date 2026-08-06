@@ -1,10 +1,10 @@
 package org.fit4j.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.mock.declarative.DeclarativeTestFixtureBuilder
 import org.fit4j.mock.declarative.DeclarativeTestFixtureDrivenServiceResponseProvider
 import org.fit4j.mock.declarative.DeclarativeTestFixtureProvider
-import org.fit4j.mock.declarative.ExpressionResolver
 import org.fit4j.mock.declarative.JsonContentExpressionResolver
 import org.fit4j.mock.declarative.JsonToMockResponseConverter
 import org.fit4j.mock.declarative.PredicateEvaluator
@@ -35,13 +35,16 @@ class TestFixtureAutoConfiguration {
     }
 
     @Bean
-    fun expressionResolver(applicationContext: ApplicationContext) : ExpressionResolver {
-        return ExpressionResolver(applicationContext)
+    fun propertyAndExpressionResolver(applicationContext: ApplicationContext): PropertyAndExpressionResolver {
+        return PropertyAndExpressionResolver(applicationContext)
     }
 
     @Bean
-    fun jsonContentExpressionResolver(objectMapper: ObjectMapper, expressionResolver: ExpressionResolver) : JsonContentExpressionResolver {
-        return JsonContentExpressionResolver(objectMapper, expressionResolver)
+    fun jsonContentExpressionResolver(
+        objectMapper: ObjectMapper,
+        propertyAndExpressionResolver: PropertyAndExpressionResolver
+    ): JsonContentExpressionResolver {
+        return JsonContentExpressionResolver(objectMapper, propertyAndExpressionResolver)
     }
 
 }

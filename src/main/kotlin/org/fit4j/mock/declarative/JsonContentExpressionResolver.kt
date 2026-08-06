@@ -11,15 +11,19 @@ import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.LongNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.ShortNode
+import org.fit4j.expression.PropertyAndExpressionResolver
 
-class JsonContentExpressionResolver(val objectMapper: ObjectMapper, val expressionResolver: ExpressionResolver) {
-    fun resolveExpressions(jsonContent: String, request:Any?=null): String {
+class JsonContentExpressionResolver(
+    val objectMapper: ObjectMapper,
+    val expressionResolver: PropertyAndExpressionResolver
+) {
+    fun resolveExpressions(jsonContent: String, request: Any? = null): String {
         var rootNode: JsonNode = objectMapper.readTree(jsonContent)
         rootNode = processNode(rootNode, request)
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode)
     }
 
-    private fun processNode(node: JsonNode, request:Any?=null): JsonNode {
+    private fun processNode(node: JsonNode, request: Any? = null): JsonNode {
         return when {
             node.isObject -> {
                 val objectNode = node as ObjectNode
@@ -33,11 +37,12 @@ class JsonContentExpressionResolver(val objectMapper: ObjectMapper, val expressi
             node.isNull -> node
             node.isValueNode -> {
                 val textValue = node.asText()
-                if(expressionResolver.isExpression(textValue)) {
-                    val evaluatedValue = expressionResolver.resolve(node.asText(), request)
+                if (expressionResolver.requiresResolution(textValue)) {
+                    val variables = if (request != null) mapOf("request" to request) else emptyMap()
+                    val evaluatedValue = expressionResolver.resolve(textValue, variables)
                     objectMapper.valueToTree(evaluatedValue)
                 } else {
-                    val resolvedValue : Any = resolveNodeValue(node)
+                    val resolvedValue: Any = resolveNodeValue(node)
                     objectMapper.valueToTree(resolvedValue)
                 }
             }
@@ -52,7 +57,7 @@ class JsonContentExpressionResolver(val objectMapper: ObjectMapper, val expressi
         }
     }
 
-    private fun resolveNodeValue(node:JsonNode) : Any {
+    private fun resolveNodeValue(node: JsonNode): Any {
         return when (node) {
             is LongNode -> node.longValue()
             is IntNode -> node.intValue()
@@ -65,4 +70,3 @@ class JsonContentExpressionResolver(val objectMapper: ObjectMapper, val expressi
         }
     }
 }
-

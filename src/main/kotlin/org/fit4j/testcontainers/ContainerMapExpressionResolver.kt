@@ -13,7 +13,7 @@ import org.springframework.context.ApplicationContext
  * found in String values.
  * 
  * ## Supported Value Types
- * - **String**: Resolved if contains `${...}` or `#{...}`, otherwise unchanged
+ * - **String**: Resolved if it contains `${...}` or `#{...}` anywhere in the value, otherwise unchanged
  * - **List**: Each element is processed recursively
  * - **Map**: Each value is processed recursively
  * - **Primitives** (Int, Boolean, etc.): Returned unchanged

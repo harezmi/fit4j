@@ -247,16 +247,80 @@ class PropertyAndExpressionResolverTest {
     }
     
     @Test
-    fun `requiresResolution returns false for string containing but not starting with dollar brace`() {
-        assertFalse(resolver.requiresResolution("text \${test.property}"))
+    fun `requiresResolution returns true for string containing but not starting with dollar brace`() {
+        assertTrue(resolver.requiresResolution("text \${test.property}"))
     }
     
     @Test
-    fun `requiresResolution returns false for string containing but not starting with hash brace`() {
-        assertFalse(resolver.requiresResolution("text #{@bean.value}"))
+    fun `requiresResolution returns true for string containing but not starting with hash brace`() {
+        assertTrue(resolver.requiresResolution("text #{@bean.value}"))
+    }
+
+    // ==================== Embedded / mid-string resolution ====================
+
+    @Test
+    fun `resolve embedded property placeholders in URL`() {
+        val input = "http://\${test.db.username}:\${test.db.port}"
+
+        val result = resolver.resolve(input)
+
+        assertEquals("http://testuser:5432", result)
+    }
+
+    @Test
+    fun `resolve embedded SpEL in surrounding text`() {
+        val input = "Hello, #{@testBean.value}!"
+
+        val result = resolver.resolve(input)
+
+        assertEquals("Hello, bean-value!", result)
+    }
+
+    @Test
+    fun `resolve mixed embedded property placeholders and SpEL`() {
+        val input = "http://\${test.db.username}:#{@testBean.number}"
+
+        val result = resolver.resolve(input)
+
+        assertEquals("http://testuser:42", result)
+    }
+
+    @Test
+    fun `resolve multiple adjacent SpEL expressions`() {
+        val input = "#{@testBean.value}#{@testBean.number}"
+
+        val result = resolver.resolve(input)
+
+        assertEquals("bean-value42", result)
+    }
+
+    @Test
+    fun `resolve SpEL with request variable`() {
+        val request = RequestStub(path = "/users/42")
+
+        val result = resolver.resolve("#{ #request.path }", mapOf("request" to request))
+
+        assertEquals("/users/42", result)
+    }
+
+    @Test
+    fun `resolve non-string SpEL result via toString`() {
+        val result = resolver.resolve("#{@testBean.number}")
+
+        assertEquals("42", result)
+    }
+
+    @Test
+    fun `resolve Timestamp SpEL result via toString`() {
+        val result = resolver.resolve("#{@configBean.currentTimestamp()}")
+
+        assertNotNull(result)
+        assertTrue(result.isNotBlank())
     }
     
     // ==================== Test Support Classes ====================
+
+    data class RequestStub(val path: String)
     
     data class TestBean(
         val value: String,
@@ -270,6 +334,10 @@ class PropertyAndExpressionResolverTest {
         
         fun getNullValue(): String? {
             return null
+        }
+
+        fun currentTimestamp(): java.sql.Timestamp {
+            return java.sql.Timestamp(System.currentTimeMillis())
         }
     }
 }
