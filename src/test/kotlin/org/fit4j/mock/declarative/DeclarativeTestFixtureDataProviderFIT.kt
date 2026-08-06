@@ -3,6 +3,7 @@ package org.fit4j.mock.declarative
 import com.example.fit4j.grpc.TestGrpc
 import com.google.rpc.Code
 import org.fit4j.annotation.FIT
+import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.grpc.GrpcTestFixture
 import org.fit4j.grpc.GrpcTestFixtureResponse
 import org.fit4j.http.HttpTestFixture
@@ -33,7 +34,7 @@ class DeclarativeTestFixtureDataProviderFIT {
     private lateinit var predicateEvaluator: PredicateEvaluator
 
     @Autowired
-    private lateinit var expressionResolver: ExpressionResolver
+    private lateinit var propertyAndExpressionResolver: PropertyAndExpressionResolver
 
     @BeforeEach
     fun setUp() {
@@ -63,9 +64,9 @@ class DeclarativeTestFixtureDataProviderFIT {
                         }
                     }
                     """.trimIndent())))
-        val tf3 = HttpTestFixture(requestPath = "/foo", expressionResolver=expressionResolver, responses = listOf(
+        val tf3 = HttpTestFixture(requestPath = "/foo", expressionResolver=propertyAndExpressionResolver, responses = listOf(
             HttpTestFixtureResponse(statusCode = 200)))
-        val tf4 = HttpTestFixture(requestPath = "/foo/123",expressionResolver=expressionResolver, responses = listOf(
+        val tf4 = HttpTestFixture(requestPath = "/foo/123",expressionResolver=propertyAndExpressionResolver, responses = listOf(
             HttpTestFixtureResponse(statusCode =  200, responseBody =  """
                         {
                            "id": 123,
@@ -105,7 +106,7 @@ class DeclarativeTestFixtureDataProviderFIT {
         val tf2 = HttpTestFixture(
             requestPath = "/foo/123",
             predicate = TestFixturePredicate("#request.method == 'GET'", predicateEvaluator),
-            expressionResolver=expressionResolver,
+            expressionResolver=propertyAndExpressionResolver,
             responses = listOf(HttpTestFixtureResponse(statusCode = 200,
                 responseBody = """
                             {
@@ -114,7 +115,7 @@ class DeclarativeTestFixtureDataProviderFIT {
                             }
                             """.trimIndent()))
         )
-        val tf3 = HttpTestFixture(requestPath = "/health", expressionResolver=expressionResolver, responses = listOf(HttpTestFixtureResponse(statusCode = 200)))
+        val tf3 = HttpTestFixture(requestPath = "/health", expressionResolver=propertyAndExpressionResolver, responses = listOf(HttpTestFixtureResponse(statusCode = 200)))
         val tf4 = GrpcTestFixture(
             requestType = TestGrpc.GetFooListGrpcRequest::class.java,
             predicate = null,
@@ -157,7 +158,7 @@ class DeclarativeTestFixtureDataProviderFIT {
                             GrpcTestFixtureResponse(Code.UNAVAILABLE_VALUE))
         )
 
-        val tf2 = HttpTestFixture(requestPath = "/foo/123", expressionResolver=expressionResolver, responses = listOf(
+        val tf2 = HttpTestFixture(requestPath = "/foo/123", expressionResolver=propertyAndExpressionResolver, responses = listOf(
             HttpTestFixtureResponse(statusCode =  200, responseBody =  """
                         {
                            "id": 123,

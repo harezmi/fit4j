@@ -16,7 +16,7 @@ import org.fit4j.http.RestTemplateInterceptorSupport
 import org.fit4j.mock.MockResponseFactory
 import org.fit4j.mock.MockServiceCallTracker
 import org.fit4j.mock.declarative.DeclarativeTestFixtureProvider
-import org.fit4j.mock.declarative.ExpressionResolver
+import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.mock.declarative.JsonContentExpressionResolver
 import org.fit4j.mock.declarative.PredicateEvaluator
 import org.springframework.beans.factory.ObjectProvider
@@ -73,9 +73,9 @@ class TestHttpAutoConfiguration {
     fun httpTestFixtureBuilder(
         objectMapper: ObjectMapper,
         predicateEvaluator: PredicateEvaluator,
-        expressionResolver: ExpressionResolver
+        propertyAndExpressionResolver: PropertyAndExpressionResolver
     ): HttpTestFixtureBuilder {
-        return HttpTestFixtureBuilder(objectMapper, predicateEvaluator, expressionResolver)
+        return HttpTestFixtureBuilder(objectMapper, predicateEvaluator, propertyAndExpressionResolver)
     }
 
     @Bean

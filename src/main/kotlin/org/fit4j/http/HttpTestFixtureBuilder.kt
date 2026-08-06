@@ -1,8 +1,8 @@
 package org.fit4j.http
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.mock.declarative.DeclarativeTestFixtureBuilder
-import org.fit4j.mock.declarative.ExpressionResolver
 import org.fit4j.mock.declarative.PredicateEvaluator
 import org.fit4j.mock.declarative.TestFixture
 import org.fit4j.mock.declarative.TestFixturePredicate
@@ -10,7 +10,7 @@ import org.fit4j.mock.declarative.TestFixturePredicate
 class HttpTestFixtureBuilder(
     private val objectMapper: ObjectMapper,
     private val predicateEvaluator: PredicateEvaluator,
-    private val expressionResolver: ExpressionResolver,
+    private val expressionResolver: PropertyAndExpressionResolver,
 ) : DeclarativeTestFixtureBuilder {
     override fun protocol(): String {
         return "HTTP"

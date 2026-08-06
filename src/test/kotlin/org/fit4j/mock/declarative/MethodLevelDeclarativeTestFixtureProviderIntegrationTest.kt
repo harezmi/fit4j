@@ -2,6 +2,7 @@ package org.fit4j.mock.declarative
 
 import org.fit4j.annotation.FIT
 import org.fit4j.annotation.FixtureForFIT
+import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.http.HttpTestFixture
 import org.fit4j.http.HttpTestFixtureResponse
 import org.hamcrest.MatcherAssert
@@ -17,7 +18,7 @@ class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
     lateinit var declarativeTestFixtureProvider: DeclarativeTestFixtureProvider
 
     @Autowired
-    lateinit var expressionResolver: ExpressionResolver
+    lateinit var propertyAndExpressionResolver: PropertyAndExpressionResolver
 
     @Test
     @FixtureForFIT("test-fixture-1")
@@ -26,8 +27,8 @@ class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
         Assertions.assertNotNull(testFixturesGroup)
         MatcherAssert.assertThat(
             testFixturesGroup!!.primaryTestFixtures, Matchers.contains(
-                HttpTestFixture(requestPath = "/test-1", expressionResolver=expressionResolver, responses = listOf(HttpTestFixtureResponse(headers = "{\n}"))),
-                HttpTestFixture(requestPath = "/test-2", expressionResolver=expressionResolver, responses = listOf(HttpTestFixtureResponse(headers = "{\n}")))
+                HttpTestFixture(requestPath = "/test-1", expressionResolver=propertyAndExpressionResolver, responses = listOf(HttpTestFixtureResponse(headers = "{\n}"))),
+                HttpTestFixture(requestPath = "/test-2", expressionResolver=propertyAndExpressionResolver, responses = listOf(HttpTestFixtureResponse(headers = "{\n}")))
             )
         )
     }
@@ -39,8 +40,8 @@ class MethodLevelDeclarativeTestFixtureProviderIntegrationTest {
         Assertions.assertNotNull(testFixturesGroup)
         MatcherAssert.assertThat(
             testFixturesGroup!!.primaryTestFixtures, Matchers.contains(
-                HttpTestFixture(requestPath = "/test-1", expressionResolver=expressionResolver, responses = listOf(HttpTestFixtureResponse(headers = "{\n}"))),
-                HttpTestFixture(requestPath = "/test-2", expressionResolver=expressionResolver, responses = listOf(HttpTestFixtureResponse(headers = "{\n}")))
+                HttpTestFixture(requestPath = "/test-1", expressionResolver=propertyAndExpressionResolver, responses = listOf(HttpTestFixtureResponse(headers = "{\n}"))),
+                HttpTestFixture(requestPath = "/test-2", expressionResolver=propertyAndExpressionResolver, responses = listOf(HttpTestFixtureResponse(headers = "{\n}")))
             )
         )
     }
