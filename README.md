@@ -106,7 +106,7 @@ FIT4J is built and tested against the versions below. Your service should use a 
 |-----------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **JDK (run tests)** | **17+**                                                                                       | Minimum for consuming services. FIT4J itself is built and tested on **JDK 25** (see `javaToolchainVersion` in `gradle.properties`).                                                                              |
 | **JDK (bytecode)** | **17**                                                                                        | The published JAR targets Java 17 (`javaBytecodeVersion=17`). You do not need JDK 25 to use FIT4J unless your own project requires it.                                                                           |
-| **FIT4J** | **0.1.4+**                                                                                    | This release line targets Spring Boot **4.1.x**. **0.1.4** makes gRPC starters optional (single JAR for HTTP/DB/Kafka FITs). Use FIT4J **0.0.x** (or earlier) with Spring Boot 3.5.                              |
+| **FIT4J** | **0.1.5+**                                                                                    | This release line targets Spring Boot **4.1.x**. **0.1.5** makes gRPC starters optional (single JAR for HTTP/DB/Kafka FITs). Use FIT4J **0.0.x** (or earlier) with Spring Boot 3.5.                              |
 | **Spring Boot** | **4.1.x** (4.1.0)                                                                             | Required. FIT4J on this branch targets Spring Boot 4.x. Spring Boot 2.x and 3.x are not supported by this artifact — use an earlier FIT4J release on Boot 3.5. See [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md).     |
 | **gRPC** | Boot **4.1** starters (`spring-boot-starter-grpc-server` / `spring-boot-starter-grpc-client`) | Replaces `net.devh:grpc-spring-boot-starter` and `org.springframework.grpc:spring-grpc-*`. Required when your service uses gRPC.                                                                                 |
 | **Kotlin** | **2.3+** (stdlib 2.3.0)                                                                       | Optional — only if your service is written in Kotlin. Java-only services do not need Kotlin on the classpath. Kotlin projects should use a version compatible with Spring Boot 4.x.                              |
@@ -117,7 +117,7 @@ FIT4J is built and tested against the versions below. Your service should use a 
 ### Version alignment with your service
 
 - **Java:** Run your tests on JDK 17 or newer. FIT4J is built and verified on **JDK 25** with **Java 17** bytecode.
-- **Spring Boot:** Use **4.1.x** with FIT4J **0.1.4+**. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers 2.0).
+- **Spring Boot:** Use **4.1.x** with FIT4J **0.1.5+**. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers 2.0).
 - **Kotlin:** If you use Kotlin, ensure your Kotlin compiler targets JVM 17 (`jvmTarget = "17"`) and that your Kotlin version is compatible with your Spring Boot release. FIT4J itself is built with Kotlin Gradle plugin **2.3.21**; consuming projects are not required to match that plugin version.
 
 Version pins for the FIT4J build itself live in [`gradle.properties`](gradle.properties) (`springBootVersion`, `springGrpcVersion`, `javaToolchainVersion`, `javaBytecodeVersion`, `kotlinPluginVersion`, etc.).
@@ -223,7 +223,7 @@ FIT4J is published to Maven Central. Use the **same Spring Boot BOM** as your ap
 ```kotlin
 dependencies {
     testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.0"))
-    testImplementation("io.github.harezmi:fit4j:0.1.4")
+    testImplementation("io.github.harezmi:fit4j:0.1.5")
 }
 ```
 
@@ -233,18 +233,18 @@ dependencies {
 ```groovy
 dependencies {
     testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.1.0')
-    testImplementation 'io.github.harezmi:fit4j:0.1.4'
+    testImplementation 'io.github.harezmi:fit4j:0.1.5'
 }
 ```
 
-> **0.1.4** publishes the Boot BOM on the API variant and makes gRPC starters optional — you only add them for gRPC FITs. On **0.1.1** with Gradle, if you see `Could not find spring-boot-starter-grpc-server:.` (empty version), add the `platform(...)` line above or upgrade to **0.1.4+**.
+> **0.1.5** publishes the Boot BOM on the API variant and makes gRPC starters optional — you only add them for gRPC FITs. On **0.1.1** with Gradle, if you see `Could not find spring-boot-starter-grpc-server:.` (empty version), add the `platform(...)` line above or upgrade to **0.1.5+**.
 
 **Maven:**
 ```xml
 <dependency>
     <groupId>io.github.harezmi</groupId>
     <artifactId>fit4j</artifactId>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
     <scope>test</scope>
 </dependency>
 ```

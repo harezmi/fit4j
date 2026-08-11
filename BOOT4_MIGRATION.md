@@ -200,7 +200,7 @@ class MyHttpFIT {
 
 ## Jackson 3 (FIT4J default)
 
-FIT4J **0.1.4+** depends on **Jackson 3** via `spring-boot-jackson` and `tools.jackson.module:jackson-module-kotlin`. Spring Boot 4 auto-configures a `tools.jackson.databind.json.JsonMapper` bean for FIT tests.
+FIT4J **0.1.5+** depends on **Jackson 3** via `spring-boot-jackson` and `tools.jackson.module:jackson-module-kotlin`. Spring Boot 4 auto-configures a `tools.jackson.databind.json.JsonMapper` bean for FIT tests.
 
 ### Breaking API change
 
