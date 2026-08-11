@@ -1,7 +1,7 @@
 package org.fit4j.testcontainers
 
 import co.elastic.clients.elasticsearch.core.CreateRequest
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import org.fit4j.annotation.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -14,7 +14,7 @@ class ElasticsearchDocumentProviderFIT {
     private lateinit var resourceLoader: ResourceLoader
 
     @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    private lateinit var jsonMapper: JsonMapper
 
     @Test
     fun `it should provide documents from yaml file`() {
@@ -52,6 +52,6 @@ class ElasticsearchDocumentProviderFIT {
     private fun verifyCreateRequests(expected:CreateRequest<Map<Any, Any>>, actual:CreateRequest<Map<Any, Any>>) {
         Assertions.assertEquals(expected.id(), actual.id())
         Assertions.assertEquals(expected.index(), actual.index())
-        Assertions.assertEquals(objectMapper.writeValueAsString(expected.document()), objectMapper.writeValueAsString(actual.document()))
+        Assertions.assertEquals(jsonMapper.writeValueAsString(expected.document()), jsonMapper.writeValueAsString(actual.document()))
     }
 }

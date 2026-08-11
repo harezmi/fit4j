@@ -1,6 +1,6 @@
 package org.fit4j.autoconfigure
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import com.google.protobuf.util.JsonFormat
 import org.springframework.grpc.server.InProcessGrpcServerFactory
 import org.fit4j.grpc.DefaultGrpcMockResponseProvider
@@ -66,16 +66,16 @@ class TestGrpcAutoConfiguration {
     fun rawJsonContentToGrpcResponseConverter(jsonContentExpressionResolver: JsonContentExpressionResolver,
                                                   grpcResponseBuilderRegistry: GrpcResponseBuilderRegistry,
                                                   jsonProtoParser: JsonFormat.Parser,
-                                                  objectMapper: ObjectMapper) : JsonToGrpcResponseConverter {
-        return JsonToGrpcResponseConverter(jsonContentExpressionResolver, grpcResponseBuilderRegistry, jsonProtoParser, objectMapper)
+                                                  jsonMapper: JsonMapper) : JsonToGrpcResponseConverter {
+        return JsonToGrpcResponseConverter(jsonContentExpressionResolver, grpcResponseBuilderRegistry, jsonProtoParser, jsonMapper)
     }
 
     @Bean
     fun grpcTestFixtureBuilder(
-        objectMapper: ObjectMapper,
+        jsonMapper: JsonMapper,
         predicateEvaluator: PredicateEvaluator,
     ): GrpcTestFixtureBuilder {
-        return GrpcTestFixtureBuilder(objectMapper = objectMapper, predicateEvaluator = predicateEvaluator)
+        return GrpcTestFixtureBuilder(jsonMapper = jsonMapper, predicateEvaluator = predicateEvaluator)
     }
 
     @Bean

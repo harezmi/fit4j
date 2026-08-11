@@ -1,6 +1,6 @@
 package org.fit4j.mock
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import org.fit4j.annotation.FIT
 import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.mock.declarative.JsonContentExpressionResolver
@@ -27,7 +27,7 @@ class JsonContentExpressionResolverFIT {
     private lateinit var applicationContext: ApplicationContext
 
     @Autowired
-    private lateinit var jsonMapper: ObjectMapper
+    private lateinit var jsonMapper: JsonMapper
 
     private lateinit var jsonContentExpressionResolver: JsonContentExpressionResolver
 

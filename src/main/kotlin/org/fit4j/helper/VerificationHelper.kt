@@ -23,18 +23,14 @@ class VerificationHelper(private val jsonHelper: JsonHelper,
             Assertions.assertEquals(expectedEventState, protobufObject)
 
         } else {
-            if (jsonHelper.objectMapper == null)
-                throw IllegalStateException("ObjectMapper is not configured, make sure jackson-databind dependency is in your classpath")
-            val actualJson = jsonHelper.objectMapper.writeValueAsString(entity)
+            val actualJson = jsonHelper.jsonMapper.writeValueAsString(entity)
             this.verifyJson(expectedJson,actualJson)
         }
     }
 
     fun verifyJson(expectedJson: String, actualJson: String) {
-        if(jsonHelper.objectMapper == null)
-            throw IllegalStateException("ObjectMapper is not configured, make sure jackson-databind dependency is in your classpath")
-        val expectedRequestObj = jsonHelper.objectMapper.readTree(expectedJson)
-        val actualRequestObj = jsonHelper.objectMapper.readTree(actualJson)
+        val expectedRequestObj = jsonHelper.jsonMapper.readTree(expectedJson)
+        val actualRequestObj = jsonHelper.jsonMapper.readTree(actualJson)
         Assertions.assertEquals(expectedRequestObj, actualRequestObj)
     }
 
@@ -46,9 +42,7 @@ class VerificationHelper(private val jsonHelper: JsonHelper,
         val actualRequestBodyAsString = request.body
         if(actualRequestBodyAsString == requestBody) return
         if(requestBody != null) {
-            if (jsonHelper.objectMapper == null)
-                throw IllegalStateException("ObjectMapper is not configured, make sure jackson-databind dependency is in your classpath")
-            val expectedRequestBodyAsString = jsonHelper.objectMapper.writeValueAsString(requestBody);
+            val expectedRequestBodyAsString = jsonHelper.jsonMapper.writeValueAsString(requestBody);
             Assertions.assertEquals(expectedRequestBodyAsString,actualRequestBodyAsString)
         }
     }

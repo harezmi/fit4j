@@ -1,49 +1,50 @@
 package org.fit4j.mock.declarative
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.BooleanNode
-import com.fasterxml.jackson.databind.node.DecimalNode
-import com.fasterxml.jackson.databind.node.DoubleNode
-import com.fasterxml.jackson.databind.node.FloatNode
-import com.fasterxml.jackson.databind.node.IntNode
-import com.fasterxml.jackson.databind.node.LongNode
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.ShortNode
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.node.ArrayNode
+import tools.jackson.databind.node.BooleanNode
+import tools.jackson.databind.node.DecimalNode
+import tools.jackson.databind.node.DoubleNode
+import tools.jackson.databind.node.FloatNode
+import tools.jackson.databind.node.IntNode
+import tools.jackson.databind.node.LongNode
+import tools.jackson.databind.node.ObjectNode
+import tools.jackson.databind.node.ShortNode
 import org.fit4j.expression.PropertyAndExpressionResolver
 
 class JsonContentExpressionResolver(
-    val objectMapper: ObjectMapper,
+    val jsonMapper: JsonMapper,
     val expressionResolver: PropertyAndExpressionResolver
 ) {
     fun resolveExpressions(jsonContent: String, request: Any? = null): String {
-        var rootNode: JsonNode = objectMapper.readTree(jsonContent)
+        var rootNode: JsonNode = jsonMapper.readTree(jsonContent)
         rootNode = processNode(rootNode, request)
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode)
+        return jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode)
     }
 
     private fun processNode(node: JsonNode, request: Any? = null): JsonNode {
         return when {
             node.isObject -> {
                 val objectNode = node as ObjectNode
-                val fieldNames = objectNode.fieldNames()
-                while (fieldNames.hasNext()) {
-                    val fieldName = fieldNames.next()
-                    objectNode.set<JsonNode>(fieldName, processNode(objectNode.get(fieldName), request))
+                objectNode.propertyNames().forEach { propertyName ->
+                    objectNode.set(
+                        propertyName,
+                        processNode(objectNode.get(propertyName), request),
+                    )
                 }
                 objectNode
             }
             node.isNull -> node
             node.isValueNode -> {
-                val textValue = node.asText()
+                val textValue = node.asString()
                 if (expressionResolver.requiresResolution(textValue)) {
                     val variables = if (request != null) mapOf("request" to request) else emptyMap()
                     val evaluatedValue = expressionResolver.resolve(textValue, variables)
-                    objectMapper.valueToTree(evaluatedValue)
+                    jsonMapper.valueToTree(evaluatedValue)
                 } else {
                     val resolvedValue: Any = resolveNodeValue(node)
-                    objectMapper.valueToTree(resolvedValue)
+                    jsonMapper.valueToTree(resolvedValue)
                 }
             }
             node.isArray -> {
@@ -66,7 +67,7 @@ class JsonContentExpressionResolver(
             is FloatNode -> node.floatValue()
             is DoubleNode -> node.doubleValue()
             is ShortNode -> node.shortValue()
-            else -> node.asText()
+            else -> node.asString()
         }
     }
 }

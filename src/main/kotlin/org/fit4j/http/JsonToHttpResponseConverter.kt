@@ -1,12 +1,12 @@
 package org.fit4j.http
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.json.JsonMapper
 import org.fit4j.mock.declarative.JsonContentExpressionResolver
 import org.fit4j.mock.declarative.JsonToMockResponseConverter
 
 class JsonToHttpResponseConverter(private val jsonContentExpressionResolver: JsonContentExpressionResolver,
-                                  private val objectMapper: ObjectMapper) : JsonToMockResponseConverter {
+                                  private val jsonMapper: JsonMapper) : JsonToMockResponseConverter {
 
     override fun isApplicableFor(request: Any?): Boolean {
         return request is HttpRequest
@@ -22,11 +22,11 @@ class JsonToHttpResponseConverter(private val jsonContentExpressionResolver: Jso
     }
 
     fun fromJson(json: String): HttpResponse {
-        val jsonNode = objectMapper.readTree(json)
+        val jsonNode = jsonMapper.readTree(json)
         return HttpResponse(
             statusCode = jsonNode.get("status")?.asInt() ?: 200,
             headers = jsonNode.get("headers")?.let { headersNode ->
-                headersNode.fields().asSequence().associate { it.key to it.value.asText() }
+                headersNode.properties().associate { (key, value) -> key to value.asString() }
             },
             body = getBodyAsString(jsonNode.get("body"))
         )
@@ -35,9 +35,9 @@ class JsonToHttpResponseConverter(private val jsonContentExpressionResolver: Jso
     private fun getBodyAsString(bodyNode:JsonNode?): String? {
         if(bodyNode == null) return null
         return if(bodyNode.isObject) {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(bodyNode)
+            jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(bodyNode)
         } else if (bodyNode.isValueNode)
-            bodyNode.asText()
+            bodyNode.asString()
         else
             bodyNode.toString()
     }

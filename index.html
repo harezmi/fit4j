@@ -2407,7 +2407,7 @@ logging.level.org.springframework.boot=debug
 <ul>
 <li>Spring Boot Test (<code>spring-boot-starter-test</code>)</li>
 <li>Spring Kafka (<code>spring-kafka</code>) – listed in <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L15-L18"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:15-18</code></a></li>
-<li>Jackson Kotlin module (<code>com.fasterxml.jackson.module:jackson-module-kotlin</code>) – <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L15-L18"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:15-18</code></a></li>
+<li>Jackson Kotlin module (<code>tools.jackson.module:jackson-module-kotlin</code>) – <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L15-L18"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:15-18</code></a></li>
 <li>Jakarta annotation API (<code>jakarta.annotation:jakarta.annotation-api</code>) – <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L31-L35"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:31-35</code></a></li>
 </ul>
 <p><strong>Usage</strong></p>
@@ -3032,7 +3032,7 @@ class TestMockAutoConfiguration {
 <pre><code class="language-kotlin">// See src/main/kotlin/org/fit4j/autoconfigure/TestFixtureAutoConfiguration.kt:1-35
 package org.fit4j.autoconfigure
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import org.fit4j.mock.declarative.DeclarativeTestFixtureBuilder
 import org.fit4j.mock.declarative.DeclarativeTestFixtureDrivenServiceResponseProvider
 import org.fit4j.mock.declarative.DeclarativeTestFixtureProvider
@@ -3073,8 +3073,8 @@ class TestFixtureAutoConfiguration {
     }
 
     @Bean
-    fun expressionResolver(objectMapper: ObjectMapper): ExpressionResolver {
-        return JsonContentExpressionResolver(objectMapper)
+    fun expressionResolver(jsonMapper: JsonMapper): ExpressionResolver {
+        return JsonContentExpressionResolver(jsonMapper)
     }
 }
 </code></pre>
@@ -3098,7 +3098,7 @@ class TestFixtureAutoConfiguration {
 <li>Participates in <code>MockResponseFactory</code> resolution chain.</li>
 <li><code>PredicateEvaluator</code> and <code>ExpressionResolver</code></li>
 <li>Support <strong>conditional fixtures</strong>, e.g. “if request.body.userId == '123' then respond with fixture A”.</li>
-<li><code>JsonContentExpressionResolver</code> uses Jackson <code>ObjectMapper</code> to evaluate expressions over JSON payloads.</li>
+<li><code>JsonContentExpressionResolver</code> uses Jackson <code>JsonMapper</code> to evaluate expressions over JSON payloads.</li>
 </ul>
 <p>Given the test (<a href="https://github.com/harezmi/fit4j/blob/main/DeclarativeTestFixtureDataProviderFIT.kt#L1-L30"><code>DeclarativeTestFixtureDataProviderFIT.kt:1-30</code></a>):</p>
 <pre><code class="language-kotlin">// See src/test/kotlin/org/fit4j/mock/declarative/DeclarativeTestFixtureDataProviderFIT.kt:1-30
@@ -3140,7 +3140,7 @@ class DeclarativeTestFixtureDataProviderFIT {
 <pre><code class="language-kotlin">// See src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt:1-40
 package org.fit4j.autoconfigure
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import com.google.protobuf.util.JsonFormat
 import org.fit4j.dbcleanup.DatabaseTestSupport
 import org.fit4j.dbcleanup.DatabaseTestSupportForH2
@@ -6281,7 +6281,7 @@ tasks.test {
 <p><code>HttpTestFixtureBuilder</code> is responsible for transforming the YAML map into an executable <code>HttpTestFixture</code>:</p>
 <pre><code class="language-kotlin">// /tmp/repo_fun8n87l/src/main/kotlin/org/fit4j/http/HttpTestFixtureBuilder.kt:1-22
 class HttpTestFixtureBuilder(
-    private val objectMapper: ObjectMapper,
+    private val jsonMapper: JsonMapper,
     private val predicateEvaluator: PredicateEvaluator,
     private val expressionResolver: ExpressionResolver,
 ) : DeclarativeTestFixtureBuilder {
@@ -6308,7 +6308,7 @@ class HttpTestFixtureBuilder(
 <li>Reads <code>path</code>, <code>method</code>, <code>predicate</code>, <code>response</code>/<code>responses</code> from <code>requestMap</code>.</li>
 <li>Creates a <code>TestFixturePredicate</code> with <code>PredicateEvaluator</code> (from <code>org.fit4j.mock.declarative.PredicateEvaluator</code>).</li>
 <li>
-<p>Builds <code>HttpTestFixtureResponse</code> instances from the <code>response(s)</code> field, potentially using <code>ObjectMapper</code> to handle body objects.</p>
+<p>Builds <code>HttpTestFixtureResponse</code> instances from the <code>response(s)</code> field, potentially using <code>JsonMapper</code> to handle body objects.</p>
 </li>
 <li>
 <p><strong>ExpressionResolver injection</strong><br />
@@ -6405,7 +6405,7 @@ class TestHttpAutoConfiguration {
 
     @Bean
     fun httpTestFixtureBuilder(
-        objectMapper: ObjectMapper,
+        jsonMapper: JsonMapper,
         predicateEvaluator: PredicateEvaluator,
         expressionResolver: ExpressionResolver
     ): HttpTestFixtureBuilder {
@@ -6610,7 +6610,7 @@ sequenceDiagram
 </ul>
 </li>
 <li>
-<p><code>HttpTestFixture.build(request)</code> uses <code>expressionResolver</code> and <code>ObjectMapper</code> to produce response JSON.</p>
+<p><code>HttpTestFixture.build(request)</code> uses <code>expressionResolver</code> and <code>JsonMapper</code> to produce response JSON.</p>
 </li>
 <li>
 <p><strong>HTTP response generation</strong>  </p>
@@ -6863,13 +6863,13 @@ class IntegrationTestGrpcAutoConfiguration {
       jsonContentExpressionResolver: JsonContentExpressionResolver,
       grpcResponseBuilderRegistry: GrpcResponseBuilderRegistry,
       jsonProtoParser: JsonFormat.Parser,
-      objectMapper: ObjectMapper
+      jsonMapper: JsonMapper
   ): JsonToGrpcResponseConverter {
       return JsonToGrpcResponseConverter(
           jsonContentExpressionResolver,
           grpcResponseBuilderRegistry,
           jsonProtoParser,
-          objectMapper
+          jsonMapper
       )
   }</code></p>
 <ul>
@@ -6880,7 +6880,7 @@ class IntegrationTestGrpcAutoConfiguration {
 <li><code>JsonContentExpressionResolver</code> for expression evaluation,</li>
 <li><code>JsonFormat.Parser</code> for protobuf JSON parsing,</li>
 <li><code>GrpcResponseBuilderRegistry</code> for mapping type/method to builders,</li>
-<li>Jackson <code>ObjectMapper</code> for intermediate JSON handling.</li>
+<li>Jackson <code>JsonMapper</code> for intermediate JSON handling.</li>
 </ul>
 </li>
 <li>
@@ -6891,10 +6891,10 @@ class IntegrationTestGrpcAutoConfiguration {
 <p><code>kotlin
   @Bean
   fun grpcTestFixtureBuilder(
-      objectMapper: ObjectMapper,
+      jsonMapper: JsonMapper,
       predicateEvaluator: PredicateEvaluator,
   ): GrpcTestFixtureBuilder {
-      return GrpcTestFixtureBuilder(objectMapper = objectMapper, predicateEvaluator = predicateEvaluator)
+      return GrpcTestFixtureBuilder(jsonMapper = jsonMapper, predicateEvaluator = predicateEvaluator)
   }</code></p>
 <ul>
 <li>Builds <code>GrpcTestFixture</code> instances from declarative YAML definitions.</li>
@@ -7216,7 +7216,7 @@ class SampleFIT {
     private val jsonContentExpressionResolver: JsonContentExpressionResolver,
     private val grpcResponseBuilderRegistry: GrpcResponseBuilderRegistry,
     private val jsonProtoParser: JsonFormat.Parser,
-    private val objectMapper: ObjectMapper
+    private val jsonMapper: JsonMapper
 ) : JsonToMockResponseConverter {
     // implementation not fully shown
 }
@@ -10634,7 +10634,7 @@ graph TD
 <p>Example bean definition for HTTP (simplified):</p>
 <pre><code class="language-kotlin">@Bean
 fun httpTestFixtureBuilder(
-    objectMapper: ObjectMapper,
+    jsonMapper: JsonMapper,
     predicateEvaluator: PredicateEvaluator,
     expressionResolver: ExpressionResolver
 ): HttpTestFixtureBuilder {
@@ -10751,9 +10751,9 @@ fun httpTestFixtureBuilder(
 @Bean
 fun rawJsonContentToHttpResponseConverter(
     jsonContentExpressionResolver: JsonContentExpressionResolver,
-    objectMapper: ObjectMapper
+    jsonMapper: JsonMapper
 ): JsonToHttpResponseConverter {
-    return JsonToHttpResponseConverter(jsonContentExpressionResolver, objectMapper)
+    return JsonToHttpResponseConverter(jsonContentExpressionResolver, jsonMapper)
 }</code></p>
 <p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestHttpAutoConfiguration.kt#L16-L24"><code>src/main/kotlin/org/fit4j/autoconfigure/TestHttpAutoConfiguration.kt:16-24</code></a>.</p>
 </li>
@@ -10767,7 +10767,7 @@ fun rawJsonContentToHttpResponseConverter(
 fun rawJsonContentToGrpcResponseConverter(
     jsonContentExpressionResolver: JsonContentExpressionResolver,
     grpcResponseBuilderRegistry: GrpcResponseBuilderRegistry,
-    objectMapper: ObjectMapper
+    jsonMapper: JsonMapper
 ): JsonToGrpcResponseConverter {
     // ...
 }</code></p>
@@ -10778,7 +10778,7 @@ fun rawJsonContentToGrpcResponseConverter(
 <ul>
 <li>Understand how to build protocol objects (HTTP status + headers + body, or protobuf messages).</li>
 <li>Use <code>JsonContentExpressionResolver</code> to evaluate embedded expressions inside the JSON body.</li>
-<li>Use Jackson <code>ObjectMapper</code> for JSON parsing.</li>
+<li>Use Jackson <code>JsonMapper</code> for JSON parsing.</li>
 </ul>
 <p>The common interface provides methods such as:</p>
 <ul>
@@ -11001,9 +11001,9 @@ class TestFixtureAutoConfiguration {
   @Bean
   fun rawJsonContentToHttpResponseConverter(
       jsonContentExpressionResolver: JsonContentExpressionResolver,
-      objectMapper: ObjectMapper
+      jsonMapper: JsonMapper
   ): JsonToHttpResponseConverter {
-      return JsonToHttpResponseConverter(jsonContentExpressionResolver, objectMapper)
+      return JsonToHttpResponseConverter(jsonContentExpressionResolver, jsonMapper)
   }</code></p>
 <ul>
 <li><code>HttpTestFixtureBuilder</code> bean:</li>
@@ -11011,7 +11011,7 @@ class TestFixtureAutoConfiguration {
 <p><code>kotlin
   @Bean
   fun httpTestFixtureBuilder(
-      objectMapper: ObjectMapper,
+      jsonMapper: JsonMapper,
       predicateEvaluator: PredicateEvaluator,
       expressionResolver: ExpressionResolver
   ): HttpTestFixtureBuilder { ... }</code></p>
@@ -12741,7 +12741,7 @@ sequenceDiagram
 <li><code>net.bytebuddy:byte-buddy</code></li>
 <li><code>org.yaml:snakeyaml</code></li>
 <li><code>org.apache.commons:commons-lang3</code></li>
-<li><code>com.fasterxml.jackson.module:jackson-module-kotlin</code></li>
+<li><code>tools.jackson.module:jackson-module-kotlin</code></li>
 <li><code>org.jetbrains.kotlin:kotlin-stdlib</code></li>
 <li><code>org.jetbrains.kotlinx:kotlinx-coroutines-core</code></li>
 <li><code>io.grpc:grpc-*</code></li>

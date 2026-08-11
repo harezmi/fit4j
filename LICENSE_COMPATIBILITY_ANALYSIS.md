@@ -15,7 +15,7 @@ This document analyzes all FIT4J dependencies for compatibility with Apache Lice
 | ByteBuddy | net.bytebuddy | byte-buddy | Apache 2.0 | ✅ Compatible |
 | SnakeYAML | org.yaml | snakeyaml | Apache 2.0 | ✅ Compatible |
 | Apache Commons | org.apache.commons | commons-lang3 | Apache 2.0 | ✅ Compatible |
-| Jackson | com.fasterxml.jackson.module | jackson-module-kotlin | Apache 2.0 | ✅ Compatible |
+| Jackson | tools.jackson.module | jackson-module-kotlin | Apache 2.0 | ✅ Compatible |
 | Kotlin | org.jetbrains.kotlin | kotlin-stdlib | Apache 2.0 | ✅ Compatible |
 | Kotlin Coroutines | org.jetbrains.kotlinx | kotlinx-coroutines-core | Apache 2.0 | ✅ Compatible |
 | gRPC | io.grpc | grpc-* | Apache 2.0 | ✅ Compatible |

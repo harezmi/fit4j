@@ -1,6 +1,6 @@
 package org.fit4j.grpc
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import io.grpc.Status.Code
 import org.fit4j.mock.declarative.DeclarativeTestFixtureBuilder
 import org.fit4j.mock.declarative.PredicateEvaluator
@@ -8,7 +8,7 @@ import org.fit4j.mock.declarative.TestFixture
 import org.fit4j.mock.declarative.TestFixturePredicate
 
 class GrpcTestFixtureBuilder(
-    private val objectMapper: ObjectMapper,
+    private val jsonMapper: JsonMapper,
     private val predicateEvaluator: PredicateEvaluator,
 ) : DeclarativeTestFixtureBuilder {
     override fun protocol(): String {
@@ -64,7 +64,7 @@ class GrpcTestFixtureBuilder(
         var responseBody: String? = null
         if (responseMap.containsKey("body")) {
             val bodyMap = responseMap["body"] as Map<String, Any>
-            val writer = objectMapper.writerWithDefaultPrettyPrinter()
+            val writer = jsonMapper.writerWithDefaultPrettyPrinter()
             responseBody = writer.writeValueAsString(bodyMap)
         }
         return responseBody

@@ -14,7 +14,8 @@ import org.springframework.test.context.TestPropertySource
 @FIT
 @TestPropertySource(properties = [
     "spring.kafka.producer.value-serializer=org.fit4j.kafka.MessageSerializer",
-    "spring.kafka.consumer.auto-offset-reset=earliest"])
+    "spring.kafka.consumer.auto-offset-reset=earliest",
+    "spring.kafka.template.default-topic=fit4j-test-topic"])
 class KafkaMessageTrackerProtobufFIT {
 
     @Autowired

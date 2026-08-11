@@ -198,13 +198,38 @@ class MyHttpFIT {
 
 `@FIT` defaults to `webEnvironment = RANDOM_PORT` (embedded server). Use `@FIT(webEnvironment = SpringBootTest.WebEnvironment.MOCK)` for `MockMvc`-style tests without a real port.
 
+## Jackson 3 (FIT4J default)
+
+FIT4J **0.1.4+** depends on **Jackson 3** via `spring-boot-jackson` and `tools.jackson.module:jackson-module-kotlin`. Spring Boot 4 auto-configures a `tools.jackson.databind.json.JsonMapper` bean for FIT tests.
+
+### Breaking API change
+
+| Before | After |
+|--------|-------|
+| `jsonHelper.objectMapper` | `jsonHelper.jsonMapper` (`tools.jackson.databind.json.JsonMapper`) |
+
+### Consumer test dependencies
+
+Align your FIT test classpath with Jackson 3:
+
+```kotlin
+testImplementation("org.springframework.boot:spring-boot-jackson")
+testImplementation("tools.jackson.module:jackson-module-kotlin")
+```
+
+Remove `spring.http.converters.preferred-json-mapper=jackson2` from test `application.properties` (Boot 4 defaults to Jackson 3).
+
+If your service still needs Jackson 2 for legacy code, add **`spring-boot-jackson2`** alongside Jackson 3 (see Boot 4 migration guide).
+
 ## Jackson 3 vs Kotlin data classes
 
-Boot 4 uses **Jackson 3** for HTTP message conversion by default. Kotlin `data class` DTOs used with `RestTemplate` / `RestClient` may fail deserialization unless you:
+Boot 4 uses **Jackson 3** for HTTP message conversion by default. Kotlin `data class` DTOs used with `RestTemplate` / `RestClient` work when **`tools.jackson.module:jackson-module-kotlin`** is on the test classpath (FIT4J brings this transitively).
 
-1. Add **`spring-boot-jackson2`** and **`jackson-module-kotlin`** and configure Jackson 2 for your clients, or
+If deserialization still fails:
+
+1. Add **`spring-boot-jackson2`** and **`jackson-module-kotlin`** and configure Jackson 2 for your clients (legacy stack), or
 2. Use **JavaBean-style** mutable classes (`var` properties + no-arg constructor), or
-3. Adopt a Jackson 3 Kotlin module when available in your stack.
+3. Set `spring.jackson.use-jackson2-defaults=true` to align Jackson 3 serialization defaults with Boot 3 behavior.
 
 See [`fit4j-examples/example-rest`](fit4j-examples/example-rest/) for a working Boot 4 example.
 

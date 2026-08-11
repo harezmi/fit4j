@@ -82,8 +82,8 @@ subprojects {
         testImplementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
-        testImplementation("org.springframework.boot:spring-boot-jackson2")
-        testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+        testImplementation("org.springframework.boot:spring-boot-jackson")
+        testImplementation("tools.jackson.module:jackson-module-kotlin")
         testImplementation("org.springframework.boot:spring-boot-restclient")
         testImplementation("org.springframework.boot:spring-boot-resttestclient")
         testImplementation("org.springframework.boot:spring-boot-starter-webmvc")

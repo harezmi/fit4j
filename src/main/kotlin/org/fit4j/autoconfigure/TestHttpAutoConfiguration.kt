@@ -1,6 +1,6 @@
 package org.fit4j.autoconfigure
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import org.fit4j.http.DefaultHttpMockResponseProvider
 import org.fit4j.http.Fit4jExecutionIdClientHttpRequestInterceptor
 import org.fit4j.http.HttpCallTraceFactory
@@ -65,17 +65,17 @@ class TestHttpAutoConfiguration {
 
     @Bean
     fun rawJsonContentToHttpResponseConverter(jsonContentExpressionResolver: JsonContentExpressionResolver,
-                                              objectMapper: ObjectMapper) : JsonToHttpResponseConverter {
-        return JsonToHttpResponseConverter(jsonContentExpressionResolver, objectMapper)
+                                              jsonMapper: JsonMapper) : JsonToHttpResponseConverter {
+        return JsonToHttpResponseConverter(jsonContentExpressionResolver, jsonMapper)
     }
 
     @Bean
     fun httpTestFixtureBuilder(
-        objectMapper: ObjectMapper,
+        jsonMapper: JsonMapper,
         predicateEvaluator: PredicateEvaluator,
         propertyAndExpressionResolver: PropertyAndExpressionResolver
     ): HttpTestFixtureBuilder {
-        return HttpTestFixtureBuilder(objectMapper, predicateEvaluator, propertyAndExpressionResolver)
+        return HttpTestFixtureBuilder(jsonMapper, predicateEvaluator, propertyAndExpressionResolver)
     }
 
     @Bean

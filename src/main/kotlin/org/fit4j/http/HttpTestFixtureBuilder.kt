@@ -1,6 +1,6 @@
 package org.fit4j.http
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import org.fit4j.expression.PropertyAndExpressionResolver
 import org.fit4j.mock.declarative.DeclarativeTestFixtureBuilder
 import org.fit4j.mock.declarative.PredicateEvaluator
@@ -8,7 +8,7 @@ import org.fit4j.mock.declarative.TestFixture
 import org.fit4j.mock.declarative.TestFixturePredicate
 
 class HttpTestFixtureBuilder(
-    private val objectMapper: ObjectMapper,
+    private val jsonMapper: JsonMapper,
     private val predicateEvaluator: PredicateEvaluator,
     private val expressionResolver: PropertyAndExpressionResolver,
 ) : DeclarativeTestFixtureBuilder {
@@ -69,7 +69,7 @@ class HttpTestFixtureBuilder(
                     }
                 """.trimIndent()
         } else {
-            val writer = objectMapper.writerWithDefaultPrettyPrinter()
+            val writer = jsonMapper.writerWithDefaultPrettyPrinter()
             headers = writer.writeValueAsString(headersMap)
         }
         return headers
@@ -85,7 +85,7 @@ class HttpTestFixtureBuilder(
                     }
                 """.trimIndent()
             } else {
-                val writer = objectMapper.writerWithDefaultPrettyPrinter()
+                val writer = jsonMapper.writerWithDefaultPrettyPrinter()
                 responseBody = writer.writeValueAsString(bodyMap)
             }
         }

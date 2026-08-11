@@ -10,7 +10,7 @@ This document lists all third-party dependencies used by FIT4J and their respect
 - **ByteBuddy** (net.bytebuddy:byte-buddy) - Apache 2.0
 - **SnakeYAML** (org.yaml:snakeyaml) - Apache 2.0
 - **Apache Commons Lang** (org.apache.commons:commons-lang3) - Apache 2.0
-- **Jackson** (com.fasterxml.jackson.module:jackson-module-kotlin) - Apache 2.0
+- **Jackson** (tools.jackson.module:jackson-module-kotlin) - Apache 2.0
 - **Kotlin Standard Library** (org.jetbrains.kotlin:kotlin-stdlib) - Apache 2.0
 - **Kotlin Coroutines** (org.jetbrains.kotlinx:kotlinx-coroutines-core) - Apache 2.0
 - **gRPC** (io.grpc:grpc-*) - Apache 2.0

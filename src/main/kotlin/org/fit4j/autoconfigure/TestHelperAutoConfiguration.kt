@@ -1,6 +1,6 @@
 package org.fit4j.autoconfigure
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import com.google.protobuf.util.JsonFormat
 import org.fit4j.dbcleanup.DatabaseTestSupport
 import org.fit4j.dbcleanup.DatabaseTestSupportForH2
@@ -31,8 +31,8 @@ class TestHelperAutoConfiguration(private val applicationContext: ApplicationCon
         jsonProtoParser: JsonFormat.Parser?,
         @Autowired(required = false)
         jsonProtoPrinter:JsonFormat.Parser?,
-        objectMapper: ObjectMapper) : JsonHelper {
-        return JsonHelper(jsonProtoParser,jsonProtoPrinter,objectMapper)
+        jsonMapper: JsonMapper) : JsonHelper {
+        return JsonHelper(jsonProtoParser, jsonProtoPrinter, jsonMapper)
     }
 
     @Bean

@@ -49,3 +49,6 @@ target/
 
 # jEnv
 .java-version
+
+docs/superpowers
+.superpowers

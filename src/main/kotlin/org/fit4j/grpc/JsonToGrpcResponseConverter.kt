@@ -1,7 +1,7 @@
 package org.fit4j.grpc
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.readValue
 import com.google.protobuf.Message
 import com.google.protobuf.util.JsonFormat
 import io.grpc.Status
@@ -13,7 +13,7 @@ import org.fit4j.mock.declarative.JsonToMockResponseConverter
 class JsonToGrpcResponseConverter(private val jsonContentExpressionResolver: JsonContentExpressionResolver,
                                   private val grpcResponseBuilderRegistry: GrpcResponseBuilderRegistry,
                                   private val jsonProtoParser: JsonFormat.Parser,
-                                  private val objectMapper: ObjectMapper) : JsonToMockResponseConverter {
+                                  private val jsonMapper: JsonMapper) : JsonToMockResponseConverter {
 
     override fun isApplicableFor(request: Any?): Boolean {
         return request is Message
@@ -39,7 +39,7 @@ class JsonToGrpcResponseConverter(private val jsonContentExpressionResolver: Jso
     }
 
     private fun buildErrorResponse(jsonContent: String): StatusRuntimeException {
-        val result : Map<String,Any> = objectMapper.readValue(jsonContent.trimStart(*"throw".toCharArray()))
+        val result : Map<String,Any> = jsonMapper.readValue(jsonContent.trimStart(*"throw".toCharArray()))
         val code = result["status"] as Any
         val status = if(code is String) Status.fromCode(Code.valueOf(code)) else Status.fromCodeValue(code as Int)
         return StatusRuntimeException(status)
