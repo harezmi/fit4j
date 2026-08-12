@@ -97,18 +97,21 @@ Available at: https://s01.oss.sonatype.org/content/repositories/snapshots/
 # 1. Update version in gradle.properties (remove -SNAPSHOT)
 version=1.0.0
 
-# 2. Commit and tag
+# 2. Sync docs/examples to the new version
+./gradlew syncDocsVersion
+
+# 3. Commit and tag
 git commit -am "Release 1.0.0"
 git tag v1.0.0
 git push origin main --tags
 
-# 3. Publish
+# 4. Publish
 ./gradlew publish
 
-# 4. Login to Sonatype Nexus and manually close/release
+# 5. Login to Sonatype Nexus and manually close/release
 # https://s01.oss.sonatype.org/
 
-# 5. Bump to next snapshot
+# 6. Bump to next snapshot
 version=1.0.1-SNAPSHOT
 git commit -am "Prepare next iteration"
 git push

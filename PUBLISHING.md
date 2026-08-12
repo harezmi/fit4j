@@ -119,7 +119,18 @@ Run the publishing task with:
 
 ---
 
-## 6. Configure Repositories for Dependencies
+## 6. Release checklist
+
+When bumping the release version:
+
+1. Set `version` in `gradle.properties` (and `group` if needed).
+2. Run `./gradlew syncDocsVersion` and review the diff (`README.md`, `index.html`, `fit4j-examples`).
+3. Commit version + docs updates together.
+4. Publish / tag as usual.
+
+---
+
+## 7. Configure Repositories for Dependencies
 
 To use Maven Central or Sonatype snapshots in your project:
 
