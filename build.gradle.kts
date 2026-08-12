@@ -213,3 +213,4 @@ tasks.withType<PublishToMavenRepository>().configureEach {
     mustRunAfter(signingTasks)
 }
 
+apply(from = "gradle/sync-docs-version.gradle.kts")

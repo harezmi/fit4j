@@ -52,3 +52,4 @@ target/
 
 docs/superpowers
 .superpowers
+.worktrees/
