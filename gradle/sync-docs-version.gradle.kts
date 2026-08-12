@@ -22,22 +22,21 @@ fun rewriteVersionBlock(body: String, version: String, fileLabel: String): Strin
     }
     var out = body
     var changed = false
-    val afterCoord = fit4jCoordVersion.replace(out) { version }.also { if (it != out) changed = true }
-    out = afterCoord
-    val afterProp = fit4jVersionProp.replace(out) { version }.also { if (it != out) changed = true }
-    out = afterProp
+    if (fit4jCoordVersion.containsMatchIn(out)) {
+        out = fit4jCoordVersion.replace(out) { version }
+        changed = true
+    }
+    if (fit4jVersionProp.containsMatchIn(out)) {
+        out = fit4jVersionProp.replace(out) { version }
+        changed = true
+    }
     if (out.contains("fit4j", ignoreCase = true)) {
-        val afterMavenArtifact = mavenFit4jVersion.replace(out) { m ->
+        if (mavenFit4jVersion.containsMatchIn(out)) {
+            out = mavenFit4jVersion.replace(out) { m -> m.groupValues[1] + version + m.groupValues[3] }
             changed = true
-            m.groupValues[1] + version + m.groupValues[3]
-        }
-        out = afterMavenArtifact
-        if (!changed) {
-            val afterMaven = mavenVersionOnly.replace(out) { "<version>$version</version>" }
-            if (afterMaven != out) {
-                out = afterMaven
-                changed = true
-            }
+        } else if (mavenVersionOnly.containsMatchIn(out)) {
+            out = mavenVersionOnly.replace(out) { "<version>$version</version>" }
+            changed = true
         }
     }
     if (!changed) {
