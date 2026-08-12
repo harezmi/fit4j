@@ -1082,16 +1082,20 @@ class RedisDataPopulatorFIT {
 <h3>1. Add the Dependency</h3>
 <p>From <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a>:</p>
 <p><strong>Gradle (Kotlin DSL):</strong></p>
+<!--fit4jVersion-->
 <pre><code class="language-kotlin">// See README.md (Add the Library Dependency)
 dependencies {
-    testImplementation(&quot;org.fit4j:fit4j:1.0.0-SNAPSHOT&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.5&quot;)
 }
 </code></pre>
+<!--/fit4jVersion-->
 <p><strong>Gradle (Groovy DSL):</strong></p>
+<!--fit4jVersion-->
 <pre><code class="language-groovy">dependencies {
-    testImplementation &quot;org.fit4j:fit4j:1.0.0-SNAPSHOT&quot;
+    testImplementation &quot;io.github.harezmi:fit4j:0.1.5&quot;
 }
 </code></pre>
+<!--/fit4jVersion-->
 <p>If you need snapshots, configure the Sonatype snapshots repository.</p>
 <p><strong>Gradle:</strong></p>
 <pre><code class="language-kotlin">// See README.md (From Maven Central / snapshots)
@@ -1120,7 +1124,7 @@ repositories {
 cd /path/to/fit4j
 ./gradlew publishToMavenLocal
 </code></pre>
-<p>Then depend on <code>org.fit4j:fit4j</code> in your service without extra repository config.</p>
+<p>Then depend on <code><!--fit4jGroup-->io.github.harezmi<!--/fit4jGroup-->:fit4j</code> in your service without extra repository config.</p>
 <hr />
 <h2>Typical Developer Workflow</h2>
 <ol>
@@ -9378,21 +9382,25 @@ See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/READM
 ./gradlew publishToMavenLocal
 </code></pre>
 <p>See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/README.md#L1-L20"><code>/tmp/repo_fun8n87l/README.md:1-20</code></a> for the Maven Local instructions.</p>
-<p>Once published, you can depend on <code>org.fit4j:fit4j:1.0.0-SNAPSHOT</code> directly from your services without extra repositories.</p>
+<p>Once published, you can depend on <code><!--fit4jGroup-->io.github.harezmi<!--/fit4jGroup-->:fit4j:<!--fit4jVersion-->0.1.5<!--/fit4jVersion--></code> directly from your services without extra repositories.</p>
 <hr />
 <h2>4. Using FIT4J in Your Service</h2>
 <h3>4.1 Add dependency (Gradle / Maven)</h3>
 <p>From the root <code>README</code> (see <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/README.md#L1-L40"><code>/tmp/repo_fun8n87l/README.md:1-40</code></a>):</p>
 <p><strong>Gradle (Kotlin DSL):</strong></p>
+<!--fit4jVersion-->
 <pre><code class="language-kotlin">dependencies {
-    testImplementation(&quot;org.fit4j:fit4j:1.0.0-SNAPSHOT&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.5&quot;)
 }
 </code></pre>
+<!--/fit4jVersion-->
 <p><strong>Gradle (Groovy DSL):</strong></p>
+<!--fit4jVersion-->
 <pre><code class="language-groovy">dependencies {
-    testImplementation &quot;org.fit4j:fit4j:1.0.0-SNAPSHOT&quot;
+    testImplementation &quot;io.github.harezmi:fit4j:0.1.5&quot;
 }
 </code></pre>
+<!--/fit4jVersion-->
 <p>For snapshot builds, you may need the Sonatype snapshots repository:</p>
 <pre><code class="language-kotlin">repositories {
     mavenCentral()
@@ -9771,7 +9779,7 @@ graph TD
  step4 --> step5["Inspect context and side effects"]
 </div></div>
 <ol>
-<li>Add <code>org.fit4j:fit4j:1.0.0-SNAPSHOT</code> to your <code>testImplementation</code> / <code>test</code> scope.</li>
+<li>Add <code><!--fit4jGroup-->io.github.harezmi<!--/fit4jGroup-->:fit4j:<!--fit4jVersion-->0.1.5<!--/fit4jVersion--></code> to your <code>testImplementation</code> / <code>test</code> scope.</li>
 <li>Disable test parallelism in Gradle/Maven for FIT tests.</li>
 <li>Start with a minimal <code>@FIT</code> class (e.g., REST or Kafka sample).</li>
 <li>Run <code>./gradlew test</code> or <code>mvn test</code> and verify context and basic assertions.</li>
@@ -11923,15 +11931,18 @@ graph TD
 <h2>Using FIT4J from Maven Central or Snapshots</h2>
 <h3>Maven Central (Stable Releases)</h3>
 <p>Example dependency after a release (from <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L191-L205"><code>MAVEN_CENTRAL_SETUP.md:191-205</code></a>):</p>
+<!--fit4jVersion-->
 <pre><code class="language-kotlin">// build.gradle.kts
 dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.0&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.5&quot;)
 }
 </code></pre>
+<!--/fit4jVersion-->
 <p>Update <code>group</code> and version to match whichever group ID is used (<code>org.fit4j</code> or <code>io.github.ksevindik</code>).</p>
 <h3>Snapshots</h3>
 <p>To consume snapshot versions:</p>
 <p><strong>Gradle (Kotlin DSL)</strong> (<a href="https://github.com/harezmi/fit4j/blob/main/README.md#L80-L101"><code>README.md:80-101</code></a> + <a href="https://github.com/harezmi/fit4j/blob/main/PUBLISHING.md#L140-L155"><code>PUBLISHING.md:140-155</code></a>):</p>
+<!--fit4jVersion-->
 <pre><code class="language-kotlin">repositories {
     mavenCentral()
     maven {
@@ -11940,9 +11951,10 @@ dependencies {
 }
 
 dependencies {
-    testImplementation(&quot;org.fit4j:fit4j:1.0.0-SNAPSHOT&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.5&quot;)
 }
 </code></pre>
+<!--/fit4jVersion-->
 <p><strong>Note:</strong> For the central-based snapshot repo (as per newer Sonatype docs), you can alternatively use:</p>
 <pre><code class="language-kotlin">repositories {
     mavenCentral()
@@ -11968,10 +11980,13 @@ dependencies {
 <p><strong>Use in a real project</strong>  </p>
 </li>
 <li>Add dependency:
-     <code>kotlin
-     dependencies {
-         testImplementation("io.github.harezmi:fit4j:0.1.0")
-     }</code></li>
+<!--fit4jVersion-->
+<pre><code class="language-kotlin">dependencies {
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.5&quot;)
+}
+</code></pre>
+<!--/fit4jVersion-->
+</li>
 <li>
 <p>Run a build to confirm the coordinates resolve.</p>
 </li>
