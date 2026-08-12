@@ -20,10 +20,10 @@ class DatabaseTestSupportMissingTransactionManagerFIT {
     private lateinit var applicationContext: ApplicationContext
 
     @Test
-    fun `database test support should not be created when transaction manager is absent`() {
+    fun `database test support should be created when transaction manager is absent`() {
         Assertions.assertTrue(applicationContext.containsBean("dataSource"))
         Assertions.assertFalse(applicationContext.containsBean("transactionManager"))
-        Assertions.assertFalse(applicationContext.containsBean("databaseTestSupport"))
-        Assertions.assertTrue(applicationContext.getBeansOfType(DatabaseTestSupport::class.java).isEmpty())
+        Assertions.assertTrue(applicationContext.containsBean("databaseTestSupport"))
+        Assertions.assertNotNull(applicationContext.getBean(DatabaseTestSupport::class.java))
     }
 }

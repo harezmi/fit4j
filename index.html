@@ -1085,14 +1085,14 @@ class RedisDataPopulatorFIT {
 <!--fit4jVersion-->
 <pre><code class="language-kotlin">// See README.md (Add the Library Dependency)
 dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.6&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.7&quot;)
 }
 </code></pre>
 <!--/fit4jVersion-->
 <p><strong>Gradle (Groovy DSL):</strong></p>
 <!--fit4jVersion-->
 <pre><code class="language-groovy">dependencies {
-    testImplementation &quot;io.github.harezmi:fit4j:0.1.6&quot;
+    testImplementation &quot;io.github.harezmi:fit4j:0.1.7&quot;
 }
 </code></pre>
 <!--/fit4jVersion-->
@@ -4070,6 +4070,8 @@ class ExampleBean(
 <li>Example DynamoDB entities and schemas (e.g., <code>PlayerItem</code>) used in FIT tests with and without Testcontainers.</li>
 </ul>
 <p>These pieces ensure that each test method runs with a clean database state and predictable identifier/sequence values.</p>
+<h3>Configuration</h3>
+<p>When exactly one <code>DataSource</code> bean exists, FIT4J uses it automatically. When multiple <code>DataSource</code> beans are present, set <code>fit4j.dbcleanup.dataSource</code> to the bean name that should be cleaned (default: <code>dataSource</code>). FIT4J creates its own <code>DataSourceTransactionManager</code> for cleanup scoped to that data source; it does not require a <code>PlatformTransactionManager</code> bean in the application context.</p>
 <hr />
 <h2>Core Database Support Abstractions</h2>
 <h3><code>DatabaseTestSupport</code> interface</h3>
@@ -9390,14 +9392,14 @@ See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/READM
 <p><strong>Gradle (Kotlin DSL):</strong></p>
 <!--fit4jVersion-->
 <pre><code class="language-kotlin">dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.6&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.7&quot;)
 }
 </code></pre>
 <!--/fit4jVersion-->
 <p><strong>Gradle (Groovy DSL):</strong></p>
 <!--fit4jVersion-->
 <pre><code class="language-groovy">dependencies {
-    testImplementation &quot;io.github.harezmi:fit4j:0.1.6&quot;
+    testImplementation &quot;io.github.harezmi:fit4j:0.1.7&quot;
 }
 </code></pre>
 <!--/fit4jVersion-->
@@ -9779,7 +9781,7 @@ graph TD
  step4 --> step5["Inspect context and side effects"]
 </div></div>
 <ol>
-<li>Add <code><!--fit4jGroup-->io.github.harezmi<!--/fit4jGroup-->:fit4j:<!--fit4jVersion-->0.1.6<!--/fit4jVersion--></code> to your <code>testImplementation</code> / <code>test</code> scope.</li>
+<li>Add <code><!--fit4jGroup-->io.github.harezmi<!--/fit4jGroup-->:fit4j:<!--fit4jVersion-->0.1.7<!--/fit4jVersion--></code> to your <code>testImplementation</code> / <code>test</code> scope.</li>
 <li>Disable test parallelism in Gradle/Maven for FIT tests.</li>
 <li>Start with a minimal <code>@FIT</code> class (e.g., REST or Kafka sample).</li>
 <li>Run <code>./gradlew test</code> or <code>mvn test</code> and verify context and basic assertions.</li>
@@ -11937,7 +11939,7 @@ graph TD
 <!--fit4jVersion-->
 <pre><code class="language-kotlin">// build.gradle.kts
 dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.6&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.7&quot;)
 }
 </code></pre>
 <!--/fit4jVersion-->
@@ -11983,7 +11985,7 @@ dependencies {
 <li>Add dependency:
 <!--fit4jVersion-->
 <pre><code class="language-kotlin">dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.6&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.7&quot;)
 }
 </code></pre>
 <!--/fit4jVersion-->
