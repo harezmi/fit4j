@@ -87,10 +87,11 @@ Available at: https://s01.oss.sonatype.org/content/repositories/snapshots/
 ### Publish Release (30 minutes manual process)
 
 **Option A: Via GitHub Release (Recommended)**
-1. Create GitHub release with tag (e.g., `v1.0.0`)
-2. GitHub Actions automatically publishes
-3. Login to https://s01.oss.sonatype.org/
-4. Find staging repository → Close → Release
+1. Bump `version` in `gradle.properties`, run `./gradlew syncDocsVersion`, and commit the version + docs updates
+2. Create GitHub release with tag (e.g., `v1.0.0`)
+3. GitHub Actions automatically publishes
+4. Login to https://s01.oss.sonatype.org/
+5. Find staging repository → Close → Release
 
 **Option B: Manual**
 ```bash

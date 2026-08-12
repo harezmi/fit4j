@@ -9382,7 +9382,7 @@ See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/READM
 ./gradlew publishToMavenLocal
 </code></pre>
 <p>See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/README.md#L1-L20"><code>/tmp/repo_fun8n87l/README.md:1-20</code></a> for the Maven Local instructions.</p>
-<p>Once published, you can depend on <code><!--fit4jGroup-->io.github.harezmi<!--/fit4jGroup-->:fit4j:<!--fit4jVersion-->0.1.5<!--/fit4jVersion--></code> directly from your services without extra repositories.</p>
+<p>Once published, you can depend on <code>io.github.harezmi:fit4j:0.1.5-SNAPSHOT</code> (match the version in your local <code>gradle.properties</code>) directly from your services without extra repositories.</p>
 <hr />
 <h2>4. Using FIT4J in Your Service</h2>
 <h3>4.1 Add dependency (Gradle / Maven)</h3>
@@ -11892,19 +11892,22 @@ version=1.0.1-SNAPSHOT
 <pre><code class="language-bash"># 1. Set a release version (no -SNAPSHOT)
 version=1.0.0  # in gradle.properties
 
-# 2. Commit and tag
+# 2. Sync docs/examples to the new version
+./gradlew syncDocsVersion
+
+# 3. Commit and tag
 git commit -am &quot;Release 1.0.0&quot;
 git tag v1.0.0
 git push origin main --tags
 
-# 3. Publish artifacts
+# 4. Publish artifacts
 ./gradlew publish
 
-# 4. Finalize in Sonatype Nexus
+# 5. Finalize in Sonatype Nexus
 #    https://s01.oss.sonatype.org/
 #    Close and then Release the staging repository
 
-# 5. Bump to next snapshot
+# 6. Bump to next snapshot
 version=1.0.1-SNAPSHOT  # in gradle.properties
 git commit -am &quot;Prepare next iteration&quot;
 git push
@@ -11942,7 +11945,6 @@ dependencies {
 <h3>Snapshots</h3>
 <p>To consume snapshot versions:</p>
 <p><strong>Gradle (Kotlin DSL)</strong> (<a href="https://github.com/harezmi/fit4j/blob/main/README.md#L80-L101"><code>README.md:80-101</code></a> + <a href="https://github.com/harezmi/fit4j/blob/main/PUBLISHING.md#L140-L155"><code>PUBLISHING.md:140-155</code></a>):</p>
-<!--fit4jVersion-->
 <pre><code class="language-kotlin">repositories {
     mavenCentral()
     maven {
@@ -11951,10 +11953,9 @@ dependencies {
 }
 
 dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.5&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.5-SNAPSHOT&quot;)
 }
 </code></pre>
-<!--/fit4jVersion-->
 <p><strong>Note:</strong> For the central-based snapshot repo (as per newer Sonatype docs), you can alternatively use:</p>
 <pre><code class="language-kotlin">repositories {
     mavenCentral()
