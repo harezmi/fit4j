@@ -28,6 +28,10 @@ object TestContainerClassAliases {
         "org.testcontainers.kafka.KafkaContainer",
     )
 
+    private val GENERIC_CONTAINERS = setOf(
+        "org.testcontainers.containers.GenericContainer",
+    )
+
     fun resolve(containerClassName: String): String =
         ALIASES[containerClassName] ?: containerClassName
 
@@ -42,4 +46,19 @@ object TestContainerClassAliases {
     fun isKafkaContainer(containerClassName: String): Boolean =
         resolve(containerClassName) in KAFKA_CONTAINERS ||
             containerClassName in KAFKA_CONTAINERS
+
+    fun isGenericContainer(containerClassName: String): Boolean =
+        resolve(containerClassName) in GENERIC_CONTAINERS ||
+            containerClassName in GENERIC_CONTAINERS
+
+    fun isRedisContainer(containerClassName: String, image: String?): Boolean {
+        if (!isGenericContainer(containerClassName)) {
+            return false
+        }
+        val imageName = image?.trim().orEmpty()
+        if (imageName.isEmpty()) {
+            return false
+        }
+        return imageName.contains("redis", ignoreCase = true)
+    }
 }

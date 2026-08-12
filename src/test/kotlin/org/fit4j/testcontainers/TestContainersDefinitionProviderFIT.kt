@@ -100,6 +100,11 @@ class TestContainersDefinitionProviderFIT  {
             cd.startContainer()
             val container = cd.getContainer()
             Assertions.assertEquals("redis", cd.beanName)
+            Assertions.assertEquals(
+                RedisTestContainerDefinition::class.java,
+                cd.javaClass,
+                "redis sample entry must use RedisTestContainerDefinition (image contains redis + GenericContainer)"
+            )
             Assertions.assertEquals("redis:6.2.1", cd.getImageName())
             Assertions.assertEquals(listOf(6379), container.getExposedPorts())
             Assertions.assertEquals(
@@ -160,6 +165,11 @@ class TestContainersDefinitionProviderFIT  {
     }
 
     fun verifySixthContainer(cd:TestContainerDefinition) {
+        Assertions.assertEquals(
+            MapBasedTestContainerDefinition::class.java,
+            cd.javaClass,
+            "dynamodb GenericContainer must not be treated as Redis"
+        )
         try {
             cd.startContainer()
             val container = cd.getContainer()
