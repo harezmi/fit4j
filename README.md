@@ -27,6 +27,7 @@
         + [Verify Published or Consumed Kafka Messages](#verify-published-or-consumed-kafka-messages)
 - [How to Work with TestContainers?](#how-to-work-with-testcontainers)
     * [Selectively Registering Your TestContainers](#selectively-registering-your-testcontainers)
+    * [Network Fault Injection (Toxiproxy)](#network-fault-injection-toxiproxy)
     * [Initial Data Population for TestContainers](#initial-data-population-for-testcontainers)
         + [Initial Data Population for MySQL Container](#initial-data-population-for-mysql-container)
         + [Initial Data Population for ElasticSearch Container](#initial-data-population-for-elasticsearch-container)
@@ -1165,6 +1166,78 @@ class TestContainersWithSelectiveRegistrationFIT {
 }
 ```
 
+## Network Fault Injection (Toxiproxy)
+
+FIT4J can route selected Testcontainer dependencies through a hidden [Toxiproxy](https://github.com/Shopify/toxiproxy) instance so you can simulate network failures (connection cuts, latency, timeouts) in resilience and health-probe tests.
+
+Opt in on the test class with `networkFault` on `@org.fit4j.testcontainers.Testcontainers`. Toxiproxy is **not** declared in `fit4j-test-containers.yml` and does **not** appear in `definitions` — fit4j starts it programmatically on the same Docker network as your other containers.
+
+When enabled, `${fit4j.<container-name>.host}`, `.port`, and exposed properties such as `.jdbcUrl` are rewritten to point at the proxy endpoint. Your `application-test.properties` can keep using the usual placeholders unchanged.
+
+```kotlin
+@FIT
+@org.fit4j.testcontainers.Testcontainers(
+    definitions = ["postgreSQLContainerDefinition", "vaultContainerDefinition"],
+    networkFault = org.fit4j.testcontainers.NetworkFault(
+        proxied = ["postgreSQLContainerDefinition", "vaultContainerDefinition:8200"]
+    ),
+)
+class HealthProbeFIT {
+
+    @Autowired
+    private lateinit var fit4jPostgreSQLContainerDefinitionProxy: org.testcontainers.containers.ToxiproxyContainer.ContainerProxy
+
+    @Test
+    fun `readiness is down when database is unreachable`() {
+        fit4jPostgreSQLContainerDefinitionProxy.setConnectionCut(true)
+        try {
+            // assert readiness returns 503 ...
+        } finally {
+            fit4jPostgreSQLContainerDefinitionProxy.setConnectionCut(false)
+        }
+    }
+}
+```
+
+### Syntax
+
+| Form | Meaning |
+|------|---------|
+| `NetworkFault()` or `proxied = []` | Disabled (default). No toxiproxy, direct container properties. |
+| `proxied = ["postgreSQLContainerDefinition"]` | Proxy target; upstream port inferred from container type. |
+| `proxied = ["vaultContainerDefinition:8200"]` | Required `name:port` form for `GenericContainer` and other targets without a known default port. |
+
+Every name in `proxied` must also appear in `definitions`. fit4j fails fast at context startup if a proxied target is missing from `definitions` or from `fit4j-test-containers.yml`.
+
+### Injected proxy beans
+
+For each proxied target named `<name>`, fit4j registers a Spring bean `fit4j<Name>Proxy` (first letter of `<name>` capitalized), e.g. `fit4jPostgresProxy` for `postgres`, `fit4jNetworkFaultPostgresProxy` for `networkFaultPostgres`. Inject this bean to call Toxiproxy APIs (`setConnectionCut`, `toxics()`, etc.) from your tests.
+
+### Default upstream ports (when port omitted)
+
+| Container type | Port |
+|----------------|------|
+| PostgreSQL | 5432 |
+| MySQL | 3306 |
+| Elasticsearch | 9200 |
+| Kafka | 9092 |
+| `GenericContainer` with `exposedPorts` | First exposed port |
+| Other | Use `name:port` in `proxied` |
+
+### Configuration properties
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `fit4j.network-fault.toxiproxy.image` | `ghcr.io/shopify/toxiproxy:latest` | Docker image for the hidden toxiproxy container. |
+| `fit4j.network-fault.toxiproxy.compatible-substitute-for` | *(none)* | Passed to `DockerImageName.asCompatibleSubstituteFor` for private registry mirrors. |
+| `fit4j.test-containers.resource-path` | `classpath:fit4j-test-containers.yml` | Optional override of the Testcontainers YAML location (also used without network fault). |
+
+### Notes
+
+- **Connection pools:** After cutting connections, evict pooled connections (e.g. HikariCP `softEvictConnections()`) before asserting recovery; stale pool entries can otherwise block until JDBC timeouts expire.
+- **Reuse:** Prefer `reuse: false` on containers used in fault-injection suites.
+- **Parallel tests:** Do not combine network fault injection with JUnit parallel execution; proxy state is shared within a Spring context.
+
 ## Initial Data Population for TestContainers
 
 ### Initial Data Population for MySQL Container
@@ -1424,6 +1497,10 @@ The FIT4J library exposes and uses various configuration properties starting wit
 | `fit4j.<container-name>.host`                                  | String | *Auto-set* | Host address of the container. Set automatically for each container definition in `fit4j-test-containers.yml`. |
 | `fit4j.<container-name>.port`                                  | Integer | *Auto-set* | First mapped port of the container. Set automatically for containers with exposed ports. |
 | `fit4j.<container-name>.<exposed-property>`                    | Various | *Auto-set* | Any property listed in the `exposedProperties` section of a container definition. For example, `jdbcUrl`, `username`, `password`, etc. |
+| **Network Fault Properties**                                   |
+| `fit4j.network-fault.toxiproxy.image`                          | String | `ghcr.io/shopify/toxiproxy:latest` | Docker image for the hidden Toxiproxy container when `networkFault` is enabled. |
+| `fit4j.network-fault.toxiproxy.compatible-substitute-for`      | String | *(none)* | Compatible substitute image name for private registry mirrors. |
+| `fit4j.test-containers.resource-path`                          | String | `classpath:fit4j-test-containers.yml` | Classpath location of the Testcontainers YAML definitions file. |
 
 ### Notes on Properties:
 

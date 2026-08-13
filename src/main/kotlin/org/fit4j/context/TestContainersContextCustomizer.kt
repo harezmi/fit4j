@@ -1,5 +1,7 @@
 package org.fit4j.context
 
+import org.fit4j.testcontainers.NetworkFaultRegistrar
+import org.fit4j.testcontainers.ProxiedTarget
 import org.fit4j.testcontainers.TestContainerDefinitionRegistrar
 import org.fit4j.testcontainers.TestContainersDefinitionProvider
 import org.slf4j.Logger
@@ -9,7 +11,11 @@ import org.springframework.test.context.ContextCustomizer
 import org.springframework.test.context.MergedContextConfiguration
 import org.testcontainers.containers.Network
 
-class TestContainersContextCustomizer(private val registerDefinitionsSelectively:Boolean = false, private val registerDefinitions:Array<String> = arrayOf()) : ContextCustomizer {
+class TestContainersContextCustomizer(
+    private val registerDefinitionsSelectively: Boolean = false,
+    private val registerDefinitions: Array<String> = arrayOf(),
+    private val proxiedTargets: List<ProxiedTarget> = emptyList(),
+) : ContextCustomizer {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun customizeContext(context: ConfigurableApplicationContext, mergedConfig: MergedContextConfiguration) {
@@ -19,17 +25,33 @@ class TestContainersContextCustomizer(private val registerDefinitionsSelectively
     }
 
     private fun registerTestContainers(context: ConfigurableApplicationContext) {
-        val definitionProvider = TestContainersDefinitionProvider(context)
+        val resourcePath = context.environment.getProperty(
+            "fit4j.test-containers.resource-path",
+            "classpath:fit4j-test-containers.yml",
+        )
+        val definitionProvider = TestContainersDefinitionProvider(context, resourcePath)
         var definitions = definitionProvider.getTestContainerDefinitions()
-        if(registerDefinitionsSelectively) {
-            definitions = definitions.filter { this.registerDefinitions.contains(it.beanName) }
+        if (registerDefinitionsSelectively) {
+            definitions = definitions.filter { registerDefinitions.contains(it.beanName) }
         }
         val network = Network.newNetwork()
-        context.beanFactory.registerSingleton("dockerContainerNetwork",network)
+        context.beanFactory.registerSingleton("dockerContainerNetwork", network)
 
-        val registrars: List<TestContainerDefinitionRegistrar> = definitions.map { TestContainerDefinitionRegistrar(it, network) }
-        registrars.forEach {
-            it.register(context)
+        definitions.map { TestContainerDefinitionRegistrar(it, network) }
+            .forEach { it.register(context) }
+
+        if (proxiedTargets.isNotEmpty()) {
+            NetworkFaultRegistrar(
+                context = context,
+                network = network,
+                definitions = definitions,
+                proxiedTargets = proxiedTargets,
+                registeredDefinitionNames = if (registerDefinitionsSelectively) {
+                    registerDefinitions
+                } else {
+                    definitions.map { it.beanName }.toTypedArray()
+                },
+            ).register()
         }
     }
 
@@ -41,6 +63,7 @@ class TestContainersContextCustomizer(private val registerDefinitionsSelectively
 
         if (registerDefinitionsSelectively != other.registerDefinitionsSelectively) return false
         if (!registerDefinitions.contentEquals(other.registerDefinitions)) return false
+        if (proxiedTargets != other.proxiedTargets) return false
 
         return true
     }
@@ -48,8 +71,7 @@ class TestContainersContextCustomizer(private val registerDefinitionsSelectively
     override fun hashCode(): Int {
         var result = registerDefinitionsSelectively.hashCode()
         result = 31 * result + registerDefinitions.contentHashCode()
+        result = 31 * result + proxiedTargets.hashCode()
         return result
     }
-
-
 }

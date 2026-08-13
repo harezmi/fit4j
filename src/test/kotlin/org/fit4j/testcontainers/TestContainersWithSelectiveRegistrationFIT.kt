@@ -4,6 +4,7 @@ import org.fit4j.annotation.FIT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
 import org.springframework.test.annotation.DirtiesContext
 
 
@@ -14,6 +15,9 @@ class TestContainersWithSelectiveRegistrationFIT {
     @Autowired(required = false)
     private var testContainerDefinitions:List<TestContainerDefinition>? = null
 
+    @Autowired
+    private lateinit var applicationContext: ApplicationContext
+
     @Test
     fun `it should register test containers if testcontainers annotation is present`() {
         // Given
@@ -22,5 +26,10 @@ class TestContainersWithSelectiveRegistrationFIT {
         Assertions.assertEquals(1, testContainerDefinitions!!.size)
         Assertions.assertEquals("redisContainerDefinition", testContainerDefinitions!!.first().beanName)
         // Then
+    }
+
+    @Test
+    fun `it should not register toxiproxy without networkFault`() {
+        Assertions.assertFalse(applicationContext.containsBean("fit4jToxiproxyBootstrap"))
     }
 }

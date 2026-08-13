@@ -1,5 +1,8 @@
 package org.fit4j.context
 
+import org.fit4j.testcontainers.ProxiedTarget
+import org.fit4j.testcontainers.ProxiedTargetParser
+import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.test.context.ContextConfigurationAttributes
 import org.springframework.test.context.ContextCustomizer
 import org.springframework.test.context.TestContextAnnotationUtils
@@ -10,10 +13,19 @@ class TestContainersContextCustomizerFactory : AbstractContextCustomizerFactory(
         testClass: Class<*>,
         configAttributes: MutableList<ContextConfigurationAttributes>
     ): ContextCustomizer? {
-        return if (isAnnotationPresent(testClass,org.fit4j.testcontainers.Testcontainers::class.java)) {
+        return if (isAnnotationPresent(testClass, org.fit4j.testcontainers.Testcontainers::class.java)) {
             val definitions = findDefinitions(testClass)
-            TestContainersContextCustomizer(true,definitions)
-        } else if (isAnnotationPresent(testClass, Testcontainers::class.java)) TestContainersContextCustomizer() else null
+            val proxiedTargets = findProxiedTargets(testClass)
+            TestContainersContextCustomizer(
+                registerDefinitionsSelectively = true,
+                registerDefinitions = definitions,
+                proxiedTargets = proxiedTargets,
+            )
+        } else if (isAnnotationPresent(testClass, Testcontainers::class.java)) {
+            TestContainersContextCustomizer()
+        } else {
+            null
+        }
     }
 
     private fun findDefinitions(testClass: Class<*>): Array<String> {
@@ -25,8 +37,16 @@ class TestContainersContextCustomizerFactory : AbstractContextCustomizerFactory(
         while (descriptor != null) {
             val annotation = descriptor.annotation
             definitions += annotation.definitions
-            descriptor = if(annotation.inheritDefinitions) descriptor.next() else null
+            descriptor = if (annotation.inheritDefinitions) descriptor.next() else null
         }
         return definitions
+    }
+
+    private fun findProxiedTargets(testClass: Class<*>): List<ProxiedTarget> {
+        val merged = AnnotatedElementUtils.findMergedAnnotation(
+            testClass,
+            org.fit4j.testcontainers.Testcontainers::class.java,
+        ) ?: return emptyList()
+        return ProxiedTargetParser.parseAll(merged.networkFault.proxied)
     }
 }

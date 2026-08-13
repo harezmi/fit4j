@@ -1,0 +1,30 @@
+- container: org.testcontainers.containers.PostgreSQLContainer
+  name: networkFaultPostgres
+  image: postgres:16.1
+  exposedPorts:
+    - 5432
+  username: postgres
+  password: postgres
+  databaseName: testdb
+  env:
+    - POSTGRES_HOST_AUTH_METHOD: trust
+  exposedProperties:
+    - jdbcUrl
+    - username
+    - password
+    - host
+    - firstMappedPort
+  reuse: false
+- container: org.testcontainers.containers.GenericContainer
+  name: networkFaultVault
+  image: hashicorp/vault:1.15.0
+  exposedPorts:
+    - 8200
+  env:
+    - VAULT_DEV_ROOT_TOKEN_ID: test-token
+    - VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+  command: server -dev
+  exposedProperties:
+    - host
+    - firstMappedPort
+  reuse: false

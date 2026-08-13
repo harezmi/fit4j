@@ -10,5 +10,6 @@ import java.lang.annotation.Target
 @Retention(RetentionPolicy.RUNTIME)
 annotation class Testcontainers(
     val definitions: Array<String> = [],
-    val inheritDefinitions: Boolean = true
+    val inheritDefinitions: Boolean = true,
+    val networkFault: NetworkFault = NetworkFault(),
 )

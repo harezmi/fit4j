@@ -79,6 +79,7 @@ dependencies {
 	implementation("org.testcontainers:testcontainers-elasticsearch")
 	implementation("org.testcontainers:testcontainers-mysql")
 	implementation("org.testcontainers:testcontainers-postgresql")
+	implementation("org.testcontainers:testcontainers-toxiproxy")
 	implementation("co.elastic.clients:elasticsearch-java")
 	implementation("redis.clients:jedis:$redisVersion")
 	implementation("com.github.codemonstur:embedded-redis:1.4.3")
