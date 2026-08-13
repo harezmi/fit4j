@@ -1166,6 +1166,21 @@ class TestContainersWithSelectiveRegistrationFIT {
 }
 ```
 
+### Custom YAML location
+
+By default, `@org.fit4j.testcontainers.Testcontainers` loads definitions from `fit4j-test-containers.yml` on the test classpath. Use `resourcePath` when a test class needs a different file:
+
+```kotlin
+@FIT
+@org.fit4j.testcontainers.Testcontainers(
+    resourcePath = "fit4j-test-containers-network-fault.yml",
+    definitions = ["networkFaultPostgres"],
+)
+class NetworkFaultFIT
+```
+
+Bare filenames are resolved as `classpath:<filename>`. You may also pass an explicit prefix, e.g. `classpath:custom/containers.yml` or `file:/absolute/path/containers.yml`.
+
 ## Network Fault Injection (Toxiproxy)
 
 FIT4J can route selected Testcontainer dependencies through a hidden [Toxiproxy](https://github.com/Shopify/toxiproxy) instance so you can simulate network failures (connection cuts, latency, timeouts) in resilience and health-probe tests.
@@ -1177,6 +1192,7 @@ When enabled, `${fit4j.<container-name>.host}`, `.port`, and exposed properties 
 ```kotlin
 @FIT
 @org.fit4j.testcontainers.Testcontainers(
+    resourcePath = "fit4j-test-containers-network-fault.yml",
     definitions = ["postgreSQLContainerDefinition", "vaultContainerDefinition"],
     networkFault = org.fit4j.testcontainers.NetworkFault(
         proxied = ["postgreSQLContainerDefinition", "vaultContainerDefinition:8200"]
@@ -1230,7 +1246,6 @@ For each proxied target named `<name>`, fit4j registers a Spring bean `fit4j<Nam
 |----------|---------|-------------|
 | `fit4j.network-fault.toxiproxy.image` | `ghcr.io/shopify/toxiproxy:latest` | Docker image for the hidden toxiproxy container. |
 | `fit4j.network-fault.toxiproxy.compatible-substitute-for` | *(none)* | Passed to `DockerImageName.asCompatibleSubstituteFor` for private registry mirrors. |
-| `fit4j.test-containers.resource-path` | `classpath:fit4j-test-containers.yml` | Optional override of the Testcontainers YAML location (also used without network fault). |
 
 ### Notes
 
@@ -1500,7 +1515,6 @@ The FIT4J library exposes and uses various configuration properties starting wit
 | **Network Fault Properties**                                   |
 | `fit4j.network-fault.toxiproxy.image`                          | String | `ghcr.io/shopify/toxiproxy:latest` | Docker image for the hidden Toxiproxy container when `networkFault` is enabled. |
 | `fit4j.network-fault.toxiproxy.compatible-substitute-for`      | String | *(none)* | Compatible substitute image name for private registry mirrors. |
-| `fit4j.test-containers.resource-path`                          | String | `classpath:fit4j-test-containers.yml` | Classpath location of the Testcontainers YAML definitions file. |
 
 ### Notes on Properties:
 

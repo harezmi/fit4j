@@ -21,12 +21,12 @@ import javax.sql.DataSource
 
 @FIT
 @Testcontainers(
+    resourcePath = "fit4j-test-containers-network-fault.yml",
     definitions = ["networkFaultPostgres", "networkFaultVault"],
     networkFault = NetworkFault(proxied = ["networkFaultPostgres", "networkFaultVault:8200"]),
 )
 @TestPropertySource(
     properties = [
-        "fit4j.test-containers.resource-path=classpath:fit4j-test-containers-network-fault.yml",
         "spring.datasource.driver-class-name=org.postgresql.Driver",
         "spring.datasource.url=\${fit4j.networkFaultPostgres.jdbcUrl}",
         "spring.datasource.username=\${fit4j.networkFaultPostgres.username}",
