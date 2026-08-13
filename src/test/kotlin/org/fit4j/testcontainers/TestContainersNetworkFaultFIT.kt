@@ -16,7 +16,6 @@ import org.springframework.core.env.Environment
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.queryForObject
 import org.springframework.test.context.TestPropertySource
-import org.testcontainers.containers.ToxiproxyContainer
 import java.time.Duration
 import javax.sql.DataSource
 
@@ -50,7 +49,7 @@ class TestContainersNetworkFaultFIT {
     private lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
-    private lateinit var fit4jNetworkFaultPostgresProxy: ToxiproxyContainer.ContainerProxy
+    private lateinit var fit4jNetworkFaultPostgresProxy: NetworkFaultProxy
 
     @Test
     @Order(1)

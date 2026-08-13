@@ -1185,7 +1185,7 @@ When enabled, `${fit4j.<container-name>.host}`, `.port`, and exposed properties 
 class HealthProbeFIT {
 
     @Autowired
-    private lateinit var fit4jPostgreSQLContainerDefinitionProxy: org.testcontainers.containers.ToxiproxyContainer.ContainerProxy
+    private lateinit var fit4jPostgreSQLContainerDefinitionProxy: org.fit4j.testcontainers.NetworkFaultProxy
 
     @Test
     fun `readiness is down when database is unreachable`() {
@@ -1211,7 +1211,7 @@ Every name in `proxied` must also appear in `definitions`. fit4j fails fast at c
 
 ### Injected proxy beans
 
-For each proxied target named `<name>`, fit4j registers a Spring bean `fit4j<Name>Proxy` (first letter of `<name>` capitalized), e.g. `fit4jPostgresProxy` for `postgres`, `fit4jNetworkFaultPostgresProxy` for `networkFaultPostgres`. Inject this bean to call Toxiproxy APIs (`setConnectionCut`, `toxics()`, etc.) from your tests.
+For each proxied target named `<name>`, fit4j registers a Spring bean `fit4j<Name>Proxy` (first letter of `<name>` capitalized), e.g. `fit4jPostgresProxy` for `postgres`. Inject this bean as `org.fit4j.testcontainers.NetworkFaultProxy` to call `setConnectionCut`, `toxics()`, etc. from your tests.
 
 ### Default upstream ports (when port omitted)
 
