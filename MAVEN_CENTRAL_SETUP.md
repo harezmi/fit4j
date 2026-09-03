@@ -1,168 +1,214 @@
 # Quick Start: Publishing to Maven Central
 
-This is a condensed checklist to get FIT4J published to Maven Central. For detailed instructions, see [PUBLISHING.md](PUBLISHING.md).
+This checklist describes the current FIT4J release process through the
+[Sonatype Central Portal](https://central.sonatype.com/). For the Gradle publishing configuration, see
+[PUBLISHING.md](PUBLISHING.md).
 
-## ⚡ Quick Setup Checklist
+## 1. Configure the Central Portal account and namespace
 
-### 1. Sonatype Account Setup (One-time, ~2 days)
+1. Sign in to the [Central Portal](https://central.sonatype.com/).
+2. Register and verify the `io.github.harezmi` namespace under **Namespaces**.
+3. Open [Generate User Token](https://central.sonatype.com/usertoken) and create a publishing token.
 
-- [ ] Create account at https://issues.sonatype.org/secure/Signup!default.jspa
-- [ ] Create JIRA ticket to request `org.fit4j` or `io.github.ksevindik` group ID
-- [ ] Wait for approval (1-2 business days)
+The generated token username and password are publishing credentials. They are not the credentials used to
+sign in to the Central Portal.
 
-**⚠️ Important**: If you don't own `fit4j.org` domain, consider using `io.github.ksevindik` group ID instead for faster approval. You'll need to update:
-- `gradle.properties`: `group = io.github.ksevindik`
-- Users will use: `io.github.ksevindik:fit4j:version`
-
-### 2. GPG Key Setup (One-time, 15 minutes)
-
-```bash
-# Install GPG
-brew install gnupg  # macOS
-# or: sudo apt-get install gnupg  # Linux
-
-# Generate key
-gpg --gen-key
-# Follow prompts, use strong passphrase
-
-# Get key ID
-gpg --list-secret-keys --keyid-format SHORT
-# Copy the 8-character key ID (e.g., ABCD1234)
-
-# Publish key to servers
-gpg --keyserver keyserver.ubuntu.com --send-keys YOUR_KEY_ID
-gpg --keyserver keys.openpgp.org --send-keys YOUR_KEY_ID
-gpg --keyserver pgp.mit.edu --send-keys YOUR_KEY_ID
-
-# Export for Gradle
-gpg --export-secret-keys > ~/.gnupg/secring.gpg
-```
-
-### 3. Local Credentials (One-time, 2 minutes)
-
-Create/edit `~/.gradle/gradle.properties`:
+The project coordinates are defined in `gradle.properties`:
 
 ```properties
-# From your Sonatype JIRA account
-ossrhUsername=your-sonatype-username
-ossrhPassword=your-sonatype-password
-
-# From gpg --list-secret-keys command
-signing.keyId=ABCD1234
-signing.password=your-gpg-passphrase
-signing.secretKeyRingFile=/Users/yourusername/.gnupg/secring.gpg
+group=io.github.harezmi
+version=0.1.7
 ```
 
-### 4. GitHub Secrets Setup (One-time, 5 minutes)
+Change the version for each release, but do not change the group unless the corresponding Central Portal
+namespace has been verified.
 
-Go to your GitHub repository → Settings → Secrets and variables → Actions
+## 2. Create and publish a GPG key
 
-Add these repository secrets:
+Maven Central requires release artifacts to have OpenPGP signatures.
 
-| Secret Name | Value | How to Get |
-|-------------|-------|------------|
-| `OSSRH_USERNAME` | Your Sonatype username | Same as local |
-| `OSSRH_PASSWORD` | Your Sonatype password | Same as local |
-| `SIGNING_KEY_ID` | Your GPG key ID | Same as local |
-| `SIGNING_PASSWORD` | Your GPG passphrase | Same as local |
-| `SIGNING_SECRET_KEY` | Base64 encoded GPG key | See below |
-
-**To encode GPG key for GitHub:**
 ```bash
-gpg --export-secret-keys YOUR_KEY_ID | base64 > gpg-key.txt
-# Copy entire contents of gpg-key.txt to SIGNING_SECRET_KEY secret
+# macOS
+brew install gnupg
+
+# Debian/Ubuntu
+# sudo apt-get install gnupg
+
+gpg --full-generate-key
+gpg --list-secret-keys --keyid-format LONG
 ```
 
-## 🚀 Publishing
+Use a strong passphrase. From the listing, copy the full fingerprint of the primary key. It is the long value
+on the line below `sec`, for example:
 
-### Publish Snapshot (Immediate)
-
-```bash
-# Version must end with -SNAPSHOT in gradle.properties
-./gradlew publish
+```text
+sec   rsa3072/1234567890ABCDEF 2026-01-01 [SC]
+      0123456789ABCDEF0123456789ABCDEF01234567
 ```
 
-Available at: https://s01.oss.sonatype.org/content/repositories/snapshots/
+Publish that public key to `keys.openpgp.org`, which is supported by Maven Central:
 
-### Publish Release (30 minutes manual process)
-
-**Option A: Via GitHub Release (Recommended)**
-1. Bump `version` in `gradle.properties`, run `./gradlew syncDocsVersion`, and commit the version + docs updates
-2. Create GitHub release with tag (e.g., `v1.0.0`)
-3. GitHub Actions automatically publishes
-4. Login to https://s01.oss.sonatype.org/
-5. Find staging repository → Close → Release
-
-**Option B: Manual**
 ```bash
-# 1. Update version in gradle.properties (remove -SNAPSHOT)
-version=1.0.0
+gpg --keyserver keys.openpgp.org \
+    --send-keys 0123456789ABCDEF0123456789ABCDEF01234567
+```
 
-# 2. Sync docs/examples to the new version
+After the upload, complete the email-address verification sent by `keys.openpgp.org`. Until an address is
+verified, the server may distribute the public key without its user ID (name and email address). You only need
+to publish the public key; never upload or share the private key.
+
+Do not export a `~/.gnupg/secring.gpg` file. FIT4J uses Gradle's `useGpgCmd()` integration, which invokes the
+installed GPG 2.x command and uses its normal key store.
+
+## 3. Configure local credentials
+
+Create or edit the user-level Gradle properties file at `~/.gradle/gradle.properties`. Do not put secrets in
+the repository's `gradle.properties` file.
+
+```properties
+mavenCentralUsername=your-token-username
+mavenCentralPassword=your-token-password
+
+# Use the absolute path so Gradle daemons started outside a terminal can find Homebrew's GPG.
+signing.gnupg.executable=/opt/homebrew/bin/gpg
+signing.gnupg.keyName=0123456789ABCDEF0123456789ABCDEF01234567
+```
+
+On Intel macOS, Linux, or another installation layout, obtain the executable path with `command -v gpg` and
+use that value for `signing.gnupg.executable`.
+
+By default, GPG can obtain the key passphrase through `gpg-agent`. Test that interaction first:
+
+```bash
+printf 'signing test\n' | gpg --clearsign
+```
+
+If non-interactive signing is required, the passphrase may instead be added to the same user-level properties
+file:
+
+```properties
+signing.gnupg.passphrase=your-gpg-key-passphrase
+```
+
+This stores the passphrase as plain text. Restrict access to the file:
+
+```bash
+chmod 600 ~/.gradle/gradle.properties
+```
+
+The following legacy properties belong to Gradle's key-ring-file signing mode and must not be used with this
+project's `useGpgCmd()` configuration:
+
+```properties
+# Do not use these for FIT4J:
+# signing.keyId=...
+# signing.password=...
+# signing.secretKeyRingFile=.../secring.gpg
+```
+
+## 4. Verify signing locally
+
+After changing GPG configuration, stop existing Gradle daemons so they reload their environment and
+properties:
+
+```bash
+./gradlew --stop
+./gradlew signMavenPublication --stacktrace
+find build -name '*.asc'
+```
+
+The signing task should create detached `.asc` signatures for the main artifact, sources, Javadoc, Gradle
+module metadata, and POM.
+
+Avoid `--debug` when working with publishing secrets because debug logs can expose sensitive values.
+
+## 5. Publish a snapshot
+
+Set a version ending in `-SNAPSHOT` in `gradle.properties`, sync the documentation, and publish:
+
+```properties
+version=0.1.8-SNAPSHOT
+```
+
+```bash
 ./gradlew syncDocsVersion
-
-# 3. Commit and tag
-git commit -am "Release 1.0.0"
-git tag v1.0.0
-git push origin main --tags
-
-# 4. Publish
-./gradlew publish
-
-# 5. Login to Sonatype Nexus and manually close/release
-# https://s01.oss.sonatype.org/
-
-# 6. Bump to next snapshot
-version=1.0.1-SNAPSHOT
-git commit -am "Prepare next iteration"
-git push
+./gradlew publishToMavenCentral --no-configuration-cache
 ```
 
-## ✅ Verification
+Central Portal snapshots are available from:
+
+```text
+https://central.sonatype.com/repository/maven-snapshots/
+```
+
+Signing is not required by Central for snapshots, but this project's configured signing tasks will sign them.
+
+## 6. Publish a release
+
+1. Set a non-snapshot version in `gradle.properties`, such as `version=0.1.8`.
+2. Run `./gradlew syncDocsVersion` and review the version changes.
+3. Run the tests and local signing check.
+4. Commit the version and synchronized documentation together.
+5. Publish the deployment.
 
 ```bash
-# Check Maven Central Search (wait 2 hours after release)
-# https://search.maven.org/search?q=g:org.fit4j
+./gradlew clean check signMavenPublication
+./gradlew publishToMavenCentral --no-configuration-cache
+```
 
-# Or test immediately after release in a project
+The build currently calls `publishToMavenCentral(true)`, so the plugin automatically publishes the deployment
+after Central Portal validation succeeds. A released Maven Central version is immutable; publish a new version
+to correct a release.
+
+After releasing, set the next development version ending in `-SNAPSHOT` and run `./gradlew syncDocsVersion`
+again.
+
+## 7. Verify a release
+
+Allow time for Maven Central to synchronize, then check
+[Maven Central Search](https://central.sonatype.com/search?q=io.github.harezmi%3Afit4j) or test the dependency:
+
+```kotlin
 dependencies {
-    testImplementation("org.fit4j:fit4j:1.0.0")
+    testImplementation("io.github.harezmi:fit4j:0.1.8")
 }
 ```
 
-## 🔥 Common Issues
+## Troubleshooting
 
-### "401 Unauthorized" when publishing
-- Check `~/.gradle/gradle.properties` credentials
-- Verify Sonatype account is not locked
-- Ensure you have permission for the group ID
+### GPG process cannot be started
 
-### "Unable to find credentials for signing"
-- Check GPG key is installed: `gpg --list-keys`
-- Verify `signing.*` properties in gradle.properties
-- Re-export secret key: `gpg --export-secret-keys > ~/.gnupg/secring.gpg`
+Set `signing.gnupg.executable` to the absolute result of `command -v gpg`, then run `./gradlew --stop` before
+retrying.
 
-### "Cannot close staging repository" in Nexus
-- Click on "Activity" tab to see validation errors
-- Common issues:
-  - Missing POM metadata (already configured ✅)
-  - Missing signatures (already configured ✅)
-  - Wrong group ID (check permissions)
+### GPG reports that no secret key exists
 
-### "Release button is disabled"
-- Wait for "Close" validation to complete (2-5 minutes)
-- Check activity tab for errors
+- Check that the primary key appears in `gpg --list-secret-keys --keyid-format LONG`.
+- Ensure `signing.gnupg.keyName` is the full primary-key fingerprint, without spaces.
+- Check that Gradle and the terminal use the same GPG home directory.
 
-## 📚 More Information
+### GPG cannot read the passphrase
 
-- **Detailed Guide**: [PUBLISHING.md](PUBLISHING.md)
-- **Sonatype Guide**: https://central.sonatype.org/publish/publish-guide/
-- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Verify interactive signing with `printf 'test\n' | gpg --clearsign`.
+- Make sure `gpg-agent` and the platform's pinentry program are working.
+- For non-interactive local use, set `signing.gnupg.passphrase` in `~/.gradle/gradle.properties`.
 
-## 🆘 Need Help?
+### 401 Unauthorized when publishing
 
-1. Check [PUBLISHING.md](PUBLISHING.md) for detailed troubleshooting
-2. Review [Sonatype OSSRH Guide](https://central.sonatype.org/publish/publish-guide/)
-3. Search existing issues on GitHub
-4. Create a new issue with `[Publishing]` prefix
+- Use the username and password generated at the Central Portal's **Generate User Token** page, not account
+  login credentials.
+- Generate a new token if the old one was revoked or expired.
+- Confirm that `io.github.harezmi` is verified for the publishing account.
 
+### Central Portal validation fails
+
+Open the deployment in the [Central Portal](https://central.sonatype.com/publishing/deployments) and inspect its
+validation messages. Common causes are missing signatures, unavailable public keys, incomplete POM metadata,
+or coordinates outside the verified namespace.
+
+## More information
+
+- [Vanniktech plugin: Maven Central](https://vanniktech.github.io/gradle-maven-publish-plugin/central/)
+- [Maven Central publishing requirements](https://central.sonatype.org/publish/requirements/)
+- [Maven Central GPG signing guide](https://central.sonatype.org/publish/requirements/gpg/)
+- [Gradle Signing Plugin: using GPG Agent](https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent)

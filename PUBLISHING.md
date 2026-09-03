@@ -1,13 +1,13 @@
 # Publishing FIT4J to Maven Central
 
-This document explains how to configure Gradle to publish the **FIT4J** library to Maven Central using the 
+FIT4J publishes through the [Sonatype Central Portal](https://central.sonatype.com/) using the
 [Vanniktech Gradle Maven Publish Plugin](https://vanniktech.github.io/gradle-maven-publish-plugin/central/).
+For account, namespace, token, and GPG key setup, follow
+[MAVEN_CENTRAL_SETUP.md](MAVEN_CENTRAL_SETUP.md).
 
----
+## Publishing configuration
 
-## 1. Apply Required Plugins
-
-Add the following plugins to your `build.gradle.kts`:
+The root `build.gradle.kts` applies the required plugins:
 
 ```kotlin
 plugins {
@@ -16,11 +16,7 @@ plugins {
 }
 ```
 
----
-
-## 2. Configure Maven Publishing
-
-### Enable publishing to Maven Central and signing
+Maven Central publishing and signing are enabled with:
 
 ```kotlin
 mavenPublishing {
@@ -29,11 +25,20 @@ mavenPublishing {
 }
 ```
 
-### Set project coordinates and POM metadata
+Passing `true` enables automatic publication after Central Portal validation succeeds.
+
+The published coordinates come from the root `gradle.properties` file:
+
+```properties
+group=io.github.harezmi
+version=0.1.7
+```
+
+The publication uses the project group, name, and version:
 
 ```kotlin
 mavenPublishing {
-    coordinates("\${project.group}", "\${project.name}", "\${project.version}")
+    coordinates("${project.group}", "${project.name}", "${project.version}")
 
     pom {
         name.set("FIT4J")
@@ -63,9 +68,9 @@ mavenPublishing {
 }
 ```
 
----
+## Artifact signing
 
-## 3. Configure Signing
+FIT4J uses the installed GPG 2.x command and its normal key store:
 
 ```kotlin
 signing {
@@ -79,66 +84,78 @@ tasks.withType<PublishToMavenRepository>().configureEach {
 }
 ```
 
-Set your GPG signing configuration:
+Put the local signing configuration in `~/.gradle/gradle.properties`:
 
-```kotlin
-signing.gnupg.executable = "gpg"
-signing.gnupg.keyName = "<key id>"
-signing.gnupg.passphrase = "<pgp keystore pass>"
-signing.secretKeyRingFile = "/Users/<username>/.gnupg/secring.gpg"
+```properties
+signing.gnupg.executable=/absolute/path/from/command-v-gpg
+signing.gnupg.keyName=your-full-primary-key-fingerprint
+
+# Optional when the passphrase is not supplied by gpg-agent:
+# signing.gnupg.passphrase=your-gpg-key-passphrase
 ```
 
-Export your secret key:
+For an Apple Silicon Homebrew installation, the executable is usually:
+
+```properties
+signing.gnupg.executable=/opt/homebrew/bin/gpg
+```
+
+Publish the public key to `keys.openpgp.org` and complete its email verification:
 
 ```bash
-gpg --export-secret-keys --output ~/.gnupg/secring.gpg --armor <key id>
+gpg --keyserver keys.openpgp.org \
+    --send-keys YOUR_FULL_PRIMARY_KEY_FINGERPRINT
 ```
 
----
+Do not create a legacy `secring.gpg` file. The `signing.keyId`, `signing.password`, and
+`signing.secretKeyRingFile` properties configure a different Gradle signing mode and are not used with
+FIT4J's `useGpgCmd()` setup.
 
-## 4. Set Maven Central Credentials
-
-Add your Sonatype credentials:
-
-```kotlin
-mavenCentralUsername = "<token username>"
-mavenCentralPassword = "<token password>"
-```
-
-They are obtained from https://central.sonatype.com/usertoken by creating a new user token.
-
----
-
-## 5. Publishing Task
-
-Run the publishing task with:
+Verify signing before publishing:
 
 ```bash
+./gradlew --stop
+./gradlew signMavenPublication --stacktrace
+find build -name '*.asc'
+```
+
+The task signs the main JAR, sources JAR, Javadoc JAR, Gradle module metadata, and POM. Avoid running publishing
+tasks with `--debug`, because debug output can expose sensitive values.
+
+## Maven Central credentials
+
+Generate a user token at [Central Portal User Token](https://central.sonatype.com/usertoken), then place its
+generated username and password in `~/.gradle/gradle.properties`:
+
+```properties
+mavenCentralUsername=your-token-username
+mavenCentralPassword=your-token-password
+```
+
+These are token credentials, not the username and password used to sign in to the Central Portal. Never put
+them in the repository's `gradle.properties` file.
+
+## Publish a snapshot
+
+Use a version ending in `-SNAPSHOT`:
+
+```properties
+version=0.1.8-SNAPSHOT
+```
+
+Synchronize the versioned documentation and publish:
+
+```bash
+./gradlew syncDocsVersion
 ./gradlew publishToMavenCentral --no-configuration-cache
 ```
 
----
-
-## 6. Release checklist
-
-When bumping the release version:
-
-1. Set `version` in `gradle.properties` (and `group` if needed).
-2. Run `./gradlew syncDocsVersion` and review the diff (`README.md`, `index.html`, `fit4j-examples`).
-3. Commit version + docs updates together.
-4. Publish / tag as usual.
-
----
-
-## 7. Configure Repositories for Dependencies
-
-To use Maven Central or Sonatype snapshots in your project:
+Consumers can resolve snapshots from the Central Portal snapshot repository:
 
 ```kotlin
 repositories {
-    mavenCentral()
     maven {
-        name = "sonatypeSnapshots"
+        name = "centralPortalSnapshots"
         url = uri("https://central.sonatype.com/repository/maven-snapshots/")
         mavenContent {
             snapshotsOnly()
@@ -146,3 +163,43 @@ repositories {
     }
 }
 ```
+
+## Publish a release
+
+1. Set a non-snapshot `version` in `gradle.properties`.
+2. Run `./gradlew syncDocsVersion` and review changes to the README, website, and examples.
+3. Run the build and local signing check.
+4. Commit the version and synchronized documentation together.
+5. Publish to Maven Central.
+
+```bash
+./gradlew clean check signMavenPublication
+./gradlew publishToMavenCentral --no-configuration-cache
+```
+
+Because automatic publication is configured, the plugin submits the validated deployment for release. Maven
+Central releases are immutable; corrections require a new version.
+
+After the release, set the next `-SNAPSHOT` version and run `./gradlew syncDocsVersion` again.
+
+## Consume FIT4J
+
+Released versions are available from Maven Central:
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation("io.github.harezmi:fit4j:<version>")
+}
+```
+
+## References
+
+- [FIT4J Maven Central setup](MAVEN_CENTRAL_SETUP.md)
+- [Vanniktech plugin: Maven Central](https://vanniktech.github.io/gradle-maven-publish-plugin/central/)
+- [Maven Central publishing requirements](https://central.sonatype.org/publish/requirements/)
+- [Maven Central GPG signing guide](https://central.sonatype.org/publish/requirements/gpg/)
+- [Gradle Signing Plugin](https://docs.gradle.org/current/userguide/signing_plugin.html)
