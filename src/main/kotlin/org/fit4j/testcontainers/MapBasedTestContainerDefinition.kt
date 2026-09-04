@@ -80,20 +80,32 @@ open class MapBasedTestContainerDefinition(map:Map<String,Any?>) : TestContainer
         container.withReuse(reuse)
 
         map.keys.filter { !commonFields().contains(it) }.forEach { property ->
-            val methodName = "with${StringUtils.capitalize(property)}"
-            val value = map[property]
-            if (value is List<*>) {
-                value.forEach {
-                    val m = it as Map<String, Any?>
-                    val k = m.keys.first()
-                    val v = m[k]
-                    MethodUtils.invokeMethod(container, methodName, k, v)
-                }
-            } else {
-                MethodUtils.invokeMethod(container, methodName, value)
-            }
-
+            invokeWithProperty(property, map[property])
         }
+    }
+
+    private fun invokeWithProperty(property: String, value: Any?) {
+        val methodName = "with${StringUtils.capitalize(property)}"
+        when (value) {
+            is List<*> -> invokeWithListProperty(methodName, value)
+            else -> MethodUtils.invokeMethod(container, methodName, value)
+        }
+    }
+
+    private fun invokeWithListProperty(methodName: String, value: List<*>) {
+        if (value.isEmpty()) {
+            return
+        }
+        if (value.first() is Map<*, *>) {
+            value.forEach { element ->
+                @Suppress("UNCHECKED_CAST")
+                val entry = element as Map<String, Any?>
+                val key = entry.keys.first()
+                MethodUtils.invokeMethod(container, methodName, key, entry[key])
+            }
+            return
+        }
+        MethodUtils.invokeMethod(container, methodName, *value.toTypedArray())
     }
 
     override fun getImageName(): String {

@@ -147,6 +147,9 @@ Synchronize the versioned documentation and publish:
 
 ```bash
 ./gradlew syncDocsVersion
+```
+
+```bash
 ./gradlew publishToMavenCentral --no-configuration-cache
 ```
 
@@ -174,6 +177,9 @@ repositories {
 
 ```bash
 ./gradlew clean check signMavenPublication
+```
+
+```bash
 ./gradlew publishToMavenCentral --no-configuration-cache
 ```
 

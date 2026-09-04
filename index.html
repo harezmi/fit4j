@@ -1085,14 +1085,14 @@ class RedisDataPopulatorFIT {
 <!--fit4jVersion-->
 <pre><code class="language-kotlin">// See README.md (Add the Library Dependency)
 dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.7&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.9&quot;)
 }
 </code></pre>
 <!--/fit4jVersion-->
 <p><strong>Gradle (Groovy DSL):</strong></p>
 <!--fit4jVersion-->
 <pre><code class="language-groovy">dependencies {
-    testImplementation &quot;io.github.harezmi:fit4j:0.1.7&quot;
+    testImplementation &quot;io.github.harezmi:fit4j:0.1.9&quot;
 }
 </code></pre>
 <!--/fit4jVersion-->
@@ -1102,7 +1102,11 @@ dependencies {
 repositories {
     mavenCentral()
     maven {
-        url = uri(&quot;https://s01.oss.sonatype.org/content/repositories/snapshots/&quot;)
+        name = &quot;centralPortalSnapshots&quot;
+        url = uri(&quot;https://central.sonatype.com/repository/maven-snapshots/&quot;)
+        mavenContent {
+            snapshotsOnly()
+        }
     }
 }
 </code></pre>
@@ -1110,11 +1114,14 @@ repositories {
 <pre><code class="language-xml">&lt;!-- See README.md (Maven snapshots repo) --&gt;
 &lt;repositories&gt;
     &lt;repository&gt;
-        &lt;id&gt;ossrh-snapshots&lt;/id&gt;
-        &lt;url&gt;https://s01.oss.sonatype.org/content/repositories/snapshots/&lt;/url&gt;
+        &lt;id&gt;central-portal-snapshots&lt;/id&gt;
+        &lt;url&gt;https://central.sonatype.com/repository/maven-snapshots/&lt;/url&gt;
         &lt;snapshots&gt;
             &lt;enabled&gt;true&lt;/enabled&gt;
         &lt;/snapshots&gt;
+        &lt;releases&gt;
+            &lt;enabled&gt;false&lt;/enabled&gt;
+        &lt;/releases&gt;
     &lt;/repository&gt;
 &lt;/repositories&gt;
 </code></pre>
@@ -9392,14 +9399,14 @@ See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/READM
 <p><strong>Gradle (Kotlin DSL):</strong></p>
 <!--fit4jVersion-->
 <pre><code class="language-kotlin">dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.7&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.9&quot;)
 }
 </code></pre>
 <!--/fit4jVersion-->
 <p><strong>Gradle (Groovy DSL):</strong></p>
 <!--fit4jVersion-->
 <pre><code class="language-groovy">dependencies {
-    testImplementation &quot;io.github.harezmi:fit4j:0.1.7&quot;
+    testImplementation &quot;io.github.harezmi:fit4j:0.1.9&quot;
 }
 </code></pre>
 <!--/fit4jVersion-->
@@ -9407,19 +9414,26 @@ See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/READM
 <pre><code class="language-kotlin">repositories {
     mavenCentral()
     maven {
-        url = uri(&quot;https://s01.oss.sonatype.org/content/repositories/snapshots/&quot;)
+        name = &quot;centralPortalSnapshots&quot;
+        url = uri(&quot;https://central.sonatype.com/repository/maven-snapshots/&quot;)
+        mavenContent {
+            snapshotsOnly()
+        }
     }
 }
 </code></pre>
-<p>See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/README.md#L1-L25"><code>/tmp/repo_fun8n87l/README.md:1-25</code></a>.</p>
+<p>See <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a>.</p>
 <p><strong>Maven repository snippet:</strong></p>
 <pre><code class="language-xml">&lt;repositories&gt;
     &lt;repository&gt;
-        &lt;id&gt;ossrh-snapshots&lt;/id&gt;
-        &lt;url&gt;https://s01.oss.sonatype.org/content/repositories/snapshots/&lt;/url&gt;
+        &lt;id&gt;central-portal-snapshots&lt;/id&gt;
+        &lt;url&gt;https://central.sonatype.com/repository/maven-snapshots/&lt;/url&gt;
         &lt;snapshots&gt;
             &lt;enabled&gt;true&lt;/enabled&gt;
         &lt;/snapshots&gt;
+        &lt;releases&gt;
+            &lt;enabled&gt;false&lt;/enabled&gt;
+        &lt;/releases&gt;
     &lt;/repository&gt;
 &lt;/repositories&gt;
 </code></pre>
@@ -9781,7 +9795,7 @@ graph TD
  step4 --> step5["Inspect context and side effects"]
 </div></div>
 <ol>
-<li>Add <code><!--fit4jGroup-->io.github.harezmi<!--/fit4jGroup-->:fit4j:<!--fit4jVersion-->0.1.7<!--/fit4jVersion--></code> to your <code>testImplementation</code> / <code>test</code> scope.</li>
+<li>Add <code><!--fit4jGroup-->io.github.harezmi<!--/fit4jGroup-->:fit4j:<!--fit4jVersion-->0.1.9<!--/fit4jVersion--></code> to your <code>testImplementation</code> / <code>test</code> scope.</li>
 <li>Disable test parallelism in Gradle/Maven for FIT tests.</li>
 <li>Start with a minimal <code>@FIT</code> class (e.g., REST or Kafka sample).</li>
 <li>Run <code>./gradlew test</code> or <code>mvn test</code> and verify context and basic assertions.</li>
@@ -11635,10 +11649,9 @@ graph TD
 <li><strong>Gradle</strong> as the build tool.</li>
 <li><strong>Vanniktech Gradle Maven Publish Plugin</strong> for Maven Central publication (<a href="https://github.com/harezmi/fit4j/blob/main/PUBLISHING.md"><code>PUBLISHING.md</code></a>).</li>
 <li><strong>GPG signing</strong> for all artifacts.</li>
-<li><strong>Sonatype OSSRH</strong> for snapshot and release repositories.</li>
-<li><strong>GitHub Actions</strong> (via repository secrets) to automate releases from tags.</li>
+<li><strong>Sonatype Central Portal</strong> for snapshot and release repositories.</li>
 </ul>
-<p>Local developers can build and publish snapshots manually, while production releases are expected to be triggered by GitHub Releases and completed through Sonatype’s staging workflow.</p>
+<p>Local developers publish snapshots and releases with <code>publishToMavenCentral</code>. Releases are submitted automatically after Central Portal validation (<code>publishToMavenCentral(true)</code> in <a href="https://github.com/harezmi/fit4j/blob/main/build.gradle.kts"><code>build.gradle.kts</code></a>).</p>
 <p>For general development/build instructions, see <a href="https://github.com/harezmi/fit4j/blob/main/CONTRIBUTING.md#L33-L60"><code>CONTRIBUTING.md:33-60</code></a>.</p>
 <hr />
 <h2>Build &amp; Local Development</h2>
@@ -11674,7 +11687,7 @@ mavenPublishing {
 </code></pre>
 <p>This instructs the plugin to:</p>
 <ul>
-<li>Target Sonatype OSSRH / Maven Central.</li>
+<li>Target Sonatype Central Portal / Maven Central.</li>
 <li>Ensure all Maven publications are signed with your GPG key (configured separately).</li>
 </ul>
 <h3>Coordinates &amp; POM Metadata</h3>
@@ -11770,15 +11783,14 @@ gpg --export-secret-keys &gt; ~/.gnupg/secring.gpg
 <hr />
 <h2>Sonatype / Maven Central Credentials</h2>
 <h3>Local Gradle Properties</h3>
-<p>Configure OSSRH credentials and signing properties in <code>~/.gradle/gradle.properties</code> (see <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L77-L98"><code>MAVEN_CENTRAL_SETUP.md:77-98</code></a>):</p>
-<pre><code class="language-properties"># Sonatype OSSRH credentials
-ossrhUsername=your-sonatype-username
-ossrhPassword=********
+<p>Configure Central Portal credentials and signing properties in <code>~/.gradle/gradle.properties</code> (see <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L77-L98"><code>MAVEN_CENTRAL_SETUP.md:77-98</code></a>):</p>
+<pre><code class="language-properties"># Maven Central Portal token credentials
+mavenCentralUsername=your-token-username
+mavenCentralPassword=your-token-password
 
-# GPG signing configuration
-signing.keyId=ABCD1234
-signing.password=********
-signing.secretKeyRingFile=/Users/yourusername/.gnupg/secring.gpg
+# GPG signing configuration (useGpgCmd — see PUBLISHING.md)
+signing.gnupg.executable=/absolute/path/from/command-v-gpg
+signing.gnupg.keyName=your-full-primary-key-fingerprint
 </code></pre>
 <p>These values are used by the Vanniktech plugin and the Gradle <code>signing</code> plugin during publication. They must <strong>not</strong> be checked into version control.</p>
 <h3>Token-based Credentials (Plugin Level)</h3>
@@ -11805,51 +11817,7 @@ mavenCentralPassword = &quot;********&quot;
 <p>Group ID choice affects:</p>
 <ul>
 <li>The <strong>coordinates</strong> in published POM metadata.</li>
-<li>Which OSSRH project you must request in the Sonatype JIRA (<a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L4-L13"><code>MAVEN_CENTRAL_SETUP.md:4-13</code></a>).</li>
-</ul>
-<hr />
-<h2>CI/CD &amp; GitHub Secrets</h2>
-<h3>GitHub Repository Secrets</h3>
-<p>To allow GitHub Actions to publish artifacts, configure repository secrets (see <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L100-L128"><code>MAVEN_CENTRAL_SETUP.md:100-128</code></a>):</p>
-<table>
-<thead>
-<tr>
-<th>Secret Name</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>OSSRH_USERNAME</code></td>
-<td>Sonatype username</td>
-</tr>
-<tr>
-<td><code>OSSRH_PASSWORD</code></td>
-<td>Sonatype password</td>
-</tr>
-<tr>
-<td><code>SIGNING_KEY_ID</code></td>
-<td>GPG key ID</td>
-</tr>
-<tr>
-<td><code>SIGNING_PASSWORD</code></td>
-<td>GPG passphrase</td>
-</tr>
-<tr>
-<td><code>SIGNING_SECRET_KEY</code></td>
-<td>Base64-encoded GPG private key</td>
-</tr>
-</tbody>
-</table>
-<p>Export and encode the secret key for CI:</p>
-<pre><code class="language-bash">gpg --export-secret-keys YOUR_KEY_ID | base64 &gt; gpg-key.txt
-# Copy entire contents of gpg-key.txt into SIGNING_SECRET_KEY (secret)
-</code></pre>
-<p>These secrets are consumed by GitHub Actions workflows (not shown in the snippets) to:</p>
-<ul>
-<li>Import the GPG key,</li>
-<li>Configure Gradle properties in the CI environment,</li>
-<li>Invoke the appropriate <code>./gradlew</code> publish tasks.</li>
+<li>Namespace verification in the <a href="https://central.sonatype.com/">Central Portal</a> (<a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L4-L13"><code>MAVEN_CENTRAL_SETUP.md:4-13</code></a>).</li>
 </ul>
 <hr />
 <h2>Publishing Tasks &amp; Commands</h2>
@@ -11863,74 +11831,46 @@ mavenCentralPassword = &quot;********&quot;
 <pre><code class="language-bash"># Ensure version in gradle.properties ends with -SNAPSHOT
 version=1.0.1-SNAPSHOT
 
-./gradlew publish
+./gradlew publishToMavenCentral --no-configuration-cache
 </code></pre>
 <p>Snapshots are pushed to:</p>
 <ul>
-<li><code>https://s01.oss.sonatype.org/content/repositories/snapshots/</code></li>
+<li><code>https://central.sonatype.com/repository/maven-snapshots/</code></li>
 </ul>
+<p>Snapshots do not appear on the Maven Central artifact <strong>Versions</strong> tab; browse them in the <code>maven-snapshots</code> repository or check deployment status in the <a href="https://central.sonatype.com/publishing/deployments">Central Portal</a>.</p>
 <p>Consumers must configure the snapshot repository accordingly (see <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L80-L101"><code>README.md:80-101</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/PUBLISHING.md#L140-L155"><code>PUBLISHING.md:140-155</code></a>).</p>
-<h3>Release Publication (Manual + Sonatype Staging)</h3>
-<p>There are two paths for a release (from <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L139-L189"><code>MAVEN_CENTRAL_SETUP.md:139-189</code></a>).</p>
-<h4>Option A: Via GitHub Release (Recommended)</h4>
+<h3>Release Publication</h3>
+<p>From <a href="https://github.com/harezmi/fit4j/blob/main/PUBLISHING.md#L170-L189"><code>PUBLISHING.md:170-189</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L146-L164"><code>MAVEN_CENTRAL_SETUP.md:146-164</code></a>:</p>
 <ol>
-<li><strong>Create Git tag &amp; GitHub Release</strong>  </li>
-<li>Tag format: <code>v1.0.0</code>.</li>
-<li><strong>GitHub Actions runs</strong>  </li>
-<li>CI uses the tag to:<ul>
-<li>Build and sign artifacts.</li>
-<li>Upload to Sonatype staging repository.</li>
-</ul>
-</li>
-<li><strong>Finalize in Sonatype Nexus</strong>  </li>
-<li>Login: <code>https://s01.oss.sonatype.org/</code></li>
-<li>Locate the staging repository.</li>
-<li>Click <strong>Close</strong>, wait for validations.</li>
-<li>If successful, click <strong>Release</strong>.</li>
-</ol>
-<p>This option centralizes builds in CI, ensuring reproducibility and traceability.</p>
-<h4>Option B: Fully Manual Release</h4>
-<p>Performed from a developer machine (see <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L151-L189"><code>MAVEN_CENTRAL_SETUP.md:151-189</code></a>):</p>
-<pre><code class="language-bash"># 1. Set a release version (no -SNAPSHOT)
-version=1.0.0  # in gradle.properties
-
-# 2. Sync docs/examples to the new version
-./gradlew syncDocsVersion
-
-# 3. Commit and tag
-git commit -am &quot;Release 1.0.0&quot;
-git tag v1.0.0
-git push origin main --tags
-
-# 4. Publish artifacts
-./gradlew publish
-
-# 5. Finalize in Sonatype Nexus
-#    https://s01.oss.sonatype.org/
-#    Close and then Release the staging repository
-
-# 6. Bump to next snapshot
-version=1.0.1-SNAPSHOT  # in gradle.properties
-git commit -am &quot;Prepare next iteration&quot;
-git push
+<li>Set a non-snapshot <code>version</code> in <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties"><code>gradle.properties</code></a>.</li>
+<li>Run <code>./gradlew syncDocsVersion</code> and review documentation changes.</li>
+<li>Run tests and a local signing check:
+<pre><code class="language-bash">./gradlew clean check signMavenPublication
 </code></pre>
-<p>This manual process should be used mainly when CI is unavailable. In normal operation, prefer Option A.</p>
+</li>
+<li>Publish to Maven Central:
+<pre><code class="language-bash">./gradlew publishToMavenCentral --no-configuration-cache
+</code></pre>
+</li>
+<li>After release, bump to the next <code>-SNAPSHOT</code> version and run <code>./gradlew syncDocsVersion</code> again.</li>
+</ol>
+<p>Because <code>publishToMavenCentral(true)</code> is configured, the Vanniktech plugin automatically publishes the deployment after Central Portal validation succeeds. There is no manual Nexus staging close/release step.</p>
+<p>Track deployment status in the <a href="https://central.sonatype.com/publishing/deployments">Central Portal</a>. Maven Central releases are immutable; corrections require a new version.</p>
 <hr />
 <h2>Release Flow (High-Level)</h2>
 <div class="dw-mermaid-wrapper"><div class="mermaid">
 graph TD
- step1["Tag or Snapshot"] --> step2["Gradle publish task"]
+ step1["Set release version"] --> step2["Gradle publishToMavenCentral"]
  step2 --> step3["Artifacts signed and uploaded"]
- step3 --> step4["Sonatype staging repository"]
- step4 --> step5["Close and Release in Nexus"]
- step5 --> step6["Synced to Maven Central"]
+ step3 --> step4["Central Portal validation"]
+ step4 --> step5["Automatic release to Maven Central"]
 </div></div>
 <ul>
-<li><strong>Tag or Snapshot</strong>: Either a snapshot publish (<code>-SNAPSHOT</code> version) or a tagged release (<code>vX.Y.Z</code>).</li>
-<li><strong>Gradle publish task</strong>: <code>publish</code> or <code>publishToMavenCentral</code>.</li>
-<li><strong>Signed upload</strong>: GPG-signed artifacts using local or CI GPG config.</li>
-<li><strong>Staging</strong>: Sonatype validates POMs, signatures, and metadata.</li>
-<li><strong>Release</strong>: Once validations pass, staging is released and synced to Maven Central (search.maven.org).</li>
+<li><strong>Version</strong>: Non-snapshot <code>version</code> in <code>gradle.properties</code>, or <code>-SNAPSHOT</code> for snapshots.</li>
+<li><strong>Gradle publish task</strong>: <code>publishToMavenCentral</code> (preferred) or <code>publish</code>.</li>
+<li><strong>Signed upload</strong>: GPG-signed artifacts using local GPG config.</li>
+<li><strong>Validation</strong>: Central Portal validates POMs, signatures, and metadata.</li>
+<li><strong>Release</strong>: With <code>publishToMavenCentral(true)</code>, validated deployments are published automatically.</li>
 </ul>
 <hr />
 <h2>Using FIT4J from Maven Central or Snapshots</h2>
@@ -11939,7 +11879,7 @@ graph TD
 <!--fit4jVersion-->
 <pre><code class="language-kotlin">// build.gradle.kts
 dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.7&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.9&quot;)
 }
 </code></pre>
 <!--/fit4jVersion-->
@@ -11950,22 +11890,14 @@ dependencies {
 <pre><code class="language-kotlin">repositories {
     mavenCentral()
     maven {
-        url = uri(&quot;https://s01.oss.sonatype.org/content/repositories/snapshots/&quot;)
+        name = &quot;centralPortalSnapshots&quot;
+        url = uri(&quot;https://central.sonatype.com/repository/maven-snapshots/&quot;)
+        mavenContent { snapshotsOnly() }
     }
 }
 
 dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.5-SNAPSHOT&quot;)
-}
-</code></pre>
-<p><strong>Note:</strong> For the central-based snapshot repo (as per newer Sonatype docs), you can alternatively use:</p>
-<pre><code class="language-kotlin">repositories {
-    mavenCentral()
-    maven {
-        name = &quot;sonatypeSnapshots&quot;
-        url = uri(&quot;https://central.sonatype.com/repository/maven-snapshots/&quot;)
-        mavenContent { snapshotsOnly() }
-    }
+    testImplementation(&quot;io.github.harezmi:fit4j:1.0.0-SNAPSHOT&quot;)
 }
 </code></pre>
 <p>(see <a href="https://github.com/harezmi/fit4j/blob/main/PUBLISHING.md#L140-L155"><code>PUBLISHING.md:140-155</code></a>).</p>
@@ -11985,7 +11917,7 @@ dependencies {
 <li>Add dependency:
 <!--fit4jVersion-->
 <pre><code class="language-kotlin">dependencies {
-    testImplementation(&quot;io.github.harezmi:fit4j:0.1.7&quot;)
+    testImplementation(&quot;io.github.harezmi:fit4j:0.1.9&quot;)
 }
 </code></pre>
 <!--/fit4jVersion-->
@@ -12003,9 +11935,7 @@ dependencies {
 <p>From <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md#L207-L246"><code>MAVEN_CENTRAL_SETUP.md:207-246</code></a>:</p>
 <h3>401 Unauthorized</h3>
 <ul>
-<li>Ensure <code>ossrhUsername</code> / <code>ossrhPassword</code> in <code>~/.gradle/gradle.properties</code> are correct.</li>
-<li>Verify the Sonatype account is active and not locked.</li>
-<li>If using tokens, ensure <code>mavenCentralUsername</code> / <code>mavenCentralPassword</code> match the token credentials, not your login password.</li>
+<li>Ensure <code>mavenCentralUsername</code> / <code>mavenCentralPassword</code> in <code>~/.gradle/gradle.properties</code> match the token from the <a href="https://central.sonatype.com/usertoken">Central Portal</a>, not your login password.</li>
 </ul>
 <h3>Unable to Find Credentials for Signing</h3>
 <ul>
@@ -12019,41 +11949,30 @@ dependencies {
 </ul>
 <p><code>bash
   gpg --export-secret-keys --output ~/.gnupg/secring.gpg --armor YOUR_KEY_ID</code></p>
-<h3>Cannot Close Staging Repository</h3>
+<h3>Central Portal validation fails</h3>
 <ul>
-<li>In Sonatype Nexus:</li>
-<li>Open the staging repo → <strong>Activity</strong> tab to see validation errors.</li>
+<li>Open the deployment in the <a href="https://central.sonatype.com/publishing/deployments">Central Portal</a> and inspect validation messages.</li>
 <li>Common causes:</li>
 <li>Missing POM metadata (already handled by POM config in <a href="https://github.com/harezmi/fit4j/blob/main/PUBLISHING.md#L30-L72"><code>PUBLISHING.md:30-72</code></a>).</li>
 <li>Missing signatures (handled by signing config).</li>
 <li>Wrong group ID or lack of permission for that group ID.</li>
-</ul>
-<h3>Release Button is Disabled</h3>
-<ul>
-<li>Wait for the <strong>Close</strong> operation to finish (2–5 minutes).</li>
-<li>Refresh the page and check the <strong>Activity</strong> tab for unresolved errors.</li>
+<li>Unavailable public GPG key.</li>
 </ul>
 <hr />
 <h2>CI/CD Expectations</h2>
 <ul>
+<li><strong>CI (<code>.github/workflows/ci.yml</code>)</strong>: runs <code>./gradlew test</code> on pushes and pull requests. It does not publish artifacts.</li>
 <li><strong>Snapshot builds</strong>:</li>
-<li>Typically triggered from main branch merges.</li>
-<li>Use <code>-SNAPSHOT</code> version in <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties"><code>gradle.properties</code></a>.</li>
-<li>Run <code>./gradlew publish</code> to Sonatype snapshots repository.</li>
+<li>Use a <code>-SNAPSHOT</code> version in <a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties"><code>gradle.properties</code></a>.</li>
+<li>Run <code>./gradlew publishToMavenCentral --no-configuration-cache</code> locally (or from a publish-capable environment).</li>
+<li>Snapshots are available from <code>https://central.sonatype.com/repository/maven-snapshots/</code>.</li>
 <li><strong>Release builds</strong>:</li>
-<li>Triggered by pushing a version tag (e.g., <code>v1.0.0</code>).</li>
-<li>CI creates a staging repository in Sonatype using <code>publishToMavenCentral</code>.</li>
-<li>A human still needs to finalize the release in Sonatype Nexus (Close → Release).</li>
+<li>Set a non-snapshot version, sync docs, run tests/signing, then <code>publishToMavenCentral</code>.</li>
+<li>Central Portal validation and release are handled automatically by the plugin.</li>
 <li><strong>Post-release</strong>:</li>
-<li>Bump the version to the next <code>-SNAPSHOT</code>.</li>
-<li>Ensure the new version is committed to keep CI and local versions aligned.</li>
+<li>Bump the version to the next <code>-SNAPSHOT</code> and run <code>./gradlew syncDocsVersion</code>.</li>
 </ul>
-<p>Workflows and their exact YAML definitions are not included here, but they are expected to:</p>
-<ul>
-<li>Read credentials from GitHub Actions secrets.</li>
-<li>Configure Gradle properties/environment at runtime.</li>
-<li>Invoke <code>./gradlew publish</code> or <code>./gradlew publishToMavenCentral</code>.</li>
-</ul>
+<p>Publishing credentials and GPG configuration live in local <code>~/.gradle/gradle.properties</code> (see <a href="https://github.com/harezmi/fit4j/blob/main/PUBLISHING.md"><code>PUBLISHING.md</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/MAVEN_CENTRAL_SETUP.md"><code>MAVEN_CENTRAL_SETUP.md</code></a>).</p>
 <hr />
 <h2>Further References</h2>
 <ul>
