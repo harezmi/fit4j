@@ -43,6 +43,7 @@ class HttpRequestTrainingDsl internal constructor(
         return this
     }
 
+    @JvmSynthetic
     fun respond(block: HttpResponseDsl.() -> Unit): HttpDslBuilder {
         registerTraining(listOf(buildResponse(block)))
         return root
@@ -52,6 +53,7 @@ class HttpRequestTrainingDsl internal constructor(
         return respond { block.accept(this) }
     }
 
+    @JvmSynthetic
     fun responds(block: HttpResponseSequenceDsl.() -> Unit): HttpDslBuilder {
         val sequenceDsl = HttpResponseSequenceDsl()
         sequenceDsl.apply(block)

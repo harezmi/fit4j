@@ -32,7 +32,13 @@ object HttpDslRegistry {
     private fun getOrCreateTrainings(context: ExtensionContext): MutableList<HttpTrainingDefinition> {
         val store = context.getStore(NAMESPACE)
         @Suppress("UNCHECKED_CAST")
-        return store.getOrComputeIfAbsent(KEY) { mutableListOf<HttpTrainingDefinition>() } as MutableList<HttpTrainingDefinition>
+        val existing = store.get(KEY) as? MutableList<HttpTrainingDefinition>
+        if (existing != null) {
+            return existing
+        }
+        val created = mutableListOf<HttpTrainingDefinition>()
+        store.put(KEY, created)
+        return created
     }
 
     private fun getTrainings(context: ExtensionContext): List<HttpTrainingDefinition>? {

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler
+import org.fit4j.http.dsl.HttpDslRegistry
 
 class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback,
     BeforeTestExecutionCallback, AfterTestExecutionCallback, TestExecutionExceptionHandler {
@@ -31,6 +32,7 @@ class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallba
     }
 
     override fun afterEach(context: ExtensionContext) {
+        HttpDslRegistry.resetCurrentTest()
         Fit4jTestExecutionRegistry.endTestMethod(context)
         currentExtensionContext = null
     }

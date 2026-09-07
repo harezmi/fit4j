@@ -106,6 +106,7 @@ class HttpResponseSequenceDsl {
 
     private val responses = mutableListOf<HttpResponseDefinition>()
 
+    @JvmSynthetic
     fun response(block: HttpResponseDsl.() -> Unit): HttpResponseSequenceDsl {
         val responseDsl = HttpResponseDsl()
         responseDsl.apply(block)

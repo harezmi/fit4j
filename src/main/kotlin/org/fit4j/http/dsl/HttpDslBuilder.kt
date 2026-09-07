@@ -4,6 +4,7 @@ import java.util.function.Consumer
 
 interface HttpDsl {
     fun path(path: String): HttpRequestTrainingDsl
+    @JvmSynthetic
     fun request(block: HttpRequestTrainingDsl.() -> Unit): HttpDslBuilder
     fun request(block: Consumer<HttpRequestTrainingDsl>): HttpDslBuilder
     fun register()
@@ -17,6 +18,7 @@ class HttpDslBuilder : HttpDsl {
         return HttpRequestTrainingDsl(this).path(path)
     }
 
+    @JvmSynthetic
     override fun request(block: HttpRequestTrainingDsl.() -> Unit): HttpDslBuilder {
         HttpRequestTrainingDsl(this).apply(block).registerIfNeeded()
         return this
