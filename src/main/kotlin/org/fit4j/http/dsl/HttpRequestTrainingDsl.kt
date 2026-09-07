@@ -11,12 +11,19 @@ class HttpRequestTrainingDsl internal constructor(
     private var path: String? = null
     private var method: String? = null
     private val headers = linkedMapOf<String, String>()
+    private val pathVariables = linkedMapOf<String, String>()
+    private val queryParams = linkedMapOf<String, String>()
+    private var bodyMatcher: HttpRequestBodyMatcher? = null
     private var predicate: Predicate<HttpRequest>? = null
     private var trainingRegistered = false
 
     fun path(path: String): HttpRequestTrainingDsl {
         this.path = HttpDslExpressionSupport.resolve(path)
         return this
+    }
+
+    fun pathTemplate(path: String): HttpRequestTrainingDsl {
+        return path(path)
     }
 
     fun method(method: String): HttpRequestTrainingDsl {
@@ -36,6 +43,54 @@ class HttpRequestTrainingDsl internal constructor(
 
     fun headers(block: Consumer<HttpHeadersDsl>): HttpRequestTrainingDsl {
         return headers { block.accept(this) }
+    }
+
+    fun pathVariable(name: String, value: String): HttpRequestTrainingDsl {
+        pathVariables[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
+        return this
+    }
+
+    fun queryParam(name: String, value: String): HttpRequestTrainingDsl {
+        queryParams[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
+        return this
+    }
+
+    fun body(body: String): HttpRequestTrainingDsl {
+        this.bodyMatcher = HttpRequestBodyMatcher.Exact(HttpDslExpressionSupport.resolve(body))
+        return this
+    }
+
+    fun bodyContains(value: String): HttpRequestTrainingDsl {
+        this.bodyMatcher = HttpRequestBodyMatcher.Contains(HttpDslExpressionSupport.resolve(value))
+        return this
+    }
+
+    fun bodyMatches(regex: String): HttpRequestTrainingDsl {
+        this.bodyMatcher = HttpRequestBodyMatcher.RegexMatch(Regex(HttpDslExpressionSupport.resolve(regex)))
+        return this
+    }
+
+    fun bodyAsJson(json: String): HttpRequestTrainingDsl {
+        this.bodyMatcher = HttpRequestBodyMatcher.Json(json)
+        return this
+    }
+
+    fun bodyAsJson(value: Any): HttpRequestTrainingDsl {
+        this.bodyMatcher = HttpRequestBodyMatcher.Json(defaultJson(value))
+        return this
+    }
+
+    fun bodyEmpty(): HttpRequestTrainingDsl {
+        this.bodyMatcher = HttpRequestBodyMatcher.Empty
+        return this
+    }
+
+    fun bodyAbsent(): HttpRequestTrainingDsl {
+        return bodyEmpty()
+    }
+
+    fun noContent(): HttpRequestTrainingDsl {
+        return bodyEmpty()
     }
 
     fun predicate(predicate: Predicate<HttpRequest>): HttpRequestTrainingDsl {
@@ -71,7 +126,7 @@ class HttpRequestTrainingDsl internal constructor(
     }
 
     internal fun registerIfNeeded() {
-        if (!trainingRegistered && (path != null || method != null || headers.isNotEmpty() || predicate != null)) {
+        if (!trainingRegistered && (path != null || method != null || headers.isNotEmpty() || pathVariables.isNotEmpty() || queryParams.isNotEmpty() || bodyMatcher != null || predicate != null)) {
             throw IllegalStateException("A request training must end with respond{...} or responds{...}")
         }
     }
@@ -88,13 +143,20 @@ class HttpRequestTrainingDsl internal constructor(
             HttpTrainingDefinition(
                 requestMatcher = HttpRequestMatcher(
                     path = path,
+                    pathVariables = pathVariables.toMap(),
                     method = method,
                     headers = headers.toMap(),
+                    queryParams = queryParams.toMap(),
+                    bodyMatcher = bodyMatcher,
                     predicate = predicate
                 ),
                 responses = responses
             )
         )
+    }
+
+    private fun defaultJson(value: Any): String {
+        return HttpDslJsonSupport.defaultJsonMapper().writeValueAsString(value)
     }
 }
 

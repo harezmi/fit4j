@@ -42,6 +42,28 @@ class HttpDslJavaFIT {
                 .respond(response -> response
                     .status(203)
                     .bodyAsText("java-predicate-match"));
+
+            dsl.path("/java/body/exact")
+                .method("POST")
+                .body("java-exact")
+                .respond(response -> response
+                    .status(204)
+                    .bodyAsText("java-body-exact"));
+
+            dsl.path("/java/body/json")
+                .method("POST")
+                .bodyAsJson(Map.of("message", "hello", "count", 2))
+                .respond(response -> response
+                    .status(205)
+                    .bodyAsText("java-body-json"));
+
+            dsl.path("/java/query/{id}")
+                .pathVariable("id", "123")
+                .queryParam("filter", "active")
+                .bodyAbsent()
+                .respond(response -> response
+                    .status(206)
+                    .bodyAsText("java-query-match"));
         });
 
         HttpResponse hello = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/hello", "GET", "", Map.of(), "/java/hello"));
@@ -49,6 +71,9 @@ class HttpDslJavaFIT {
         HttpResponse first = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/sequence", "GET", "", Map.of(), "/java/sequence"));
         HttpResponse second = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/sequence", "GET", "", Map.of(), "/java/sequence"));
         HttpResponse predicate = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/predicate", "POST", "java-body", Map.of(), "/java/predicate"));
+        HttpResponse exactBody = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/body/exact", "POST", "java-exact", Map.of(), "/java/body/exact"));
+        HttpResponse jsonBody = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/body/json", "POST", "{\"count\":2,\"message\":\"hello\"}", Map.of(), "/java/body/json"));
+        HttpResponse query = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/query/123", "GET", "", Map.of(), "/java/query/123?filter=active&debug=true"));
 
         Assertions.assertEquals(207, hello.getStatusCode());
         Assertions.assertEquals("hello-from-java", hello.bodyAsText());
@@ -61,5 +86,11 @@ class HttpDslJavaFIT {
         Assertions.assertEquals("second", second.bodyAsText());
         Assertions.assertEquals(203, predicate.getStatusCode());
         Assertions.assertEquals("java-predicate-match", predicate.bodyAsText());
+        Assertions.assertEquals(204, exactBody.getStatusCode());
+        Assertions.assertEquals("java-body-exact", exactBody.bodyAsText());
+        Assertions.assertEquals(205, jsonBody.getStatusCode());
+        Assertions.assertEquals("java-body-json", jsonBody.bodyAsText());
+        Assertions.assertEquals(206, query.getStatusCode());
+        Assertions.assertEquals("java-query-match", query.bodyAsText());
     }
 }

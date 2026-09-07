@@ -263,6 +263,62 @@ class HttpMockServiceResponseFactoryFIT {
                     header("X-Echo", "#{#request.body}")
                     bodyAsJson("""{"echo":"#{#request.body}"}""")
                 }
+
+            path("/dsl/request-body/exact")
+                .method("POST")
+                .body("exact-body")
+                .respond {
+                    status(210)
+                    bodyAsText("matched-exact")
+                }
+
+            path("/dsl/request-body/contains")
+                .method("POST")
+                .bodyContains("needle")
+                .respond {
+                    status(211)
+                    bodyAsText("matched-contains")
+                }
+
+            path("/dsl/request-body/json")
+                .method("POST")
+                .bodyAsJson("""{"message":"hello","count":2}""")
+                .respond {
+                    status(212)
+                    bodyAsText("matched-json")
+                }
+
+            path("/dsl/request-body/empty")
+                .method("POST")
+                .bodyEmpty()
+                .respond {
+                    status(213)
+                    bodyAsText("matched-empty")
+                }
+
+            path("/dsl/request-body/absent")
+                .method("POST")
+                .bodyAbsent()
+                .respond {
+                    status(214)
+                    bodyAsText("matched-absent")
+                }
+
+            path("/dsl/request-body/no-content")
+                .method("POST")
+                .noContent()
+                .respond {
+                    status(215)
+                    bodyAsText("matched-no-content")
+                }
+
+            path("/dsl/query/{id}")
+                .pathVariable("id", "123")
+                .queryParam("filter", "active")
+                .respond {
+                    status(216)
+                    bodyAsText("matched-query")
+                }
         }
 
         // When
@@ -283,6 +339,19 @@ class HttpMockServiceResponseFactoryFIT {
         ) as HttpResponse
         val jsonTemplateResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/json-template/123")) as HttpResponse
         val echoResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/echo", "POST", "echo-body")) as HttpResponse
+        val exactBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/exact", "POST", "exact-body")) as HttpResponse
+        val containsBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/contains", "POST", "prefix-needle-suffix")) as HttpResponse
+        val jsonBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/json", "POST", """{"count":2,"message":"hello"}""")) as HttpResponse
+        val emptyBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/empty", "POST")) as HttpResponse
+        val absentBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/absent", "POST")) as HttpResponse
+        val noContentBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/no-content", "POST")) as HttpResponse
+        val queryParamResponse = mockResponseFactory.getResponseFor(
+            createWebRequest(
+                "/dsl/query/123",
+                "GET",
+                requestUrl = "/dsl/query/123?filter=active&debug=true"
+            )
+        ) as HttpResponse
 
         // Then
         Assertions.assertEquals(299, overrideResponse.statusCode)
@@ -305,6 +374,20 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("""{"id":"123","name":"dsl"}""", jsonTemplateResponse.bodyAsText())
         Assertions.assertEquals("echo-body", echoResponse.headers!!.get("X-Echo"))
         Assertions.assertEquals("""{"echo":"echo-body"}""", echoResponse.bodyAsText())
+        Assertions.assertEquals(210, exactBodyResponse.statusCode)
+        Assertions.assertEquals("matched-exact", exactBodyResponse.bodyAsText())
+        Assertions.assertEquals(211, containsBodyResponse.statusCode)
+        Assertions.assertEquals("matched-contains", containsBodyResponse.bodyAsText())
+        Assertions.assertEquals(212, jsonBodyResponse.statusCode)
+        Assertions.assertEquals("matched-json", jsonBodyResponse.bodyAsText())
+        Assertions.assertEquals(213, emptyBodyResponse.statusCode)
+        Assertions.assertEquals("matched-empty", emptyBodyResponse.bodyAsText())
+        Assertions.assertEquals(214, absentBodyResponse.statusCode)
+        Assertions.assertEquals("matched-absent", absentBodyResponse.bodyAsText())
+        Assertions.assertEquals(215, noContentBodyResponse.statusCode)
+        Assertions.assertEquals("matched-no-content", noContentBodyResponse.bodyAsText())
+        Assertions.assertEquals(216, queryParamResponse.statusCode)
+        Assertions.assertEquals("matched-query", queryParamResponse.bodyAsText())
     }
 
 
@@ -312,9 +395,10 @@ class HttpMockServiceResponseFactoryFIT {
         path: String,
         method: String = "GET",
         body: String? = null,
-        headers: Map<String, String> = emptyMap()
+        headers: Map<String, String> = emptyMap(),
+        requestUrl: String = path
     ) : HttpRequest {
-        return HttpRequest(path = path, method = method, body = body ?: "", headers = headers, requestUrl = path)
+        return HttpRequest(path = path, method = method, body = body ?: "", headers = headers, requestUrl = requestUrl)
     }
 }
 

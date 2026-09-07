@@ -5,17 +5,31 @@ import org.fit4j.http.HttpResponse
 import org.fit4j.http.HttpResponseBody
 import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.core.io.Resource
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.KotlinModule
+import java.net.URI
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.util.Locale
 import java.util.function.Predicate
 
 data class HttpRequestMatcher(
     val path: String? = null,
+    val pathVariables: Map<String, String> = emptyMap(),
     val method: String? = null,
     val headers: Map<String, String> = emptyMap(),
+    val queryParams: Map<String, String> = emptyMap(),
+    val bodyMatcher: HttpRequestBodyMatcher? = null,
     val predicate: Predicate<HttpRequest>? = null
 ) {
     fun matches(request: HttpRequest): Boolean {
-        if (path != null && path != request.path) {
+        val matchedPathVariables = if (path != null) {
+            matchPath(path, request.path) ?: return false
+        } else {
+            emptyMap()
+        }
+        if (pathVariables.any { (key, value) -> matchedPathVariables[key] != value }) {
             return false
         }
         if (method != null && method.uppercase(Locale.US) != request.method?.uppercase(Locale.US)) {
@@ -24,10 +38,61 @@ data class HttpRequestMatcher(
         if (headers.any { (key, value) -> request.headers[key] != value }) {
             return false
         }
+        if (queryParams.any { (key, value) -> requestQueryParams(request)[key] != value }) {
+            return false
+        }
+        if (bodyMatcher != null && !bodyMatcher.matches(request.body)) {
+            return false
+        }
         if (predicate != null && !predicate.test(request)) {
             return false
         }
         return true
+    }
+
+    private fun matchPath(templateOrPath: String, requestPath: String?): Map<String, String>? {
+        if (requestPath == null) {
+            return null
+        }
+        if (!templateOrPath.contains('{')) {
+            return if (templateOrPath == requestPath) emptyMap() else null
+        }
+
+        val variableNames = mutableListOf<String>()
+        val regexPattern = Regex("""\{([A-Za-z0-9_]+)\}""").replace(templateOrPath) { matchResult ->
+            variableNames.add(matchResult.groupValues[1])
+            "(?<${matchResult.groupValues[1]}>[^/]+)"
+        }
+        val regex = Regex("^$regexPattern$")
+        val match = regex.matchEntire(requestPath) ?: return null
+        return variableNames.associateWith { name -> match.groups[name]?.value ?: "" }
+    }
+
+    private fun requestQueryParams(request: HttpRequest): Map<String, String> {
+        val requestUrl = request.requestUrl ?: return emptyMap()
+        val uri = try {
+            URI(requestUrl)
+        } catch (_: Exception) {
+            return emptyMap()
+        }
+        val rawQuery = uri.rawQuery ?: return emptyMap()
+        if (rawQuery.isBlank()) {
+            return emptyMap()
+        }
+
+        return rawQuery
+            .split("&")
+            .mapNotNull { token ->
+                if (token.isBlank()) {
+                    null
+                } else {
+                    val parts = token.split("=", limit = 2)
+                    val key = URLDecoder.decode(parts[0], StandardCharsets.UTF_8)
+                    val value = URLDecoder.decode(parts.getOrNull(1) ?: "", StandardCharsets.UTF_8)
+                    key to value
+                }
+            }
+            .toMap()
     }
 }
 
@@ -121,6 +186,43 @@ sealed class HttpResponseTemplate {
                 throw IllegalStateException("Resource not found at $normalizedLocation")
             }
             return resource
+        }
+    }
+}
+
+sealed class HttpRequestBodyMatcher {
+    abstract fun matches(requestBody: String): Boolean
+
+    data object Empty : HttpRequestBodyMatcher() {
+        override fun matches(requestBody: String): Boolean = requestBody.isEmpty()
+    }
+
+    data class Exact(val value: String) : HttpRequestBodyMatcher() {
+        override fun matches(requestBody: String): Boolean = requestBody == value
+    }
+
+    data class Contains(val value: String) : HttpRequestBodyMatcher() {
+        override fun matches(requestBody: String): Boolean = requestBody.contains(value)
+    }
+
+    data class RegexMatch(val value: Regex) : HttpRequestBodyMatcher() {
+        override fun matches(requestBody: String): Boolean = value.containsMatchIn(requestBody)
+    }
+
+    data class Json(val value: String) : HttpRequestBodyMatcher() {
+        override fun matches(requestBody: String): Boolean {
+            val mapper = jsonMapper()
+            val expectedNode = mapper.readTree(HttpDslExpressionSupport.resolve(value))
+            val actualNode = mapper.readTree(requestBody)
+            return expectedNode == actualNode
+        }
+    }
+
+    companion object {
+        private fun jsonMapper(): JsonMapper {
+            return JsonMapper.builder()
+                .addModule(KotlinModule.Builder().build())
+                .build()
         }
     }
 }

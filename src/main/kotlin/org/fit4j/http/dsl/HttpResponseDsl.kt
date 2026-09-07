@@ -1,8 +1,6 @@
 package org.fit4j.http.dsl
 
 import org.springframework.core.io.Resource
-import tools.jackson.databind.json.JsonMapper
-import tools.jackson.module.kotlin.KotlinModule
 import java.util.function.Consumer
 
 class HttpResponseDsl {
@@ -46,7 +44,7 @@ class HttpResponseDsl {
     }
 
     fun bodyAsJson(value: Any): HttpResponseDsl {
-        body = HttpResponseTemplate.Text(defaultJsonMapper().writeValueAsString(value))
+        body = HttpResponseTemplate.Text(HttpDslJsonSupport.defaultJsonMapper().writeValueAsString(value))
         autoJsonContentType = true
         bodyDefined = true
         return this
@@ -80,12 +78,6 @@ class HttpResponseDsl {
     }
 
     internal fun hasBody(): Boolean = bodyDefined
-
-    private fun defaultJsonMapper(): JsonMapper {
-        return JsonMapper.builder()
-            .addModule(KotlinModule.Builder().build())
-            .build()
-    }
 }
 
 class HttpResponseSequenceDsl {
