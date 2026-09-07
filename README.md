@@ -763,6 +763,7 @@ class HttpDslParityFIT {
             dsl.path("/json")
                 .respond(response -> response
                     .status(200)
+                    .contentType("application/json")
                     .bodyAsJson(Map.of("message", "hello", "count", 2)));
 
             dsl.path("/sequence")
