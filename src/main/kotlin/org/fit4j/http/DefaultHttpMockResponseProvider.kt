@@ -2,6 +2,7 @@ package org.fit4j.http
 
 import org.fit4j.mock.MockResponseProvider
 import org.fit4j.mock.declarative.DeclarativeTestFixtureProvider
+import org.fit4j.http.dsl.HttpDslRegistry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered
@@ -19,12 +20,24 @@ class DefaultHttpMockResponseProvider(private val jsonToHttpResponseConverter: J
 
 
     override fun getResponseFor(request: Any?): Any? {
-        var response = tryToObtainMockResponseFromResponseBuilders(request as HttpRequest)
+        var response = tryToObtainMockResponseFromHttpDsl(request as HttpRequest)
+
+        if(response == null) {
+            response = tryToObtainMockResponseFromResponseBuilders(request)
+        }
 
         if(response == null) {
             response = tryToObtainMockResponseFromDeclarativeTestFixtures(request)
         }
 
+        return response
+    }
+
+    private fun tryToObtainMockResponseFromHttpDsl(request: HttpRequest) : Any? {
+        val response = HttpDslRegistry.resolveResponse(request)
+        if (response != null) {
+            logger.debug("${this.javaClass.simpleName} obtained a response from HTTP DSL")
+        }
         return response
     }
 
@@ -44,7 +57,7 @@ class DefaultHttpMockResponseProvider(private val jsonToHttpResponseConverter: J
         responseBuilders.forEach {
             val jsonContent = it.build(request)
             if (jsonContent != null) {
-                logger.debug("${this.javaClass.simpleName} obtained a response from a declarative test fixture")
+                logger.debug("${this.javaClass.simpleName} obtained a response from a response builder")
                 return jsonToHttpResponseConverter.convert(jsonContent, request)
             }
         }

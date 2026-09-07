@@ -11,7 +11,8 @@ class Fit4JTestContextManager {
 
         private val FAILED_CALLS_NAMESPACE: Namespace = Namespace.create("org.fit4j.failedCalls")
 
-        private fun resolveExtensionContext(): ExtensionContext? =
+        @JvmStatic
+        fun currentExtensionContext(): ExtensionContext? =
             Fit4jTestExecutionRegistry.resolveExtensionContext(currentExtensionContext)
 
         @JvmStatic
@@ -26,17 +27,17 @@ class Fit4JTestContextManager {
 
         @JvmStatic
         fun getTestMethodName(): String? {
-            return resolveExtensionContext()?.testMethod?.get()?.name
+            return currentExtensionContext()?.testMethod?.get()?.name
         }
 
         @JvmStatic
         fun getTestClass(): Class<*>? {
-            return resolveExtensionContext()?.requiredTestClass
+            return currentExtensionContext()?.requiredTestClass
         }
 
         @JvmStatic
         fun getTestMethod(): Method? {
-            return resolveExtensionContext()?.requiredTestMethod
+            return currentExtensionContext()?.requiredTestMethod
         }
 
         @JvmStatic
@@ -49,7 +50,7 @@ class Fit4JTestContextManager {
 
         @JvmStatic
         fun addFailedCall(failedCall: FailedCall) {
-            val context = resolveExtensionContext() ?: return
+            val context = currentExtensionContext() ?: return
             val store = context.getStore(FAILED_CALLS_NAMESPACE)
             @Suppress("UNCHECKED_CAST")
             var existingFailedCalls = store.get("failed-calls") as MutableList<FailedCall>?
@@ -62,7 +63,7 @@ class Fit4JTestContextManager {
 
         @JvmStatic
         fun getFailedCalls(): List<FailedCall>? {
-            val context = resolveExtensionContext() ?: return null
+            val context = currentExtensionContext() ?: return null
             val existingFailedCalls =
                 context.getStore(FAILED_CALLS_NAMESPACE).get("failed-calls") ?: return null
             return existingFailedCalls as List<FailedCall>

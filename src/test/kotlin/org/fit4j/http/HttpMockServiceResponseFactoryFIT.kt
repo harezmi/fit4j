@@ -1,5 +1,6 @@
 package org.fit4j.http
 
+import org.fit4j.Fit4J
 import org.fit4j.annotation.FIT
 import org.fit4j.mock.MockResponseFactory
 import org.junit.jupiter.api.Assertions
@@ -197,8 +198,81 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertNull(response.headers!!.get("Content-Type"))
     }
 
+    @Test
+    fun `it should resolve dsl responses before builders and yaml`() {
+        // Given
+        Fit4J.http {
+            path("/foo")
+                .method("GET")
+                .respond {
+                    status(299)
+                    header("Content-Type", "text/plain")
+                    bodyAsText("dsl override")
+                }
+
+            path("/dsl/sequence")
+                .responds {
+                    response {
+                        status(200)
+                        bodyAsText("first")
+                    }
+                    response {
+                        status(202)
+                        bodyAsText("second")
+                    }
+                }
+
+            path("/dsl/json")
+                .respond {
+                    bodyAsJson(TestBody("hello", 1))
+                }
+
+            path("/dsl/bytes")
+                .respond {
+                    bodyAsBytes(byteArrayOf(1, 2, 3))
+                }
+
+            path("/dsl/resource")
+                .respond {
+                    bodyAsResource("classpath:http-dsl-body.txt")
+                }
+
+            path("/dsl/no-content")
+                .respond {
+                    status(204)
+                }
+        }
+
+        // When
+        val overrideResponse = mockResponseFactory.getResponseFor(createWebRequest("/foo")) as HttpResponse
+        val firstSequenceResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/sequence")) as HttpResponse
+        val secondSequenceResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/sequence")) as HttpResponse
+        val jsonResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/json")) as HttpResponse
+        val bytesResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/bytes")) as HttpResponse
+        val resourceResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/resource")) as HttpResponse
+        val noContentResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/no-content")) as HttpResponse
+
+        // Then
+        Assertions.assertEquals(299, overrideResponse.statusCode)
+        Assertions.assertEquals("dsl override", overrideResponse.bodyAsText())
+        Assertions.assertEquals("text/plain", overrideResponse.headers!!.get("Content-Type"))
+
+        Assertions.assertEquals(200, firstSequenceResponse.statusCode)
+        Assertions.assertEquals("first", firstSequenceResponse.bodyAsText())
+        Assertions.assertEquals(202, secondSequenceResponse.statusCode)
+        Assertions.assertEquals("second", secondSequenceResponse.bodyAsText())
+
+        Assertions.assertEquals("""{"message":"hello","count":1}""", jsonResponse.bodyAsText())
+        Assertions.assertArrayEquals(byteArrayOf(1, 2, 3), bytesResponse.bodyAsBytes())
+        Assertions.assertEquals("resource-body", resourceResponse.bodyAsText()?.trim())
+        Assertions.assertEquals(204, noContentResponse.statusCode)
+        Assertions.assertArrayEquals(ByteArray(0), noContentResponse.bodyAsBytes())
+    }
+
 
     private fun createWebRequest(path:String, method:String="GET", body:String?=null) : HttpRequest {
         return HttpRequest(path=path,method=method,body=body?:"", headers = emptyMap<String,String>(), requestUrl = path)
     }
 }
+
+data class TestBody(val message: String, val count: Int)
