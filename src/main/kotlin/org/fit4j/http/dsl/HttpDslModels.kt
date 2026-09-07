@@ -126,14 +126,10 @@ data class HttpRequestMatcher(
 data class HttpResponseDefinition(
     val statusCode: Int = 200,
     val headers: Map<String, String> = emptyMap(),
-    val body: HttpResponseTemplate = HttpResponseTemplate.Empty,
-    val autoJsonContentType: Boolean = false
+    val body: HttpResponseTemplate = HttpResponseTemplate.Empty
 ) {
     fun toHttpResponse(request: HttpRequest): HttpResponse {
         val resolvedHeaders = headers.mapValues { (_, value) -> HttpDslExpressionSupport.resolve(value, request) }.toMutableMap()
-        if (autoJsonContentType && !resolvedHeaders.containsKey("Content-Type")) {
-            resolvedHeaders["Content-Type"] = "application/json"
-        }
         return HttpResponse(
             statusCode = statusCode,
             headers = resolvedHeaders.ifEmpty { null },

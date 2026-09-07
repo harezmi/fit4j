@@ -8,7 +8,7 @@ class HttpResponseDsl {
     private var statusCode: Int = 200
     private val headers = linkedMapOf<String, String>()
     private var body: HttpResponseTemplate = HttpResponseTemplate.Empty
-    private var autoJsonContentType: Boolean = false
+    private var defaultContentType: String? = null
     private var bodyDefined = false
 
     fun status(statusCode: Int): HttpResponseDsl {
@@ -32,48 +32,55 @@ class HttpResponseDsl {
 
     fun bodyAsText(text: String): HttpResponseDsl {
         body = HttpResponseTemplate.Text(text)
+        defaultContentType = "text/plain"
         bodyDefined = true
         return this
     }
 
     fun bodyAsJson(json: String): HttpResponseDsl {
         body = HttpResponseTemplate.Text(json)
-        autoJsonContentType = true
+        defaultContentType = "application/json"
         bodyDefined = true
         return this
     }
 
     fun bodyAsJson(value: Any): HttpResponseDsl {
         body = HttpResponseTemplate.Text(HttpDslJsonSupport.jsonMapper().writeValueAsString(value))
-        autoJsonContentType = true
+        defaultContentType = "application/json"
         bodyDefined = true
         return this
     }
 
     fun bodyAsBytes(bytes: ByteArray): HttpResponseDsl {
         body = HttpResponseTemplate.Bytes(bytes)
+        defaultContentType = "application/octet-stream"
         bodyDefined = true
         return this
     }
 
     fun bodyAsResource(location: String): HttpResponseDsl {
         body = HttpResponseTemplate.ResourceLocation(location)
+        defaultContentType = "application/octet-stream"
         bodyDefined = true
         return this
     }
 
     fun bodyAsResource(resource: Resource): HttpResponseDsl {
         body = HttpResponseTemplate.ResourceRef(resource)
+        defaultContentType = "application/octet-stream"
         bodyDefined = true
         return this
     }
 
     internal fun build(): HttpResponseDefinition {
+        val resolvedHeaders = headers.toMutableMap()
+        if (defaultContentType != null && !resolvedHeaders.containsKey("Content-Type")) {
+            resolvedHeaders["Content-Type"] = defaultContentType!!
+        }
         return HttpResponseDefinition(
             statusCode = statusCode,
-            headers = headers.toMap(),
-            body = body,
-            autoJsonContentType = autoJsonContentType
+            headers = resolvedHeaders,
+            body = body
         )
     }
 

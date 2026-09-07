@@ -282,6 +282,7 @@ class HttpMockServiceResponseFactoryFIT {
 
             path("/dsl/request-body/json")
                 .method("POST")
+                .contentType("application/json")
                 .bodyAsJson("""{"message":"hello","count":2}""")
                 .respond {
                     status(212)
@@ -330,6 +331,14 @@ class HttpMockServiceResponseFactoryFIT {
                     status(217)
                     bodyAsText("matched-rich")
                 }
+
+            path("/dsl/content-type")
+                .method("POST")
+                .contentTypeContains("application/json")
+                .respond {
+                    status(218)
+                    bodyAsText("matched-content-type")
+                }
         }
 
         // When
@@ -374,6 +383,13 @@ class HttpMockServiceResponseFactoryFIT {
                 requestUrl = "/dsl/rich-match/123?filter=active&version=42"
             )
         ) as HttpResponse
+        val contentTypeResponse = mockResponseFactory.getResponseFor(
+            createWebRequest(
+                "/dsl/content-type",
+                "POST",
+                headers = mapOf("Content-Type" to "application/json; charset=utf-8")
+            )
+        ) as HttpResponse
 
         // Then
         Assertions.assertEquals(299, overrideResponse.statusCode)
@@ -386,10 +402,14 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("second", secondSequenceResponse.bodyAsText())
 
         Assertions.assertEquals("""{"message":"hello","count":1}""", jsonResponse.bodyAsText())
+        Assertions.assertEquals("application/json", jsonResponse.headers!!.get("Content-Type"))
         Assertions.assertArrayEquals(byteArrayOf(1, 2, 3), bytesResponse.bodyAsBytes())
+        Assertions.assertEquals("application/octet-stream", bytesResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals("resource-body", resourceResponse.bodyAsText()?.trim())
+        Assertions.assertEquals("application/octet-stream", resourceResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals(204, noContentResponse.statusCode)
         Assertions.assertArrayEquals(ByteArray(0), noContentResponse.bodyAsBytes())
+        Assertions.assertNull(noContentResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals(201, expressionResponse.statusCode)
         Assertions.assertEquals("123", expressionResponse.headers!!.get("X-Reply-Id"))
         Assertions.assertEquals("hello-123", expressionResponse.bodyAsText())
@@ -398,10 +418,13 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("""{"echo":"echo-body"}""", echoResponse.bodyAsText())
         Assertions.assertEquals(210, exactBodyResponse.statusCode)
         Assertions.assertEquals("matched-exact", exactBodyResponse.bodyAsText())
+        Assertions.assertEquals("text/plain", exactBodyResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals(211, containsBodyResponse.statusCode)
         Assertions.assertEquals("matched-contains", containsBodyResponse.bodyAsText())
+        Assertions.assertEquals("text/plain", containsBodyResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals(212, jsonBodyResponse.statusCode)
         Assertions.assertEquals("matched-json", jsonBodyResponse.bodyAsText())
+        Assertions.assertEquals("application/json", jsonBodyResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals(213, emptyBodyResponse.statusCode)
         Assertions.assertEquals("matched-empty", emptyBodyResponse.bodyAsText())
         Assertions.assertEquals(214, absentBodyResponse.statusCode)
@@ -412,6 +435,8 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("matched-query", queryParamResponse.bodyAsText())
         Assertions.assertEquals(217, richMatchResponse.statusCode)
         Assertions.assertEquals("matched-rich", richMatchResponse.bodyAsText())
+        Assertions.assertEquals(218, contentTypeResponse.statusCode)
+        Assertions.assertEquals("matched-content-type", contentTypeResponse.bodyAsText())
     }
 
 

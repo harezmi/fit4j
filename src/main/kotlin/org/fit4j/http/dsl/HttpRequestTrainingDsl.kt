@@ -59,6 +59,18 @@ class HttpRequestTrainingDsl internal constructor(
         return headers { block.accept(this) }
     }
 
+    fun contentType(value: String): HttpRequestTrainingDsl {
+        return header("Content-Type", value)
+    }
+
+    fun contentTypeContains(value: String): HttpRequestTrainingDsl {
+        return headerContains("Content-Type", value)
+    }
+
+    fun contentTypeMatches(regex: String): HttpRequestTrainingDsl {
+        return headerMatches("Content-Type", regex)
+    }
+
     fun pathVariable(name: String, value: String): HttpRequestTrainingDsl {
         pathVariables[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
         return this

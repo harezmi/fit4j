@@ -17,6 +17,8 @@
     * [Define Request-Response Trainings for External gRPC Endpoints](#define-request-response-trainings-for-external-grpc-endpoints)
         + [How the gRPC Communication is Redirected to the Mock gRPC Server?](#how-the-grpc-communication-is-redirected-to-the-mock-grpc-server)
     * [Define Request-Response Trainings for External HTTP/REST Endpoints](#define-request-response-trainings-for-external-httprest-endpoints)
+        + [HTTP/REST DSL API Reference](#httprest-dsl-api-reference)
+        + [HTTP/REST DSL Examples](#httprest-dsl-examples)
 - [How to Initiate Request Processing Flow in Your Service?](#how-to-initiate-request-processing-flow-in-your-service)
     * [Calling gRPC Endpoints of Your Service](#calling-grpc-endpoints-of-your-service)
     * [Calling REST Endpoints of Your Service](#calling-rest-endpoints-of-your-service)
@@ -547,36 +549,280 @@ data class HttpProperties(val protocol:String="http", val hostname:String="local
 }
 ```
 
-Then you can prepare the following request-response trainings for those REST endpoints for your FITs either
-in declarative way or programmatically.
+Then you can define request-response trainings directly inside the test method, either with the Kotlin DSL or with the
+Java-friendly `Consumer` overloads. The test method itself is the natural scope, so no extra `scenario` block is needed.
+Each `path(...).respond { ... }` or `path(...).responds { ... }` chain registers one training.
 
-```yml
-tests:
-  - name: RestExampleFIT
-    fixtures:
-      - request:
-          protocol: http
-          path: "/hello"
-          response:
-            status: 200
-            body:
-              message: "Hello, John!"
-      - request:
-          protocol: http
-          path: "/bye"
-          predicate: "#request.method == 'POST'"
-          response:
-            status: 200
-            body:
-              message: "Bye, Joe!"
+### HTTP/REST DSL API Reference
+
+The table below summarizes the public HTTP DSL surface that is intended to stay stable.
+
+| Kotlin API | Java API | Purpose |
+| --- | --- | --- |
+| `Fit4J.http { ... }` | `Fit4J.http(Consumer<HttpDsl>)` | Start a group of HTTP trainings inside a test method |
+| `path(String)` | `path(String)` | Start a request training; `pathTemplate(String)` is a readability alias |
+| `request { ... }` | `request(Consumer<HttpRequestTrainingDsl>)` | Add a request training when you want to compose the DSL without starting from a path first |
+| `method(String)` | `method(String)` | Match HTTP method |
+| `header(...)`, `headers { ... }` | `header(...)`, `headers(...)` | Exact header matches |
+| `contentType(...)`, `contentTypeContains(...)`, `contentTypeMatches(...)` | same | Convenience wrappers for `Content-Type` matching |
+| `headerContains(...)`, `headerMatches(...)` | same | Richer header matching for substring and regex checks |
+| `queryParam(...)`, `queryParamContains(...)`, `queryParamRegex(...)` | same | Exact, contains, and regex query parameter matching |
+| `pathVariable(...)` | same | Match templated path variables such as `/foo/{id}` |
+| `body(...)`, `bodyContains(...)`, `bodyMatches(...)` | same | Plain text request body matching |
+| `bodyAsJson(String)`, `bodyAsJson(Any)` | same | JSON request body matching; `Any` uses Spring-managed `JsonHelper` / `JsonMapper` when available |
+| `bodyEmpty()` | same | Match an empty body |
+| `bodyAbsent()` | same | Alias of `bodyEmpty()` |
+| `noContent()` | same | Alias of `bodyEmpty()` for readability |
+| `predicate(String)`, `predicate(Predicate<HttpRequest>)` | same | Custom request predicate; string expressions are resolved in the active FIT4J test context |
+| `respond { ... }` | `respond(Consumer<HttpResponseDsl>)` | Register a single response |
+| `responds { ... }` | `responds(Consumer<HttpResponseSequenceDsl>)` | Register a response sequence for repeated hits |
+| `status(...)`, `header(...)`, `headers { ... }` | same | Build an HTTP response |
+| `bodyAsText(...)`, `bodyAsJson(...)`, `bodyAsBytes(...)`, `bodyAsResource(...)` | same | Response body variants |
+
+`bodyAsResource(...)` accepts either a resource location string such as `classpath:http-dsl-body.txt` or a Spring `Resource`.
+`bodyAsJson(Any)` is the recommended choice when you want the DSL to serialize an object directly instead of writing JSON by hand.
+For a response with no content, simply omit the body and use `status(204)`.
+When you build a response with `bodyAsText(...)`, `bodyAsJson(...)`, `bodyAsBytes(...)`, or `bodyAsResource(...)` and do not
+set `Content-Type` explicitly, FIT4J will now add a sensible default automatically:
+`text/plain`, `application/json`, or `application/octet-stream`.
+
+### HTTP/REST DSL Examples
+
+#### Example 1: 1:1 YAML parity in Kotlin
+
+This is the direct DSL equivalent of the example REST YAML fixture used in `fit4j-examples/example-rest`:
+
+```kotlin
+@FIT
+class RestExampleFIT {
+    @Autowired
+    private lateinit var exampleRestClient: ExampleRestClient
+
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        fun testFixture() = TestFixture("John", "Joe")
+    }
+
+    data class TestFixture(val helloName: String, val byeName: String)
+
+    @Test
+    fun `rest trainings defined inline in the test method`() {
+        Fit4J.http {
+            path("/hello")
+                .method("POST")
+                .respond {
+                    status(200)
+                    bodyAsJson("""{"message":"Hello, #{@testFixture.helloName}!"}""")
+                }
+
+            path("/bye")
+                .predicate("#request.method == 'POST'")
+                .respond {
+                    status(200)
+                    bodyAsJson("""{"message":"Bye, #{@testFixture.byeName}!"}""")
+                }
+        }
+
+        val hello = exampleRestClient.sayHello(ExampleRestRequest().apply { name = "John" })
+        val bye = exampleRestClient.sayBye(ExampleRestRequest().apply { name = "Joe" })
+
+        Assertions.assertEquals("Hello, John!", hello.message)
+        Assertions.assertEquals("Bye, Joe!", bye.message)
+    }
+}
 ```
 
-The above example shows how it can be done in declarative fashion within `fit4j-fixtures.yml` file.
-Similar to gRPC, you can write SpEL expression in your HTTP test fixtures as well. For HTTP requests, the current request 
-state is captured as `HttpRequestContext` object and exposed again with the `#request` variable in the SpEL expressions.
-You can access `path`, `method`, `body`, `headers`, `requestUrl` values through this variable. Similar to gRPC, the predicate 
-attribute is optional, and unless it is provided, the response will be returned for any request matching with the given path.
-Again you can write SpEL expressions in any place of your HTTP test fixtures similar to explained in the gRPC section above.
+#### Example 1: 1:1 YAML parity in Java
+
+```java
+@FIT
+class RestExampleFIT {
+
+    @Autowired
+    private ExampleRestClient exampleRestClient;
+
+    @Test
+    void rest_trainings_defined_inline_in_the_test_method() {
+        Fit4J.http(dsl -> {
+            dsl.path("/hello")
+                .method("POST")
+                .respond(response -> response
+                    .status(200)
+                    .bodyAsJson("{\"message\":\"Hello, #{@testFixture.helloName}!\"}"));
+
+            dsl.path("/bye")
+                .predicate("#request.method == 'POST'")
+                .respond(response -> response
+                    .status(200)
+                    .bodyAsJson("{\"message\":\"Bye, #{@testFixture.byeName}!\"}"));
+        });
+
+        ExampleRestRequest helloRequest = new ExampleRestRequest();
+        helloRequest.setName("John");
+        ExampleRestRequest byeRequest = new ExampleRestRequest();
+        byeRequest.setName("Joe");
+
+        ExampleRestResponse hello = exampleRestClient.sayHello(helloRequest);
+        ExampleRestResponse bye = exampleRestClient.sayBye(byeRequest);
+
+        Assertions.assertEquals("Hello, John!", hello.message);
+        Assertions.assertEquals("Bye, Joe!", bye.message);
+    }
+}
+```
+
+#### Example 2: richer request matching, response sequence, and body variants
+
+```kotlin
+data class GreetingResponse(val message: String, val count: Int)
+
+@FIT
+class HttpDslParityFIT {
+    @Autowired
+    private lateinit var mockResponseFactory: org.fit4j.mock.MockResponseFactory
+
+    @Test
+    fun `rich matching and response variants`() {
+        Fit4J.http {
+            path("/rich-match/{id}")
+                .pathVariable("id", "123")
+                .headerContains("X-Trace", "trace-123")
+                .headerMatches("X-Request-Id", "req-\\d+")
+                .queryParamContains("filter", "act")
+                .queryParamRegex("version", "\\d+")
+                .bodyEmpty()
+                .respond {
+                    status(207)
+                    bodyAsBytes(byteArrayOf(1, 2, 3))
+                }
+
+            path("/resource")
+                .method("GET")
+                .respond {
+                    status(200)
+                    bodyAsResource("classpath:http-dsl-body.txt")
+                }
+
+            path("/json")
+                .respond {
+                    status(200)
+                    contentType("application/json")
+                    bodyAsJson(GreetingResponse("hello", 2))
+                }
+
+            path("/sequence")
+                .responds {
+                    response {
+                        status(201)
+                        bodyAsText("first")
+                    }
+                    response {
+                        status(202)
+                        bodyAsText("second")
+                    }
+                }
+
+            path("/nocontent")
+                .bodyEmpty()
+                .respond {
+                    status(204)
+                }
+        }
+    }
+}
+```
+
+```java
+@FIT
+class HttpDslParityFIT {
+
+    @Autowired
+    private org.fit4j.mock.MockResponseFactory mockResponseFactory;
+
+    @Test
+    void rich_matching_and_response_variants() {
+        Fit4J.http(dsl -> {
+            dsl.path("/rich-match/{id}")
+                .pathVariable("id", "123")
+                .headerContains("X-Trace", "trace-123")
+                .headerMatches("X-Request-Id", "req-\\d+")
+                .queryParamContains("filter", "act")
+                .queryParamRegex("version", "\\d+")
+                .bodyEmpty()
+                .respond(response -> response
+                    .status(207)
+                    .bodyAsBytes(new byte[] {1, 2, 3}));
+
+            dsl.path("/resource")
+                .method("GET")
+                .respond(response -> response
+                    .status(200)
+                    .bodyAsResource("classpath:http-dsl-body.txt"));
+
+            dsl.path("/json")
+                .respond(response -> response
+                    .status(200)
+                    .bodyAsJson(Map.of("message", "hello", "count", 2)));
+
+            dsl.path("/sequence")
+                .responds(sequence -> sequence
+                    .response(response -> response.status(201).bodyAsText("first"))
+                    .response(response -> response.status(202).bodyAsText("second")));
+
+            dsl.path("/nocontent")
+                .bodyEmpty()
+                .respond(response -> response.status(204));
+        });
+    }
+}
+```
+
+#### Example 3: request body matching with exact, contains, regex, and JSON
+
+```kotlin
+Fit4J.http {
+    path("/body/exact")
+        .method("POST")
+        .body("exact-body")
+        .respond {
+            status(200)
+            bodyAsText("exact")
+        }
+
+    path("/body/contains")
+        .method("POST")
+        .bodyContains("needle")
+        .respond {
+            status(200)
+            bodyAsText("contains")
+        }
+
+    path("/body/regex")
+        .method("POST")
+        .bodyMatches("value-\\d+")
+        .respond {
+            status(200)
+            bodyAsText("regex")
+        }
+
+    path("/body/json")
+        .method("POST")
+        .contentType("application/json")
+        .bodyAsJson("""{"message":"hello","count":2}""")
+        .respond {
+            status(200)
+            bodyAsText("json")
+        }
+}
+```
+
+The same expressive request matching is available in YAML fixtures, but the DSL makes the intent more readable when
+you need a training or response sequence that is easier to understand at the call site.
+
+If you still prefer programmatic response builders, `HttpResponseJsonBuilder` remains available as a complementary
+mechanism. The inline DSL is the recommended default for test-method-local request-response training because it keeps the
+training close to the test flow and supports both Kotlin and Java services naturally.
 
 ### Method-Level Fixtures
 
@@ -1637,6 +1883,3 @@ written with those annotations. Here is a more detailed table that lists availab
 | Kafka message tracking capability is enabled                                                                                                                                                                                                                        | No               | Yes             | Yes                                                            |
 | Google JsonFormat Printer & Parser classes are exposed as Spring bean if they are in class path                                                                                                                                                                     | No               | Yes             | Yes                                                            |
 | `TestRestTemplate` (requires `@AutoConfigureTestRestTemplate` on the test class + webmvc on test classpath)                                                                                                                                                         | No               | No              | Yes (when annotated)                                           |
-
-
-
