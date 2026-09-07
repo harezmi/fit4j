@@ -25,7 +25,7 @@ class MockResponseJsonConverterFIT {
         """.trimIndent()
         val response = httpResponseJsonConverter.fromJson(jsonContent)
         Assertions.assertEquals(200, response.statusCode)
-        Assertions.assertEquals("""{"message" : "Hello, world!"}""".trimIndent(), response.body)
+        Assertions.assertEquals("""{"message" : "Hello, world!"}""".trimIndent(), response.bodyAsText())
         Assertions.assertEquals("application/json", response.headers!!.get("Content-Type"))
         Assertions.assertEquals("Bearer token", response.headers.get("Authorization"))
     }

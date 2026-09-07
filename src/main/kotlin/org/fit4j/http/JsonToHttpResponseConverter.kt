@@ -28,17 +28,20 @@ class JsonToHttpResponseConverter(private val jsonContentExpressionResolver: Jso
             headers = jsonNode.get("headers")?.let { headersNode ->
                 headersNode.properties().associate { (key, value) -> key to value.asString() }
             },
-            body = getBodyAsString(jsonNode.get("body"))
+            body = getBody(jsonNode.get("body"))
         )
     }
 
-    private fun getBodyAsString(bodyNode:JsonNode?): String? {
-        if(bodyNode == null) return null
-        return if(bodyNode.isObject) {
-            jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(bodyNode)
-        } else if (bodyNode.isValueNode)
-            bodyNode.asString()
-        else
-            bodyNode.toString()
+    private fun getBody(bodyNode: JsonNode?): HttpResponseBody {
+        if (bodyNode == null || bodyNode.isNull) return HttpResponseBody.Empty
+        return if (bodyNode.isObject) {
+            HttpResponseBody.Text(jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(bodyNode))
+        } else if (bodyNode.isArray) {
+            HttpResponseBody.Text(jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(bodyNode))
+        } else if (bodyNode.isValueNode) {
+            HttpResponseBody.Text(bodyNode.asString())
+        } else {
+            HttpResponseBody.Text(bodyNode.toString())
+        }
     }
 }

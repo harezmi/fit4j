@@ -36,7 +36,7 @@ class HttpServerDispatcher(
                     exchange.responseHeaders.add(key, value)
                 }
 
-                val bodyBytes = httpResponse.body?.toByteArray() ?: ByteArray(0)
+                val bodyBytes = httpResponse.bodyAsBytes()
                 exchange.sendResponseHeaders(httpResponse.statusCode, bodyBytes.size.toLong())
 
                 exchange.responseBody.use { os ->

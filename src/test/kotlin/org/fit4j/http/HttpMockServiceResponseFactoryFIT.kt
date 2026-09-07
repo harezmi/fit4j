@@ -133,7 +133,7 @@ class HttpMockServiceResponseFactoryFIT {
               "a" : "v1",
               "b" : "v2"
             }
-        """.trimIndent(),response.body)
+        """.trimIndent(),response.bodyAsText())
     }
 
     @Test
@@ -181,7 +181,7 @@ class HttpMockServiceResponseFactoryFIT {
               "id" : 210,
               "status" : "active"
             }
-        """.trimIndent(), response.body)
+        """.trimIndent(), response.bodyAsText())
     }
 
     @Test
