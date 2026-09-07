@@ -256,6 +256,13 @@ class HttpMockServiceResponseFactoryFIT {
                 .respond {
                     bodyAsJson("""{"id":"#{@testFixtureData.variables.fooId}","name":"dsl"}""")
                 }
+
+            path("/dsl/echo")
+                .method("POST")
+                .respond {
+                    header("X-Echo", "#{#request.body}")
+                    bodyAsJson("""{"echo":"#{#request.body}"}""")
+                }
         }
 
         // When
@@ -275,6 +282,7 @@ class HttpMockServiceResponseFactoryFIT {
             )
         ) as HttpResponse
         val jsonTemplateResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/json-template/123")) as HttpResponse
+        val echoResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/echo", "POST", "echo-body")) as HttpResponse
 
         // Then
         Assertions.assertEquals(299, overrideResponse.statusCode)
@@ -295,6 +303,8 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("123", expressionResponse.headers!!.get("X-Reply-Id"))
         Assertions.assertEquals("hello-123", expressionResponse.bodyAsText())
         Assertions.assertEquals("""{"id":"123","name":"dsl"}""", jsonTemplateResponse.bodyAsText())
+        Assertions.assertEquals("echo-body", echoResponse.headers!!.get("X-Echo"))
+        Assertions.assertEquals("""{"echo":"echo-body"}""", echoResponse.bodyAsText())
     }
 
 

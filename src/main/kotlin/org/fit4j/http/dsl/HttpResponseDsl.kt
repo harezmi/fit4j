@@ -1,7 +1,5 @@
 package org.fit4j.http.dsl
 
-import org.fit4j.http.HttpResponseBody
-import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.core.io.Resource
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.KotlinModule
@@ -11,7 +9,8 @@ class HttpResponseDsl {
 
     private var statusCode: Int = 200
     private val headers = linkedMapOf<String, String>()
-    private var body: HttpResponseBody = HttpResponseBody.Empty
+    private var body: HttpResponseTemplate = HttpResponseTemplate.Empty
+    private var autoJsonContentType: Boolean = false
     private var bodyDefined = false
 
     fun status(statusCode: Int): HttpResponseDsl {
@@ -20,7 +19,7 @@ class HttpResponseDsl {
     }
 
     fun header(name: String, value: String): HttpResponseDsl {
-        headers[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
+        headers[HttpDslExpressionSupport.resolve(name)] = value
         return this
     }
 
@@ -34,38 +33,39 @@ class HttpResponseDsl {
     }
 
     fun bodyAsText(text: String): HttpResponseDsl {
-        body = HttpResponseBody.text(HttpDslExpressionSupport.resolve(text))
+        body = HttpResponseTemplate.Text(text)
         bodyDefined = true
         return this
     }
 
     fun bodyAsJson(json: String): HttpResponseDsl {
-        body = HttpResponseBody.text(HttpDslExpressionSupport.resolve(json))
+        body = HttpResponseTemplate.Text(json)
+        autoJsonContentType = true
         bodyDefined = true
         return this
     }
 
     fun bodyAsJson(value: Any): HttpResponseDsl {
-        body = HttpResponseBody.text(
-            HttpDslExpressionSupport.resolve(defaultJsonMapper().writeValueAsString(value))
-        )
+        body = HttpResponseTemplate.Text(defaultJsonMapper().writeValueAsString(value))
+        autoJsonContentType = true
         bodyDefined = true
         return this
     }
 
     fun bodyAsBytes(bytes: ByteArray): HttpResponseDsl {
-        body = HttpResponseBody.bytes(bytes)
+        body = HttpResponseTemplate.Bytes(bytes)
         bodyDefined = true
         return this
     }
 
     fun bodyAsResource(location: String): HttpResponseDsl {
-        val resource = resolveResource(HttpDslExpressionSupport.resolve(location))
-        return bodyAsResource(resource)
+        body = HttpResponseTemplate.ResourceLocation(location)
+        bodyDefined = true
+        return this
     }
 
     fun bodyAsResource(resource: Resource): HttpResponseDsl {
-        body = HttpResponseBody.bytes(resource.inputStream.use { it.readBytes() })
+        body = HttpResponseTemplate.ResourceRef(resource)
         bodyDefined = true
         return this
     }
@@ -74,28 +74,12 @@ class HttpResponseDsl {
         return HttpResponseDefinition(
             statusCode = statusCode,
             headers = headers.toMap(),
-            body = body
+            body = body,
+            autoJsonContentType = autoJsonContentType
         )
     }
 
     internal fun hasBody(): Boolean = bodyDefined
-
-    private fun resolveResource(location: String): Resource {
-        val normalizedLocation = if (
-            location.startsWith("classpath:") ||
-            location.startsWith("file:") ||
-            location.contains(":/")
-        ) {
-            location
-        } else {
-            "classpath:$location"
-        }
-        val resource = DefaultResourceLoader().getResource(normalizedLocation)
-        if (!resource.exists()) {
-            throw IllegalStateException("Resource not found at $normalizedLocation")
-        }
-        return resource
-    }
 
     private fun defaultJsonMapper(): JsonMapper {
         return JsonMapper.builder()

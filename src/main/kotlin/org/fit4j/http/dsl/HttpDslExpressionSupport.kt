@@ -12,6 +12,10 @@ import java.util.function.Predicate
 internal object HttpDslExpressionSupport {
 
     fun resolve(value: String): String {
+        return resolve(value, null)
+    }
+
+    fun resolve(value: String, request: HttpRequest? = null): String {
         if (!requiresResolution(value)) {
             return value
         }
@@ -19,7 +23,8 @@ internal object HttpDslExpressionSupport {
         val applicationContext = currentApplicationContext()
             ?: throw IllegalStateException("HTTP DSL expression values can only be used inside an active FIT4J test method")
 
-        return PropertyAndExpressionResolver(applicationContext).resolve(value)
+        val variables = if (request != null) mapOf("request" to request) else emptyMap()
+        return PropertyAndExpressionResolver(applicationContext).resolve(value, variables)
     }
 
     fun predicate(expression: String): Predicate<HttpRequest> {

@@ -3,6 +3,8 @@ package org.fit4j.http.dsl
 import org.fit4j.http.HttpRequest
 import org.fit4j.http.HttpResponse
 import org.fit4j.http.HttpResponseBody
+import org.springframework.core.io.DefaultResourceLoader
+import org.springframework.core.io.Resource
 import java.util.Locale
 import java.util.function.Predicate
 
@@ -32,9 +34,20 @@ data class HttpRequestMatcher(
 data class HttpResponseDefinition(
     val statusCode: Int = 200,
     val headers: Map<String, String> = emptyMap(),
-    val body: HttpResponseBody = HttpResponseBody.Empty
+    val body: HttpResponseTemplate = HttpResponseTemplate.Empty,
+    val autoJsonContentType: Boolean = false
 ) {
-    fun toHttpResponse(): HttpResponse = HttpResponse(statusCode = statusCode, headers = headers.ifEmpty { null }, body = body)
+    fun toHttpResponse(request: HttpRequest): HttpResponse {
+        val resolvedHeaders = headers.mapValues { (_, value) -> HttpDslExpressionSupport.resolve(value, request) }.toMutableMap()
+        if (autoJsonContentType && !resolvedHeaders.containsKey("Content-Type")) {
+            resolvedHeaders["Content-Type"] = "application/json"
+        }
+        return HttpResponse(
+            statusCode = statusCode,
+            headers = resolvedHeaders.ifEmpty { null },
+            body = body.resolve(request)
+        )
+    }
 }
 
 class HttpTrainingDefinition(
@@ -53,10 +66,61 @@ class HttpTrainingDefinition(
         } else {
             acceptedRequests.size - 1
         }
-        return responses[responseIndex].toHttpResponse()
+        return responses[responseIndex].toHttpResponse(request)
     }
 
     fun reset() {
         acceptedRequests.clear()
+    }
+}
+
+sealed class HttpResponseTemplate {
+    abstract fun resolve(request: HttpRequest): HttpResponseBody
+
+    data object Empty : HttpResponseTemplate() {
+        override fun resolve(request: HttpRequest): HttpResponseBody = HttpResponseBody.Empty
+    }
+
+    data class Text(val value: String) : HttpResponseTemplate() {
+        override fun resolve(request: HttpRequest): HttpResponseBody {
+            return HttpResponseBody.text(HttpDslExpressionSupport.resolve(value, request))
+        }
+    }
+
+    data class Bytes(val value: ByteArray) : HttpResponseTemplate() {
+        override fun resolve(request: HttpRequest): HttpResponseBody = HttpResponseBody.bytes(value)
+    }
+
+    data class ResourceLocation(val value: String) : HttpResponseTemplate() {
+        override fun resolve(request: HttpRequest): HttpResponseBody {
+            val location = HttpDslExpressionSupport.resolve(value, request)
+            val resource = resolveResource(location)
+            return HttpResponseBody.bytes(resource.inputStream.use { it.readBytes() })
+        }
+    }
+
+    data class ResourceRef(val resource: Resource) : HttpResponseTemplate() {
+        override fun resolve(request: HttpRequest): HttpResponseBody {
+            return HttpResponseBody.bytes(resource.inputStream.use { it.readBytes() })
+        }
+    }
+
+    companion object {
+        private fun resolveResource(location: String): Resource {
+            val normalizedLocation = if (
+                location.startsWith("classpath:") ||
+                location.startsWith("file:") ||
+                location.contains(":/")
+            ) {
+                location
+            } else {
+                "classpath:$location"
+            }
+            val resource = DefaultResourceLoader().getResource(normalizedLocation)
+            if (!resource.exists()) {
+                throw IllegalStateException("Resource not found at $normalizedLocation")
+            }
+            return resource
+        }
     }
 }
