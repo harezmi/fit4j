@@ -5,9 +5,6 @@ import org.fit4j.http.HttpResponse
 import org.fit4j.http.HttpResponseBody
 import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.core.io.Resource
-import tools.jackson.databind.JsonNode
-import tools.jackson.databind.json.JsonMapper
-import tools.jackson.module.kotlin.KotlinModule
 import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -241,18 +238,10 @@ sealed class HttpRequestBodyMatcher {
 
     data class Json(val value: String) : HttpRequestBodyMatcher() {
         override fun matches(requestBody: String): Boolean {
-            val mapper = jsonMapper()
+            val mapper = HttpDslJsonSupport.jsonMapper()
             val expectedNode = mapper.readTree(HttpDslExpressionSupport.resolve(value))
             val actualNode = mapper.readTree(requestBody)
             return expectedNode == actualNode
-        }
-    }
-
-    companion object {
-        private fun jsonMapper(): JsonMapper {
-            return JsonMapper.builder()
-                .addModule(KotlinModule.Builder().build())
-                .build()
         }
     }
 }

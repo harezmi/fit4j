@@ -184,7 +184,7 @@ class HttpRequestTrainingDsl internal constructor(
     }
 
     private fun defaultJson(value: Any): String {
-        return HttpDslJsonSupport.defaultJsonMapper().writeValueAsString(value)
+        return HttpDslJsonSupport.jsonMapper().writeValueAsString(value)
     }
 }
 

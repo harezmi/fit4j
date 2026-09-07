@@ -44,7 +44,7 @@ class HttpResponseDsl {
     }
 
     fun bodyAsJson(value: Any): HttpResponseDsl {
-        body = HttpResponseTemplate.Text(HttpDslJsonSupport.defaultJsonMapper().writeValueAsString(value))
+        body = HttpResponseTemplate.Text(HttpDslJsonSupport.jsonMapper().writeValueAsString(value))
         autoJsonContentType = true
         bodyDefined = true
         return this
