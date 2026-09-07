@@ -19,7 +19,11 @@ data class HttpRequestMatcher(
     val pathVariables: Map<String, String> = emptyMap(),
     val method: String? = null,
     val headers: Map<String, String> = emptyMap(),
+    val headerContains: Map<String, String> = emptyMap(),
+    val headerRegex: Map<String, Regex> = emptyMap(),
     val queryParams: Map<String, String> = emptyMap(),
+    val queryParamContains: Map<String, String> = emptyMap(),
+    val queryParamRegex: Map<String, Regex> = emptyMap(),
     val bodyMatcher: HttpRequestBodyMatcher? = null,
     val predicate: Predicate<HttpRequest>? = null
 ) {
@@ -38,8 +42,34 @@ data class HttpRequestMatcher(
         if (headers.any { (key, value) -> request.headers[key] != value }) {
             return false
         }
-        if (queryParams.any { (key, value) -> requestQueryParams(request)[key] != value }) {
+        for ((key, expectedValue) in headerContains) {
+            val actualValue = request.headers[key] ?: return false
+            if (!actualValue.contains(expectedValue)) {
+                return false
+            }
+        }
+        for ((key, pattern) in headerRegex) {
+            val actualValue = request.headers[key] ?: return false
+            if (!pattern.containsMatchIn(actualValue)) {
+                return false
+            }
+        }
+
+        val requestQueryParams = requestQueryParams(request)
+        if (queryParams.any { (key, value) -> requestQueryParams[key] != value }) {
             return false
+        }
+        for ((key, expectedValue) in queryParamContains) {
+            val actualValue = requestQueryParams[key] ?: return false
+            if (!actualValue.contains(expectedValue)) {
+                return false
+            }
+        }
+        for ((key, pattern) in queryParamRegex) {
+            val actualValue = requestQueryParams[key] ?: return false
+            if (!pattern.containsMatchIn(actualValue)) {
+                return false
+            }
         }
         if (bodyMatcher != null && !bodyMatcher.matches(request.body)) {
             return false

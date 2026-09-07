@@ -64,6 +64,16 @@ class HttpDslJavaFIT {
                 .respond(response -> response
                     .status(206)
                     .bodyAsText("java-query-match"));
+
+            dsl.path("/java/rich-match/{id}")
+                .pathVariable("id", "123")
+                .headerContains("X-Trace", "trace-123")
+                .headerMatches("X-Request-Id", "req-\\d+")
+                .queryParamContains("filter", "act")
+                .queryParamRegex("version", "\\d+")
+                .respond(response -> response
+                    .status(207)
+                    .bodyAsText("java-rich-match"));
         });
 
         HttpResponse hello = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/hello", "GET", "", Map.of(), "/java/hello"));
@@ -74,6 +84,7 @@ class HttpDslJavaFIT {
         HttpResponse exactBody = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/body/exact", "POST", "java-exact", Map.of(), "/java/body/exact"));
         HttpResponse jsonBody = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/body/json", "POST", "{\"count\":2,\"message\":\"hello\"}", Map.of(), "/java/body/json"));
         HttpResponse query = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/query/123", "GET", "", Map.of(), "/java/query/123?filter=active&debug=true"));
+        HttpResponse richMatch = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/rich-match/123", "GET", "", Map.of("X-Trace", "pre-trace-123-post", "X-Request-Id", "req-456"), "/java/rich-match/123?filter=active&version=42"));
 
         Assertions.assertEquals(207, hello.getStatusCode());
         Assertions.assertEquals("hello-from-java", hello.bodyAsText());
@@ -92,5 +103,7 @@ class HttpDslJavaFIT {
         Assertions.assertEquals("java-body-json", jsonBody.bodyAsText());
         Assertions.assertEquals(206, query.getStatusCode());
         Assertions.assertEquals("java-query-match", query.bodyAsText());
+        Assertions.assertEquals(207, richMatch.getStatusCode());
+        Assertions.assertEquals("java-rich-match", richMatch.bodyAsText());
     }
 }

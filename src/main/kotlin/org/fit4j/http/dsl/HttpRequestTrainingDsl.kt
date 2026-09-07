@@ -11,8 +11,12 @@ class HttpRequestTrainingDsl internal constructor(
     private var path: String? = null
     private var method: String? = null
     private val headers = linkedMapOf<String, String>()
+    private val headerContainsValues = linkedMapOf<String, String>()
+    private val headerRegexValues = linkedMapOf<String, Regex>()
     private val pathVariables = linkedMapOf<String, String>()
     private val queryParams = linkedMapOf<String, String>()
+    private val queryParamContainsValues = linkedMapOf<String, String>()
+    private val queryParamRegexValues = linkedMapOf<String, Regex>()
     private var bodyMatcher: HttpRequestBodyMatcher? = null
     private var predicate: Predicate<HttpRequest>? = null
     private var trainingRegistered = false
@@ -36,6 +40,16 @@ class HttpRequestTrainingDsl internal constructor(
         return this
     }
 
+    fun headerContains(name: String, value: String): HttpRequestTrainingDsl {
+        headerContainsValues[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
+        return this
+    }
+
+    fun headerMatches(name: String, regex: String): HttpRequestTrainingDsl {
+        headerRegexValues[HttpDslExpressionSupport.resolve(name)] = Regex(HttpDslExpressionSupport.resolve(regex))
+        return this
+    }
+
     fun headers(block: HttpHeadersDsl.() -> Unit): HttpRequestTrainingDsl {
         HttpHeadersDsl(headers).apply(block)
         return this
@@ -52,6 +66,16 @@ class HttpRequestTrainingDsl internal constructor(
 
     fun queryParam(name: String, value: String): HttpRequestTrainingDsl {
         queryParams[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
+        return this
+    }
+
+    fun queryParamContains(name: String, value: String): HttpRequestTrainingDsl {
+        queryParamContainsValues[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
+        return this
+    }
+
+    fun queryParamRegex(name: String, regex: String): HttpRequestTrainingDsl {
+        queryParamRegexValues[HttpDslExpressionSupport.resolve(name)] = Regex(HttpDslExpressionSupport.resolve(regex))
         return this
     }
 
@@ -126,7 +150,7 @@ class HttpRequestTrainingDsl internal constructor(
     }
 
     internal fun registerIfNeeded() {
-        if (!trainingRegistered && (path != null || method != null || headers.isNotEmpty() || pathVariables.isNotEmpty() || queryParams.isNotEmpty() || bodyMatcher != null || predicate != null)) {
+        if (!trainingRegistered && (path != null || method != null || headers.isNotEmpty() || headerContainsValues.isNotEmpty() || headerRegexValues.isNotEmpty() || pathVariables.isNotEmpty() || queryParams.isNotEmpty() || queryParamContainsValues.isNotEmpty() || queryParamRegexValues.isNotEmpty() || bodyMatcher != null || predicate != null)) {
             throw IllegalStateException("A request training must end with respond{...} or responds{...}")
         }
     }
@@ -146,7 +170,11 @@ class HttpRequestTrainingDsl internal constructor(
                     pathVariables = pathVariables.toMap(),
                     method = method,
                     headers = headers.toMap(),
+                    headerContains = headerContainsValues.toMap(),
+                    headerRegex = headerRegexValues.toMap(),
                     queryParams = queryParams.toMap(),
+                    queryParamContains = queryParamContainsValues.toMap(),
+                    queryParamRegex = queryParamRegexValues.toMap(),
                     bodyMatcher = bodyMatcher,
                     predicate = predicate
                 ),

@@ -319,6 +319,17 @@ class HttpMockServiceResponseFactoryFIT {
                     status(216)
                     bodyAsText("matched-query")
                 }
+
+            path("/dsl/rich-match/{id}")
+                .pathVariable("id", "123")
+                .headerContains("X-Trace", "trace-123")
+                .headerMatches("X-Request-Id", "req-\\d+")
+                .queryParamContains("filter", "act")
+                .queryParamRegex("version", "\\d+")
+                .respond {
+                    status(217)
+                    bodyAsText("matched-rich")
+                }
         }
 
         // When
@@ -350,6 +361,17 @@ class HttpMockServiceResponseFactoryFIT {
                 "/dsl/query/123",
                 "GET",
                 requestUrl = "/dsl/query/123?filter=active&debug=true"
+            )
+        ) as HttpResponse
+        val richMatchResponse = mockResponseFactory.getResponseFor(
+            createWebRequest(
+                "/dsl/rich-match/123",
+                "GET",
+                headers = mapOf(
+                    "X-Trace" to "pre-trace-123-post",
+                    "X-Request-Id" to "req-456"
+                ),
+                requestUrl = "/dsl/rich-match/123?filter=active&version=42"
             )
         ) as HttpResponse
 
@@ -388,6 +410,8 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("matched-no-content", noContentBodyResponse.bodyAsText())
         Assertions.assertEquals(216, queryParamResponse.statusCode)
         Assertions.assertEquals("matched-query", queryParamResponse.bodyAsText())
+        Assertions.assertEquals(217, richMatchResponse.statusCode)
+        Assertions.assertEquals("matched-rich", richMatchResponse.bodyAsText())
     }
 
 
