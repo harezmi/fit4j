@@ -15,17 +15,17 @@ class HttpRequestTrainingDsl internal constructor(
     private var trainingRegistered = false
 
     fun path(path: String): HttpRequestTrainingDsl {
-        this.path = path
+        this.path = HttpDslExpressionSupport.resolve(path)
         return this
     }
 
     fun method(method: String): HttpRequestTrainingDsl {
-        this.method = method
+        this.method = HttpDslExpressionSupport.resolve(method)
         return this
     }
 
     fun header(name: String, value: String): HttpRequestTrainingDsl {
-        headers[name] = value
+        headers[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
         return this
     }
 
@@ -40,6 +40,11 @@ class HttpRequestTrainingDsl internal constructor(
 
     fun predicate(predicate: Predicate<HttpRequest>): HttpRequestTrainingDsl {
         this.predicate = predicate
+        return this
+    }
+
+    fun predicate(expression: String): HttpRequestTrainingDsl {
+        this.predicate = HttpDslExpressionSupport.predicate(expression)
         return this
     }
 
@@ -97,6 +102,6 @@ class HttpHeadersDsl internal constructor(
     private val headers: MutableMap<String, String>
 ) {
     fun header(name: String, value: String) {
-        headers[name] = value
+        headers[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
     }
 }

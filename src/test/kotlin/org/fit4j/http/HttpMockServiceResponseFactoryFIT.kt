@@ -241,6 +241,21 @@ class HttpMockServiceResponseFactoryFIT {
                 .respond {
                     status(204)
                 }
+
+            path("/dsl/expression/#{@testFixtureData.variables.fooId}")
+                .method("POST")
+                .header("X-Request-Id", "#{@testFixtureData.variables.fooId}")
+                .predicate("#request.body == 'match-me' && @hitCounter.isHit(1)")
+                .respond {
+                    status(201)
+                    header("X-Reply-Id", "#{@testFixtureData.variables.fooId}")
+                    bodyAsText("hello-#{@testFixtureData.variables.fooId}")
+                }
+
+            path("/dsl/json-template/#{@testFixtureData.variables.fooId}")
+                .respond {
+                    bodyAsJson("""{"id":"#{@testFixtureData.variables.fooId}","name":"dsl"}""")
+                }
         }
 
         // When
@@ -251,6 +266,15 @@ class HttpMockServiceResponseFactoryFIT {
         val bytesResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/bytes")) as HttpResponse
         val resourceResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/resource")) as HttpResponse
         val noContentResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/no-content")) as HttpResponse
+        val expressionResponse = mockResponseFactory.getResponseFor(
+            createWebRequest(
+                "/dsl/expression/123",
+                "POST",
+                "match-me",
+                mapOf("X-Request-Id" to "123")
+            )
+        ) as HttpResponse
+        val jsonTemplateResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/json-template/123")) as HttpResponse
 
         // Then
         Assertions.assertEquals(299, overrideResponse.statusCode)
@@ -267,11 +291,20 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("resource-body", resourceResponse.bodyAsText()?.trim())
         Assertions.assertEquals(204, noContentResponse.statusCode)
         Assertions.assertArrayEquals(ByteArray(0), noContentResponse.bodyAsBytes())
+        Assertions.assertEquals(201, expressionResponse.statusCode)
+        Assertions.assertEquals("123", expressionResponse.headers!!.get("X-Reply-Id"))
+        Assertions.assertEquals("hello-123", expressionResponse.bodyAsText())
+        Assertions.assertEquals("""{"id":"123","name":"dsl"}""", jsonTemplateResponse.bodyAsText())
     }
 
 
-    private fun createWebRequest(path:String, method:String="GET", body:String?=null) : HttpRequest {
-        return HttpRequest(path=path,method=method,body=body?:"", headers = emptyMap<String,String>(), requestUrl = path)
+    private fun createWebRequest(
+        path: String,
+        method: String = "GET",
+        body: String? = null,
+        headers: Map<String, String> = emptyMap()
+    ) : HttpRequest {
+        return HttpRequest(path = path, method = method, body = body ?: "", headers = headers, requestUrl = path)
     }
 }
 

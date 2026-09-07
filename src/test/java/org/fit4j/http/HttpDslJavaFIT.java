@@ -36,12 +36,19 @@ class HttpDslJavaFIT {
                 .responds(sequence -> sequence
                     .response(response -> response.status(201).bodyAsText("first"))
                     .response(response -> response.status(202).bodyAsText("second")));
+
+            dsl.path("/java/predicate")
+                .predicate("#request.body == 'java-body'")
+                .respond(response -> response
+                    .status(203)
+                    .bodyAsText("java-predicate-match"));
         });
 
         HttpResponse hello = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/hello", "GET", "", Map.of(), "/java/hello"));
         HttpResponse json = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/json", "GET", "", Map.of(), "/java/json"));
         HttpResponse first = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/sequence", "GET", "", Map.of(), "/java/sequence"));
         HttpResponse second = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/sequence", "GET", "", Map.of(), "/java/sequence"));
+        HttpResponse predicate = (HttpResponse) mockResponseFactory.getResponseFor(new HttpRequest("/java/predicate", "POST", "java-body", Map.of(), "/java/predicate"));
 
         Assertions.assertEquals(207, hello.getStatusCode());
         Assertions.assertEquals("hello-from-java", hello.bodyAsText());
@@ -52,5 +59,7 @@ class HttpDslJavaFIT {
         Assertions.assertEquals("first", first.bodyAsText());
         Assertions.assertEquals(202, second.getStatusCode());
         Assertions.assertEquals("second", second.bodyAsText());
+        Assertions.assertEquals(203, predicate.getStatusCode());
+        Assertions.assertEquals("java-predicate-match", predicate.bodyAsText());
     }
 }

@@ -20,7 +20,7 @@ class HttpResponseDsl {
     }
 
     fun header(name: String, value: String): HttpResponseDsl {
-        headers[name] = value
+        headers[HttpDslExpressionSupport.resolve(name)] = HttpDslExpressionSupport.resolve(value)
         return this
     }
 
@@ -34,19 +34,21 @@ class HttpResponseDsl {
     }
 
     fun bodyAsText(text: String): HttpResponseDsl {
-        body = HttpResponseBody.text(text)
+        body = HttpResponseBody.text(HttpDslExpressionSupport.resolve(text))
         bodyDefined = true
         return this
     }
 
     fun bodyAsJson(json: String): HttpResponseDsl {
-        body = HttpResponseBody.text(json)
+        body = HttpResponseBody.text(HttpDslExpressionSupport.resolve(json))
         bodyDefined = true
         return this
     }
 
     fun bodyAsJson(value: Any): HttpResponseDsl {
-        body = HttpResponseBody.text(defaultJsonMapper().writeValueAsString(value))
+        body = HttpResponseBody.text(
+            HttpDslExpressionSupport.resolve(defaultJsonMapper().writeValueAsString(value))
+        )
         bodyDefined = true
         return this
     }
@@ -58,7 +60,7 @@ class HttpResponseDsl {
     }
 
     fun bodyAsResource(location: String): HttpResponseDsl {
-        val resource = resolveResource(location)
+        val resource = resolveResource(HttpDslExpressionSupport.resolve(location))
         return bodyAsResource(resource)
     }
 
