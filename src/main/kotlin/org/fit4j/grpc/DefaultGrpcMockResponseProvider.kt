@@ -2,6 +2,7 @@ package org.fit4j.grpc
 
 import com.google.protobuf.Message
 import jakarta.annotation.PostConstruct
+import org.fit4j.grpc.dsl.GrpcDslRegistry
 import org.fit4j.mock.MockResponseProvider
 import org.fit4j.mock.declarative.DeclarativeTestFixtureProvider
 import org.slf4j.Logger
@@ -56,13 +57,25 @@ class DefaultGrpcMockResponseProvider(
     override fun getOrder(): Int = Ordered.LOWEST_PRECEDENCE
 
     private fun handleRequest(request: Any): Any? {
-        var jsonContent = tryToObtainJsonContentFromResponseBuilders(request)
+        var jsonContent = tryToObtainJsonContentFromDslTrainings(request)
+
+        if (jsonContent == null) {
+            jsonContent = tryToObtainJsonContentFromResponseBuilders(request)
+        }
 
         if(jsonContent == null) {
             jsonContent = tryToObtainJsonContentFromDeclarativeTestFixtures(request)
         }
 
         return if(jsonContent != null) jsonToGrpcResponseConverter.convert(jsonContent, request) else null
+    }
+
+    private fun tryToObtainJsonContentFromDslTrainings(request: Any) : String? {
+        val jsonContent = GrpcDslRegistry.resolveResponse(request as Message)
+        if (jsonContent != null) {
+            logger.debug("${this.javaClass.simpleName} obtained a response from a gRPC DSL training")
+        }
+        return jsonContent
     }
 
     private fun tryToObtainJsonContentFromResponseBuilders(request: Any) : String? {

@@ -34,6 +34,9 @@ class JsonToGrpcResponseConverter(private val jsonContentExpressionResolver: Jso
     private fun buildSuccessResponse(rawJsonContent: String, currentRequest: Message): Message {
         val processedJsonContent = jsonContentExpressionResolver.resolveExpressions(rawJsonContent, currentRequest)
         val messageBuilder = grpcResponseBuilderRegistry.getResponseBuilder(currentRequest)
+        if (processedJsonContent.isBlank()) {
+            return messageBuilder!!.build()
+        }
         jsonProtoParser.merge(processedJsonContent, messageBuilder)
         return messageBuilder!!.build()
     }

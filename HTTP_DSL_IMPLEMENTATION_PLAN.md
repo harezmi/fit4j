@@ -144,6 +144,131 @@ The DSL must support everything currently possible with YAML:
 
 - Reuse the same registry, lifecycle, and precedence rules.
 - Add gRPC as a second protocol-specific adapter after HTTP stabilizes.
+- Keep the gRPC design protocol-specific but architecture-compatible with the HTTP DSL:
+  - fluent test-method-local entry point
+  - Kotlin and Java overloads
+  - typed internal request matcher and response definition
+  - DSL over YAML precedence
+  - sequence/stateful response support if already present in YAML
+- Preserve the current declarative YAML behavior while allowing DSL-defined gRPC trainings to override it.
+
+#### Phase 9.1 gRPC DSL surface
+
+- Define the public `Fit4J.grpc { ... }` entry point, if not already present in the API surface.
+- Provide Kotlin and Java-friendly overloads.
+- Model the smallest useful fluent surface first:
+  - request target type / fully qualified request class name
+  - request predicate
+  - response status
+  - response body
+  - optional response headers/metadata if required by current YAML parity
+- Keep the Java API discoverable and avoid exposing low-level maps unless necessary.
+
+#### Phase 9.2 gRPC matcher and runtime model
+
+- Introduce typed internal gRPC request/response models mirroring the YAML builder path.
+- Reuse the existing registry and test-method scoping mechanics.
+- Ensure request matching can still use SpEL-based predicate evaluation where YAML currently does.
+- Keep path-independent gRPC matching aligned with the existing YAML semantics.
+
+#### Phase 9.3 gRPC runtime precedence and lifecycle
+
+- Integrate the gRPC DSL provider into the existing mock response resolution chain.
+- Preserve the same precedence contract:
+  1. DSL-defined gRPC trainings inside the test method
+  2. Programmatic gRPC response builders
+  3. YAML gRPC fixtures
+- Make sequence responses stateful per test method, just like HTTP.
+- Ensure cleanup/reset behavior is handled by the same test lifecycle hooks.
+
+#### Phase 9.4 gRPC tests
+
+- Add Kotlin integration tests for the DSL entry point.
+- Add Java integration tests for the DSL entry point.
+- Add precedence tests covering DSL vs programmatic builder vs YAML.
+- Add predicate and sequence response tests if those are part of the gRPC surface.
+- Add compatibility tests against existing YAML gRPC fixtures to prove parity is preserved.
+
+#### Phase 9.5 gRPC documentation
+
+- Extend the README with a gRPC DSL section.
+- Add Kotlin and Java examples side by side.
+- Document the precedence order and any parity gaps explicitly.
+- Keep the HTTP and gRPC sections parallel so users can transfer the same mental model between protocols.
+
+## Phase 9 Technical Task List
+
+This is the execution-oriented breakdown for the gRPC phase. The goal is to reuse the HTTP DSL architecture as much as possible while keeping gRPC-specific semantics explicit.
+
+### 9.A Classes to Add or Update
+
+- `src/main/kotlin/org/fit4j/Fit4J.kt`
+  - Add the `grpc` entry point alongside `http`.
+- `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDsl.kt`
+  - Public gRPC DSL surface.
+- `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDslBuilder.kt`
+  - Collects gRPC trainings and registers them.
+- `src/main/kotlin/org/fit4j/grpc/dsl/GrpcRequestTrainingDsl.kt`
+  - Request matcher DSL for gRPC.
+- `src/main/kotlin/org/fit4j/grpc/dsl/GrpcResponseDsl.kt`
+  - Single response DSL for gRPC.
+- `src/main/kotlin/org/fit4j/grpc/dsl/GrpcResponseSequenceDsl.kt`
+  - Stateful response sequence DSL for repeated hits.
+- `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDslModels.kt`
+  - Typed request matcher, response definition, template, and training model.
+- `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDslRegistry.kt`
+  - Test-method scoped registry for DSL-defined trainings.
+- `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDslExpressionSupport.kt`
+  - Spring context and SpEL helper for gRPC DSL expressions.
+- `src/main/kotlin/org/fit4j/grpc/DefaultGrpcMockResponseProvider.kt`
+  - Update precedence so DSL wins before programmatic builders and YAML fixtures.
+- `src/main/kotlin/org/fit4j/context/Fit4JTestExtension.kt`
+  - Reset the gRPC DSL registry after each test.
+
+### 9.B Method Signatures to Introduce
+
+- `Fit4J.grpc(block: GrpcDsl.() -> Unit)`
+- `Fit4J.grpc(block: java.util.function.Consumer<GrpcDsl>)`
+- `GrpcDsl.requestType(type: Class<out com.google.protobuf.Message>)`
+- `GrpcDsl.requestType(typeName: String)`
+- `GrpcDsl.request(block: GrpcRequestTrainingDsl.() -> Unit)` if we want a path-less composition entry point similar to HTTP
+- `GrpcRequestTrainingDsl.predicate(expression: String)`
+- `GrpcRequestTrainingDsl.predicate(predicate: Predicate<Message>)`
+- `GrpcRequestTrainingDsl.respond(block: GrpcResponseDsl.() -> Unit)`
+- `GrpcRequestTrainingDsl.respond(block: Consumer<GrpcResponseDsl>)`
+- `GrpcRequestTrainingDsl.responds(block: GrpcResponseSequenceDsl.() -> Unit)`
+- `GrpcRequestTrainingDsl.responds(block: Consumer<GrpcResponseSequenceDsl>)`
+- `GrpcResponseDsl.status(status: String)` or `GrpcResponseDsl.status(code: io.grpc.Status.Code)` depending on the final YAML parity decision
+- `GrpcResponseDsl.bodyAsJson(json: String)`
+- `GrpcResponseDsl.bodyAsJson(value: Any)`
+- `GrpcResponseSequenceDsl.response(block: GrpcResponseDsl.() -> Unit)`
+- `GrpcDslRegistry.register(training: GrpcTrainingDefinition)`
+- `GrpcDslRegistry.resolveResponse(request: Message): Message?`
+- `GrpcDslRegistry.resetCurrentTest()`
+
+### 9.C File-Based Implementation Order
+
+1. `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDslModels.kt`
+2. `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDslRegistry.kt`
+3. `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDslExpressionSupport.kt`
+4. `src/main/kotlin/org/fit4j/grpc/dsl/GrpcResponseDsl.kt`
+5. `src/main/kotlin/org/fit4j/grpc/dsl/GrpcRequestTrainingDsl.kt`
+6. `src/main/kotlin/org/fit4j/grpc/dsl/GrpcResponseSequenceDsl.kt`
+7. `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDslBuilder.kt`
+8. `src/main/kotlin/org/fit4j/grpc/dsl/GrpcDsl.kt`
+9. `src/main/kotlin/org/fit4j/Fit4J.kt`
+10. `src/main/kotlin/org/fit4j/grpc/DefaultGrpcMockResponseProvider.kt`
+11. `src/main/kotlin/org/fit4j/context/Fit4JTestExtension.kt`
+12. `src/test/kotlin/org/fit4j/grpc/*`
+13. `src/test/java/org/fit4j/grpc/*`
+14. `README.md`
+
+### 9.D Execution Notes
+
+- Reuse the existing gRPC YAML machinery where possible instead of introducing a parallel, incompatible runtime.
+- Keep the DSL implementation test-method scoped, matching the HTTP design.
+- Preserve the current declarative fixture semantics and precedence rules.
+- Add Kotlin and Java examples only after the runtime path is stable so the documentation reflects the final API, not an intermediate draft.
 
 ## Suggested File Order
 

@@ -19,7 +19,7 @@ data class GrpcTestFixture(
                 }
             """.trimIndent()
         } else {
-            response.responseBody
+            response.responseBody?.takeIf { it.isNotBlank() } ?: "{}"
         }
     }
 
