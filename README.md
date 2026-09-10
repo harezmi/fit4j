@@ -1053,6 +1053,14 @@ test containers. In order to enable Embedded Kafka in your test, you can use eit
 1. **`@EnableEmbeddedKafka`** annotation provided by FIT4J library (recommended)
 2. **`@EmbeddedKafka`** annotation from Spring Kafka Test library (also supported)
 
+FIT4J binds embedded broker addresses to the owning Spring test context, rather
+than resolving them from another test's JVM-global broker property. Global
+addresses published by FIT4J-managed embedded contexts are filtered from other
+FIT contexts, including after the broker closes. Explicit external Kafka and
+Testcontainers property sources remain available; inline test properties retain
+precedence. FIT4J does not clear JVM system properties. This isolation does not
+change broker ownership or shutdown timeouts.
+
 Both annotations will automatically configure the embedded Kafka broker and expose it as a Spring bean. If you want to use a real Kafka broker via test containers, you can look at
 [Use Testcontainers](#how-to-work-with-testcontainers) section of this document for more details.
 
