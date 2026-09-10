@@ -45,8 +45,9 @@ protocol isolation, registry cleanup/re-registration and test-method isolation.
 Existing HTTP/gRPC Java and Kotlin integration tests cover the unchanged public
 DSL usage.
 
-Latest run: 40 tests, 36 passed, 3 failed, 1 skipped. All five new tests
-passed. The same three failures were reproduced from an unchanged HEAD archive:
-two HTTP cleanup assertions compare a string with HttpResponseBody.Text, and
-the HTTP DSL integration test records an untrained /dsl/request-body/json call.
-These pre-existing failures were left outside this refactor.
+Latest run after test corrections: 40 tests, 39 passed, 0 failed, 1 skipped.
+The initial three failures were also reproduced from an unchanged HEAD archive.
+Cleanup assertions now read bodyAsText(); the JSON request supplies its required
+Content-Type header. The HTTP DSL test also handles nullable no-content headers
+and expects text/plain for its bodyAsText response, independently of the request
+content type. No production matching or response behavior was changed.

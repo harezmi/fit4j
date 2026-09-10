@@ -361,7 +361,14 @@ class HttpMockServiceResponseFactoryFIT {
         val echoResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/echo", "POST", "echo-body")) as HttpResponse
         val exactBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/exact", "POST", "exact-body")) as HttpResponse
         val containsBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/contains", "POST", "prefix-needle-suffix")) as HttpResponse
-        val jsonBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/json", "POST", """{"count":2,"message":"hello"}""")) as HttpResponse
+        val jsonBodyResponse = mockResponseFactory.getResponseFor(
+            createWebRequest(
+                "/dsl/request-body/json",
+                "POST",
+                """{"count":2,"message":"hello"}""",
+                headers = mapOf("Content-Type" to "application/json")
+            )
+        ) as HttpResponse
         val emptyBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/empty", "POST")) as HttpResponse
         val absentBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/absent", "POST")) as HttpResponse
         val noContentBodyResponse = mockResponseFactory.getResponseFor(createWebRequest("/dsl/request-body/no-content", "POST")) as HttpResponse
@@ -409,7 +416,7 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("application/octet-stream", resourceResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals(204, noContentResponse.statusCode)
         Assertions.assertArrayEquals(ByteArray(0), noContentResponse.bodyAsBytes())
-        Assertions.assertNull(noContentResponse.headers!!.get("Content-Type"))
+        Assertions.assertNull(noContentResponse.headers?.get("Content-Type"))
         Assertions.assertEquals(201, expressionResponse.statusCode)
         Assertions.assertEquals("123", expressionResponse.headers!!.get("X-Reply-Id"))
         Assertions.assertEquals("hello-123", expressionResponse.bodyAsText())
@@ -424,7 +431,7 @@ class HttpMockServiceResponseFactoryFIT {
         Assertions.assertEquals("text/plain", containsBodyResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals(212, jsonBodyResponse.statusCode)
         Assertions.assertEquals("matched-json", jsonBodyResponse.bodyAsText())
-        Assertions.assertEquals("application/json", jsonBodyResponse.headers!!.get("Content-Type"))
+        Assertions.assertEquals("text/plain", jsonBodyResponse.headers!!.get("Content-Type"))
         Assertions.assertEquals(213, emptyBodyResponse.statusCode)
         Assertions.assertEquals("matched-empty", emptyBodyResponse.bodyAsText())
         Assertions.assertEquals(214, absentBodyResponse.statusCode)

@@ -86,7 +86,7 @@ class TestFixtureGroupStateCleanupFIT {
 
     private fun verifyWebResponse(actualResponse: HttpResponse, expectedBody: String, expectedStatus: Int) {
         MatcherAssert.assertThat(
-            actualResponse.body, Matchers.equalTo(expectedBody)
+            actualResponse.bodyAsText(), Matchers.equalTo(expectedBody)
         )
         MatcherAssert.assertThat(
             actualResponse.statusCode, Matchers.equalTo(expectedStatus)
