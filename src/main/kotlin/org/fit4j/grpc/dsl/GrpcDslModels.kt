@@ -1,5 +1,7 @@
 package org.fit4j.grpc.dsl
 
+import org.fit4j.dsl.ResponseSequence
+
 import com.google.protobuf.Message
 import io.grpc.Status
 import java.util.function.Predicate
@@ -40,22 +42,15 @@ class GrpcTrainingDefinition(
     val requestMatcher: GrpcRequestMatcher,
     responses: List<GrpcResponseDefinition>
 ) {
-    private val responses: List<GrpcResponseDefinition> = responses.toList()
-    private val acceptedRequests = mutableListOf<Any>()
+    private val responses = ResponseSequence(responses)
 
     fun matches(request: Message): Boolean = requestMatcher.matches(request)
 
     fun buildResponse(request: Message): String? {
-        acceptedRequests.add(request)
-        val responseIndex = if (acceptedRequests.size > responses.size) {
-            responses.lastIndex
-        } else {
-            acceptedRequests.size - 1
-        }
-        return responses[responseIndex].toRawJsonContent()
+        return responses.next().toRawJsonContent()
     }
 
     fun reset() {
-        acceptedRequests.clear()
+        responses.reset()
     }
 }

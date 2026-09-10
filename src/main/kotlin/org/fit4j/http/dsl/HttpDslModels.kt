@@ -1,5 +1,7 @@
 package org.fit4j.http.dsl
 
+import org.fit4j.dsl.ResponseSequence
+
 import org.fit4j.http.HttpRequest
 import org.fit4j.http.HttpResponse
 import org.fit4j.http.HttpResponseBody
@@ -142,23 +144,16 @@ class HttpTrainingDefinition(
     val requestMatcher: HttpRequestMatcher,
     responses: List<HttpResponseDefinition>
 ) {
-    private val responses: List<HttpResponseDefinition> = responses.toList()
-    private val acceptedRequests = mutableListOf<Any>()
+    private val responses = ResponseSequence(responses)
 
     fun matches(request: HttpRequest): Boolean = requestMatcher.matches(request)
 
     fun buildResponse(request: HttpRequest): HttpResponse {
-        acceptedRequests.add(request)
-        val responseIndex = if (acceptedRequests.size > responses.size) {
-            responses.lastIndex
-        } else {
-            acceptedRequests.size - 1
-        }
-        return responses[responseIndex].toHttpResponse(request)
+        return responses.next().toHttpResponse(request)
     }
 
     fun reset() {
-        acceptedRequests.clear()
+        responses.reset()
     }
 }
 
