@@ -15,6 +15,29 @@ cd fit4j-examples
 
 Migrating from Boot 3.5? See [BOOT4_MIGRATION.md](../BOOT4_MIGRATION.md) in the repo root.
 
+## HTTP Test Client
+
+`@FIT` automatically configures Spring Boot's `TestRestTemplate` when a local HTTP test server is available.
+You do not need to add `@AutoConfigureTestRestTemplate` to individual FIT classes; existing redundant annotations can be removed.
+
+```kotlin
+import org.fit4j.annotation.FIT
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.resttestclient.TestRestTemplate
+
+@FIT
+class MyHttpFIT {
+    @Autowired
+    lateinit var testRestTemplate: TestRestTemplate
+}
+```
+
+The default `@FIT` web environment is `RANDOM_PORT`. `MOCK`, `NONE`, and gRPC-only contexts without a local HTTP
+server do not receive an automatically configured `TestRestTemplate`. A user-defined bean takes precedence.
+
+This client calls the application under test. It does not replace the `RestClient` or `RestTemplate` configuration
+used to call external services, such as the clients in `example-rest` that exercise FIT4J's mock HTTP server.
+
 Here is the list of examples:
 * [Basic](example-basic/) contains test examples to demonstrate how to start writing FITs using the library.
 * [gRPC](example-grpc/) contains test examples to demonstrate how to write FITs for gRPC calls (`@ImportGrpcClients`).

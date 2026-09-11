@@ -168,16 +168,18 @@ FIT4J attaches the test execution-id metadata on spring-grpc client channels via
 
 ## HTTP / `TestRestTemplate`
 
-### `@AutoConfigureTestRestTemplate` is per test class
+### `TestRestTemplate` is automatic with a local test web server
 
-`@FIT` does **not** globally enable `TestRestTemplate` (that breaks gRPC-only tests with *"No local test web server"*). Add it only on tests that call your embedded server:
+`@FIT` conditionally enables `@AutoConfigureTestRestTemplate` when Spring Boot can provide a local test web server.
+No extra annotation is needed for HTTP server tests. `MOCK`, `NONE`, and gRPC-only contexts without a local HTTP
+server are excluded, avoiding the "No local test web server" error. User-defined `TestRestTemplate` beans are preserved.
+Remove redundant `@AutoConfigureTestRestTemplate` annotations and their imports from `@FIT` test classes.
+Tests using plain `@SpringBootTest` instead of `@FIT` still need Spring Boot's explicit opt-in.
 
 ```kotlin
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 import org.springframework.boot.resttestclient.TestRestTemplate
 
 @FIT
-@AutoConfigureTestRestTemplate
 class MyHttpFIT {
 
     @Autowired

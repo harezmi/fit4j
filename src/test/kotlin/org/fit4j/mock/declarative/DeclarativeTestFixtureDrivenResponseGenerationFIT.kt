@@ -10,11 +10,9 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.resttestclient.TestRestTemplate
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 import org.springframework.grpc.client.ImportGrpcClients
 import org.springframework.test.context.TestPropertySource
 
-@AutoConfigureTestRestTemplate
 @FIT("classpath:declarative-response-generation-fixture.yml")
 @TestPropertySource(properties = [
     "fit4j.declarativeTestFixtureDrivenResponseGeneration.enabled=true",

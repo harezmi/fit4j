@@ -127,7 +127,7 @@ Version pins for the FIT4J build itself live in [`gradle.properties`](gradle.pro
 
 ## Spring Boot 4 migration
 
-FIT4J on this branch requires **Spring Boot 4.1.x**. If you are upgrading from FIT4J on Boot 3.5, read **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** for dependency, gRPC (`@ImportGrpcClients`), HTTP (`@AutoConfigureTestRestTemplate`), Jackson, and Testcontainers 2.0 changes.
+FIT4J on this branch requires **Spring Boot 4.1.x**. If you are upgrading from FIT4J on Boot 3.5, read **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** for dependency, gRPC (`@ImportGrpcClients`), automatic HTTP test client support, Jackson, and Testcontainers 2.0 changes.
 
 
 
@@ -1022,15 +1022,13 @@ FIT4J sets `spring.grpc.client.channel.testGrpcService.target` to the in-process
 
 `@SpringBootTest` (via `@FIT`) defaults to `webEnvironment = RANDOM_PORT`, which starts a real embedded web server at a 
 random port. You can test REST endpoints with a `RestTemplate`/`RestClient` you configure yourself, or with Spring's
-`TestRestTemplate` — add **`@AutoConfigureTestRestTemplate`** on the test class (not on `@FIT` globally) and ensure
+`TestRestTemplate`, which `@FIT` automatically configures when a local test web server is available. Ensure
 `spring-boot-starter-webmvc` + `spring-boot-resttestclient` are on the test classpath. See [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md).
 
 ```kotlin
 import org.springframework.boot.resttestclient.TestRestTemplate
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 
 @FIT
-@AutoConfigureTestRestTemplate
 class SampleFIT {
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
@@ -1044,6 +1042,8 @@ class SampleFIT {
 ```
 
 Use `@FIT(webEnvironment = SpringBootTest.WebEnvironment.MOCK)` for `MockMvc`-style tests without a real embedded port.
+`MOCK`, `NONE`, and gRPC-only contexts without a local HTTP server do not automatically receive a
+`TestRestTemplate`. A user-defined `TestRestTemplate` bean takes precedence over the default.
 
 ## Publishing Kafka Messages to be Consumed by Your Service
 
@@ -1906,4 +1906,4 @@ written with those annotations. Here is a more detailed table that lists availab
 | gRPC automatic service and type descriptor discovery capability is enabled                                                                                                                                                                                          | No               | Yes             | Yes                                                            |
 | Kafka message tracking capability is enabled                                                                                                                                                                                                                        | No               | Yes             | Yes                                                            |
 | Google JsonFormat Printer & Parser classes are exposed as Spring bean if they are in class path                                                                                                                                                                     | No               | Yes             | Yes                                                            |
-| `TestRestTemplate` (requires `@AutoConfigureTestRestTemplate` on the test class + webmvc on test classpath)                                                                                                                                                         | No               | No              | Yes (when annotated)                                           |
+| `TestRestTemplate` (automatically configured when a local test web server is available) | No | Yes (with local HTTP server) | Yes (with local HTTP server) |
