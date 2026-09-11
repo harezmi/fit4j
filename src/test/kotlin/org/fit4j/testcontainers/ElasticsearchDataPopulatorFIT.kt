@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 
-@org.fit4j.testcontainers.Testcontainers(definitions = ["elasticSearchContainerDefinition"])
+@Testcontainers(definitions = ["elasticSearchContainerDefinition"])
 @FIT
 class ElasticsearchDataPopulatorFIT {
 

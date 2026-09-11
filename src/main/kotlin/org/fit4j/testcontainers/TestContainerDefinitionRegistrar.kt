@@ -34,6 +34,15 @@ class TestContainerDefinitionRegistrar(private val definition: TestContainerDefi
 
         val ps = definition.getPropertySource()
         context.environment.propertySources.addAfter("Inlined Test Properties", ps)
+        val kafkaTypes = setOf(
+            "org.testcontainers.containers.KafkaContainer",
+            "org.testcontainers.kafka.KafkaContainer",
+            "org.testcontainers.kafka.ConfluentKafkaContainer"
+        )
+        if (generateSequence<Class<*>>(definition.getContainer().javaClass) { it.superclass }
+                .any { it.name in kafkaTypes }) {
+            org.fit4j.kafka.KafkaTestActivation.mark(context)
+        }
     }
 
     private fun initDefinition(definition: TestContainerDefinition, context:ConfigurableApplicationContext) {

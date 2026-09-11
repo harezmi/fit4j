@@ -10,7 +10,9 @@ import org.springframework.test.context.TestPropertySource
 
 @FIT
 @Testcontainers(definitions = ["kafkaContainerDefinition","kafkaUiContainerDefinition"])
-@TestPropertySource(properties = ["kafkaUI.url=http://\${fit4j.kafkaUiContainerDefinition.host}:\${fit4j.kafkaUiContainerDefinition.firstMappedPort}"])
+@TestPropertySource(properties = [
+    "kafkaUI.url=http://\${fit4j.kafkaUiContainerDefinition.host}:\${fit4j.kafkaUiContainerDefinition.firstMappedPort}",
+    "spring.kafka.bootstrap-servers=\${fit4j.kafkaContainerDefinition.bootstrapServers}"])
 class TestContainersKafkaUIFIT {
     @Value("\${kafkaUI.url}")
     private lateinit var kafkaUiUrl: String

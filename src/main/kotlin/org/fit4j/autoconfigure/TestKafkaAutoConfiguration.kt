@@ -11,7 +11,6 @@ import org.fit4j.kafka.TestMessageListener
 import org.fit4j.kafka.TopicNameExpressionResolver
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration
 import org.springframework.beans.factory.ObjectProvider
@@ -19,14 +18,18 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.core.env.ConfigurableEnvironment
-import org.springframework.kafka.config.KafkaListenerEndpointRegistry
 
 @AutoConfiguration
 @AutoConfigureAfter(KafkaAutoConfiguration::class)
-@ConditionalOnBean(KafkaListenerEndpointRegistry::class)
-@ConditionalOnProperty(name = ["spring.kafka.bootstrap-servers"])
 @EnableOnFIT
-class TestKafkaAutoConfiguration {
+@org.springframework.context.annotation.Conditional(org.fit4j.kafka.KafkaTestEnabledCondition::class)
+class TestKafkaAutoConfiguration(environment: ConfigurableEnvironment) {
+    init {
+        require(!environment.getProperty("spring.kafka.bootstrap-servers").isNullOrBlank()) {
+            "spring.kafka.bootstrap-servers must be non-blank when FIT4J Kafka support is enabled"
+        }
+    }
+
     @Bean
     fun kafkaMessageTracker(configurableEnvironment: ConfigurableEnvironment) : KafkaMessageTracker {
         val waitTimeout = configurableEnvironment

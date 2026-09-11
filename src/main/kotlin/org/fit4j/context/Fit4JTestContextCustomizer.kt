@@ -25,7 +25,6 @@ class Fit4JTestContextCustomizer() : ContextCustomizer {
         }
 
         context.parent = ParentApplicationContextFactory.parentApplicationContext
-        EmbeddedKafkaPropertyIsolation.isolate(context)
         context.environment.propertySources.addAfter(
             "Inlined Test Properties",
             DynamicValuesPropertySource("fit4j-test-property-source",supplierMap)

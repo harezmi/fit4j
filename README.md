@@ -1053,13 +1053,28 @@ test containers. In order to enable Embedded Kafka in your test, you can use eit
 1. **`@EnableEmbeddedKafka`** annotation provided by FIT4J library (recommended)
 2. **`@EmbeddedKafka`** annotation from Spring Kafka Test library (also supported)
 
-FIT4J binds embedded broker addresses to the owning Spring test context, rather
-than resolving them from another test's JVM-global broker property. Global
-addresses published by FIT4J-managed embedded contexts are filtered from other
-FIT contexts, including after the broker closes. Explicit external Kafka and
-Testcontainers property sources remain available; inline test properties retain
-precedence. FIT4J does not clear JVM system properties. This isolation does not
-change broker ownership or shutdown timeouts.
+FIT4J Kafka support is activated automatically for these annotations and for a
+Kafka Testcontainer selected for the current test context. A bootstrap address
+alone does not activate FIT4J's topic cleaner or YAML test consumers: it may be a
+JVM property left by an earlier embedded Kafka test.
+
+For an external broker, explicitly enable FIT4J Kafka support:
+
+```properties
+fit4j.kafka.enabled=true
+spring.kafka.bootstrap-servers=external-kafka:9092
+```
+
+Set `fit4j.kafka.enabled=false` to override automatic activation.
+When activated, FIT4J requires a non-blank `spring.kafka.bootstrap-servers` and
+fails context initialization with a descriptive error if it is missing or blank.
+This validates configuration presence, not broker connectivity. Producer-only
+contexts are supported; a `KafkaListenerEndpointRegistry` bean is not required.
+`fit4j.kafka.topicCleaner.enabled=false` still disables only the topic cleaner.
+Existing external-broker tests that previously relied solely on the bootstrap
+property must add the opt-in above. These settings control FIT4J infrastructure,
+not application-owned Kafka listeners, producers, or Spring Boot KafkaAdmin.
+No JVM property filtering or broker lifecycle replacement is performed.
 
 Both annotations will automatically configure the embedded Kafka broker and expose it as a Spring bean. If you want to use a real Kafka broker via test containers, you can look at
 [Use Testcontainers](#how-to-work-with-testcontainers) section of this document for more details.
