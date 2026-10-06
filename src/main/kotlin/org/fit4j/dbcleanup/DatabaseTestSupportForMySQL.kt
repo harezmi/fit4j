@@ -11,8 +11,12 @@ import javax.sql.DataSource
  * using MySQL-specific SQL commands for clearing tables and resetting
  * auto-incrementing identifiers.
  */
-class DatabaseTestSupportForMysql(dataSource: DataSource, transactionManager: PlatformTransactionManager, cleanupEnabled:Boolean = true) :
-    AbstractDatabaseTestSupport(dataSource, transactionManager, cleanupEnabled) {
+class DatabaseTestSupportForMysql(
+    dataSource: DataSource,
+    transactionManager: PlatformTransactionManager,
+    cleanupEnabled: Boolean = true,
+    exclusions: DatabaseCleanupExclusions = DatabaseCleanupExclusions.parse(null),
+) : AbstractDatabaseTestSupport(dataSource, transactionManager, cleanupEnabled, exclusions) {
 
     override fun executeResetAllIdentifiers(jdbcTemplate: JdbcTemplate, schemaName: String) {
         // Query tables with their PK columns and auto-increment status (similar to H2/PostgreSQL approach)

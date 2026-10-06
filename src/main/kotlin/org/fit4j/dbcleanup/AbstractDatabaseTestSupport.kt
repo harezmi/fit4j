@@ -12,7 +12,9 @@ import javax.sql.DataSource
 abstract class AbstractDatabaseTestSupport(
     val dataSource: DataSource,
     val transactionManager: PlatformTransactionManager,
-    val cleanupEnabled:Boolean = true) : DatabaseTestSupport {
+    val cleanupEnabled: Boolean = true,
+    protected val exclusions: DatabaseCleanupExclusions = DatabaseCleanupExclusions.parse(null),
+) : DatabaseTestSupport {
 
     override fun resetAllIdentifiers() {
         resetAllIdentifiers(dataSource, transactionManager, schemaName())

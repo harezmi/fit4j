@@ -7,8 +7,9 @@ import javax.sql.DataSource
 class DatabaseTestSupportForPostgreSQL(
     dataSource: DataSource,
     transactionManager: PlatformTransactionManager,
-    cleanupEnabled:Boolean = true
-) : AbstractDatabaseTestSupport(dataSource, transactionManager, cleanupEnabled) {
+    cleanupEnabled: Boolean = true,
+    exclusions: DatabaseCleanupExclusions = DatabaseCleanupExclusions.parse(null),
+) : AbstractDatabaseTestSupport(dataSource, transactionManager, cleanupEnabled, exclusions) {
 
     override fun executeResetAllIdentifiers(jdbcTemplate: JdbcTemplate, schemaName: String) {
         // Query all sequences from both information_schema and pg_catalog to ensure complete coverage

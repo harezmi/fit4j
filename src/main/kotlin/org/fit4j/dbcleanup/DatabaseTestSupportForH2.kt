@@ -7,8 +7,12 @@ import org.springframework.transaction.PlatformTransactionManager
 import java.sql.Connection
 import javax.sql.DataSource
 
-class DatabaseTestSupportForH2(dataSource: DataSource, transactionManager: PlatformTransactionManager, cleanupEnabled:Boolean = true) :
-    AbstractDatabaseTestSupport(dataSource, transactionManager, cleanupEnabled) {
+class DatabaseTestSupportForH2(
+    dataSource: DataSource,
+    transactionManager: PlatformTransactionManager,
+    cleanupEnabled: Boolean = true,
+    exclusions: DatabaseCleanupExclusions = DatabaseCleanupExclusions.parse(null),
+) : AbstractDatabaseTestSupport(dataSource, transactionManager, cleanupEnabled, exclusions) {
     override fun executeResetAllIdentifiers(jdbcTemplate: JdbcTemplate, schemaName: String) {
         val tablesWithPKColumns = jdbcTemplate.queryForList("""
             SELECT 
