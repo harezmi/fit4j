@@ -33,27 +33,24 @@ class DatabaseTestSupportForPostgreSQL(
     }
 
     override fun executeClearAllTables(jdbcTemplate: JdbcTemplate, schemaName: String) {
-        // Disable referential integrity temporarily (similar to H2's SET REFERENTIAL_INTEGRITY FALSE)
-        jdbcTemplate.execute("SET session_replication_role = replica")
-
         val tableNames = jdbcTemplate.queryForList(
             """
-                SELECT table_name 
-                FROM information_schema.tables 
-                WHERE table_schema = '$schemaName' 
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_schema = ?
                   AND table_type = 'BASE TABLE'
             """.trimIndent(),
-            String::class.java
-        )
-
-        tableNames.forEach { tableName ->
-            // Use CASCADE to handle foreign key dependencies
-            // Note: Identity reset is handled separately in executeResetAllIdentifiers
-            jdbcTemplate.execute("""TRUNCATE TABLE "$schemaName"."$tableName" CASCADE""")
+            String::class.java,
+            schemaName,
+        ).filterNotNull()
+        val toTruncate = exclusions.filter(tableNames) { it }
+        if (toTruncate.isEmpty()) {
+            return
         }
-
-        // Re-enable referential integrity
-        jdbcTemplate.execute("SET session_replication_role = DEFAULT")
+        val qualified = toTruncate.joinToString(", ") { tableName ->
+            """"$schemaName"."$tableName""""
+        }
+        jdbcTemplate.execute("TRUNCATE TABLE $qualified")
     }
 
     override fun schemaName(): String {
