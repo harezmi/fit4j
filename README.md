@@ -1859,6 +1859,9 @@ The FIT4J library exposes and uses various configuration properties starting wit
    
    # Enabling topic cleanup
    fit4j.kafka.topicCleaner.enabled=true
+
+   # Skip seed / migration tables during post-test DB cleanup
+   fit4j.dbcleanup.exclude-tables=flyway_schema_history,seed_country
    ```
 
 # License
