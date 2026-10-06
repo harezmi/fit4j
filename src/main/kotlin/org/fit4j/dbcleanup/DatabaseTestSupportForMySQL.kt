@@ -46,8 +46,11 @@ class DatabaseTestSupportForMysql(
         tablesWithPKColumns.forEach {
             val extra = it["extra"] as String?
             val columnName = it["column_name"]
-            val tableName = it["table_name"]
-            
+            val tableName = it["table_name"] as String?
+            if (tableName != null && exclusions.isExcluded(tableName)) {
+                return@forEach
+            }
+
             // Case A: Auto-increment column (MySQL-specific)
             if (extra?.contains("auto_increment", ignoreCase = true) == true) {
                 jdbcTemplate.execute("ALTER TABLE `$schemaName`.`$tableName` AUTO_INCREMENT = 1")
@@ -68,9 +71,10 @@ class DatabaseTestSupportForMysql(
                   AND table_type = 'BASE TABLE'
             """.trimIndent(),
             String::class.java
-        )
+        ).filterNotNull()
 
-        tableNames.forEach { tableName ->
+        val toTruncate = exclusions.filter(tableNames) { it }
+        toTruncate.forEach { tableName ->
             // Note: AUTO_INCREMENT reset is handled separately in executeResetAllIdentifiers
             jdbcTemplate.execute("TRUNCATE TABLE `$schemaName`.`$tableName`")
         }
