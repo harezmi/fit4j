@@ -42,11 +42,4 @@ class TestHelperAutoConfiguration(private val applicationContext: ApplicationCon
     fun browserLauncher() : BrowserLauncher {
         return BrowserLauncher()
     }
-
-    private fun dbCleanUpEnabled() : Boolean {
-        val prop = applicationContext.getEnvironment().getProperty("fit4j.dbcleanup","true")
-        return if("none".equals(prop)) false
-        else prop.toBoolean()
-    }
-
 }

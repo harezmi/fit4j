@@ -36,6 +36,7 @@
         + [Initial Data Population for Redis Container](#initial-data-population-for-redis-container)
 - [How to Work with Embedded DynamoDB?](#how-to-work-with-embedded-dynamodb)
 - [How to Work with Embedded Redis?](#how-to-work-with-embedded-redis)
+- [How to Work with Embedded Postgres?](#how-to-work-with-embedded-postgres)
 - [How to Work with Other Misc Stuff?](#how-to-work-with-other-misc-stuff)
     * [Using VerificationHelper for Object and Request Verification](#using-verificationhelper-for-object-and-request-verification)
 - [Configuration Properties Reference](#configuration-properties-reference)
@@ -63,7 +64,7 @@ In short, we can say that "not every IT is a FIT, but every FIT is also an IT".
 # Why Should You Use This Library in Your Service?
 
 This library greatly simplifies the mock setup and request-response training for these external boundaries, aside from providing
-you with the other necessary infrastructure, such as running your service against a real database (H2, MySQL, DynamoDB),
+you with the other necessary infrastructure, such as running your service against a real database (H2, MySQL, PostgreSQL, DynamoDB),
 Kafka broker, Redis, and ElasticSearch, to write and run your functional integration tests.
 
 While writing functional integration tests, the possible entry points for your service could be gRPC, REST, or Kafka controller layers.
@@ -79,6 +80,7 @@ Here is a short list of the features provided by this library:
 * Initial data population for MySQL, Redis and ElasticSearch containers
 * Embedded DynamoDB support
 * Embedded Redis support with configurable ports
+* Embedded Postgres support (Zonky; no Docker)
 * Built-in Embedded Kafka broker configuration for Kafka message publishing and verification
 * Automatic tracing of Kafka messages published and consumed by your service
 * Built-in in-process gRPC Server configuration and automatic discovery of all GRPC endpoints available
@@ -114,7 +116,7 @@ FIT4J is built and tested against the versions below. Your service should use a 
 | **gRPC** | Boot **4.1** starters (`spring-boot-starter-grpc-server` / `spring-boot-starter-grpc-client`) | Replaces `net.devh:grpc-spring-boot-starter` and `org.springframework.grpc:spring-grpc-*`. Required when your service uses gRPC.                                                                                 |
 | **Kotlin** | **2.3+** (stdlib 2.3.0)                                                                       | Optional — only if your service is written in Kotlin. Java-only services do not need Kotlin on the classpath. Kotlin projects should use a version compatible with Spring Boot 4.x.                              |
 | **JUnit** | **5** (JUnit Platform)                                                                        | Required. FIT4J uses JUnit 5 extensions (`@ExtendWith`, `@FIT` / `@IT`). JUnit 4 is not supported.                                                                                                               |
-| **Docker** | —                                                                                             | Required when using Testcontainers-based infrastructure (MySQL, PostgreSQL, Kafka, Redis, Elasticsearch, etc.). Embedded alternatives (embedded Kafka, embedded Redis, embedded DynamoDB) do not require Docker. |
+| **Docker** | —                                                                                             | Required when using Testcontainers-based infrastructure (MySQL, PostgreSQL, Kafka, Redis, Elasticsearch, etc.). Embedded alternatives (embedded Kafka, embedded Redis, embedded DynamoDB, embedded Postgres) do not require Docker. |
 | **Gradle / Maven** | Gradle 8.14+ or Maven 3.6+                                                                    | Either build tool works for consuming FIT4J from Maven Central. FIT4J development uses Gradle 8.14.4 with the Foojay toolchain resolver (JDK 25 auto-provisioning).                                              |
 
 ### Version alignment with your service
@@ -408,6 +410,7 @@ tests:
 * running gRPC server in process mode, assigning a random value to the in-process name in order to avoid collisions among tests using grpc functionality
 * exposing embedded kafka broker as a bean and its address as property if `@EnableEmbeddedKafka` annotation is available
 * exposing embedded redis as a bean and its port as a property if `@EmbeddedRedis` annotation is available
+* exposing embedded Postgres as a bean and its port as a property if `@EnableEmbeddedPostgres` annotation is available
 * enabling declarative test container support if `@Testcontainers` annotation is available. Look at the related section for further info about declarative test containers support
 * exposing embedded dynamo db as a bean if `@EmbeddedDynamoDB` annotation is available
 
@@ -1632,6 +1635,38 @@ The port on which Redis runs is exposed as `fit4j.embeddedRedisServer.port` prop
 spring.redis.port=${fit4j.embeddedRedisServer.port}
 ```
 
+# How to Work with Embedded Postgres?
+
+If you do not want to use Testcontainers for PostgreSQL, you can run an embedded Postgres instance (powered by [Zonky Embedded Postgres](https://github.com/zonkyio/embedded-postgres)). Annotate the test class with `@EnableEmbeddedPostgres`. FIT4J starts the server on a **random free TCP port** before the Spring `ApplicationContext` is refreshed and registers an `EmbeddedPostgresServer` bean.
+
+```kotlin
+import org.fit4j.annotation.FIT
+import org.fit4j.postgres.EnableEmbeddedPostgres
+
+@EnableEmbeddedPostgres
+@FIT
+class SampleFIT {
+    @Test
+    fun `test with embedded postgres`() {
+        // Postgres is available at the port exposed in fit4j.embeddedPostgresServer.port
+    }
+}
+```
+
+The port is exposed as `fit4j.embeddedPostgresServer.port`. Point your datasource at it in `application-test.properties` (Zonky defaults: user `postgres`, password `postgres`, database `postgres`):
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+```
+
+### Optional init script
+
+If a file named `embedded-postgres-init.sql` is on the test classpath, FIT4J runs it once after the server starts. Use this for schema or seed data that should exist for every test sharing that context.
+
+Docker is not required. Prefer Testcontainers PostgreSQL when you need a specific image, extra extensions, or network-fault injection.
+
 # How to Work with Other Misc Stuff?
 
 ## Using VerificationHelper for Object and Request Verification
@@ -1775,6 +1810,8 @@ The FIT4J library exposes and uses various configuration properties starting wit
 | `fit4j.mockWebServer.port`                                     | Integer | *Auto-set* | Port number of the MockWebServer instance. Set automatically when HTTP mocking is enabled. |
 | **Embedded Redis Properties**                                  |
 | `fit4j.embeddedRedisServer.port`                               | Integer | *Auto-set* | Port number of the embedded Redis server. Set automatically when `@EmbeddedRedis` annotation is used. |
+| **Embedded Postgres Properties**                               |
+| `fit4j.embeddedPostgresServer.port`                            | Integer | *Auto-set* | Port number of the embedded Postgres server. Set automatically when `@EnableEmbeddedPostgres` annotation is used. |
 | **Kafka Properties**                                           |
 | `fit4j.kafka.waitTimeout`                                      | Long | `1000` | Timeout in milliseconds for waiting between retry attempts when checking for Kafka messages. |
 | `fit4j.kafka.waitLoopCount`                                    | Integer | `30` | Maximum number of retry loops when waiting for Kafka messages. Total timeout = `waitTimeout * waitLoopCount` (default: 30 seconds). |
@@ -1804,6 +1841,11 @@ The FIT4J library exposes and uses various configuration properties starting wit
    # Using MockWebServer properties
    externalService.hostname=${fit4j.mockWebServer.host}
    externalService.port=${fit4j.mockWebServer.port}
+   
+   # Using embedded Postgres
+   spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
+   spring.datasource.username=postgres
+   spring.datasource.password=postgres
    
    # Using TestContainer properties
    spring.datasource.url=${fit4j.mySQLContainerDefinition.jdbcUrl}
@@ -1899,6 +1941,7 @@ written with those annotations. Here is a more detailed table that lists availab
 | DynamoDBEmbedded is exposed as a Spring bean if @EmbeddedDynamoDB annotation is used in test class                                                                                                                                                                  | Yes              | Yes             | Yes                                                            |
 | spring.kafka.bootstrap-servers property is set if @EnableEmbeddedKafka or @EmbeddedKafka is used in test class                                                                                                                                                      | Yes              | Yes             | Yes                                                            |
 | EmbeddedRedisServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedRedisServer.port if @EmbeddedRedis annotation is used in test class                                                                                    | Yes              | Yes             | Yes                                                            |
+| EmbeddedPostgresServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedPostgresServer.port if @EnableEmbeddedPostgres annotation is used in test class                                                                    | Yes              | Yes             | Yes                                                            |
 | gRPC server runs in-process; FIT4J sets `spring.grpc.client.channel.testGrpcService.target` to the mock server channel | Yes              | Yes             | Yes                                                            |
 | okhttp3 MockWebServer is exposed as a Spring bean along with its host and port values as environment properties fit4j.mockWebServer.host, fit4j.mockWebServer.port if it is available in test classpath | Yes              | Yes             | Yes                                                            |
 | Declarative Test Container support is enabled if @Testcontainers annotation is used in test class                                                                                                                                                                   | Yes              | Yes             | Yes                                                            |

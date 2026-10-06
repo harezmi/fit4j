@@ -94,6 +94,8 @@ dependencies {
 
 	implementation("jakarta.annotation:jakarta.annotation-api")
 
+    implementation("io.zonky.test:embedded-postgres:2.2.2")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test-classic")
 	testImplementation("org.springframework.boot:spring-boot-resttestclient")
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc")

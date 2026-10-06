@@ -5,4 +5,5 @@ org.springframework.test.context.ContextCustomizerFactory=\
   org.fit4j.context.EmbeddedKafkaContextCustomizerFactory,\
   org.fit4j.context.TestContainersContextCustomizerFactory, \
   org.fit4j.context.EmbeddedDynamoDBContextCustomizerFactory, \
-  org.fit4j.context.EmbeddedRedisContextCustomizerFactory
+  org.fit4j.context.EmbeddedRedisContextCustomizerFactory, \
+  org.fit4j.context.EmbeddedPostgresContextCustomizerFactory
