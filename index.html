@@ -923,11 +923,13 @@ Testcontainers spins up the DB, Fit4J wires a <code>JdbcTemplate</code> and DB c
 <li><code>org.fit4j.dbcleanup.DatabaseTestSupportForH2</code></li>
 <li><code>org.fit4j.dbcleanup.DatabaseTestSupportForMysql</code></li>
 <li><code>org.fit4j.dbcleanup.DatabaseTestSupportForPostgreSQL</code></li>
+<li><code>org.fit4j.dbcleanup.DatabaseCleanupExclusions</code> (via <code>fit4j.dbcleanup.exclude-tables</code>)</li>
 </ul>
 <p>They are tested in:</p>
 <ul>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForMySQLCheckingTestSuite.kt#L1-L20"><code>src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForMySQLCheckingTestSuite.kt:1-20</code></a></li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLCheckingTestSuite.kt#L1-L20"><code>src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLCheckingTestSuite.kt:1-20</code></a></li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForH2ExcludeTablesTestSuite.kt"><code>DatabaseTestSupportForH2ExcludeTablesTestSuite</code></a> / <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLExcludeTablesTestSuite.kt"><code>DatabaseTestSupportForPostgreSQLExcludeTablesTestSuite</code></a> for exclude-tables behavior.</li>
 </ul>
 <p>These suites show how a typical test combines:</p>
 <ul>
@@ -4139,6 +4141,20 @@ class ExampleBean(
 <h3>Configuration</h3>
 <p>When exactly one <code>DataSource</code> bean exists, FIT4J uses it automatically. When multiple <code>DataSource</code> beans are present, set <code>fit4j.dbcleanup.dataSource</code> to the bean name that should be cleaned (default: <code>dataSource</code>). FIT4J creates its own <code>DataSourceTransactionManager</code> for cleanup scoped to that data source; it does not require a <code>PlatformTransactionManager</code> bean in the application context.</p>
 <hr />
+<p>To keep selected tables intact across tests (for example Flyway history or seed/reference data), set <code>fit4j.dbcleanup.exclude-tables</code> to a comma-separated list of simple table names. Matching is case-insensitive. Excluded tables are skipped both by truncate and by identifier/sequence reset.</p>
+<pre><code class="language-properties">fit4j.dbcleanup.exclude-tables=flyway_schema_history,seed_country
+</code></pre>
+<hr />
+<h3>Excluding tables from cleanup</h3>
+<p><code>DatabaseCleanupExclusions</code> (<a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/dbcleanup/DatabaseCleanupExclusions.kt"><code>src/main/kotlin/org/fit4j/dbcleanup/DatabaseCleanupExclusions.kt</code></a>) parses <code>fit4j.dbcleanup.exclude-tables</code>. Auto-configuration passes the exclusion set into each vendor <code>DatabaseTestSupport</code>.</p>
+<ul>
+<li><strong>Truncate:</strong> only non-excluded <code>BASE TABLE</code> names are cleared.</li>
+<li><strong>Identifier reset:</strong> sequences / identity / <code>AUTO_INCREMENT</code> tied to excluded tables are left unchanged so leftover rows do not collide with reset counters.</li>
+<li><strong>PostgreSQL:</strong> remaining tables are truncated in <strong>one</strong> <code>TRUNCATE t1, t2, …</code> statement (no <code>CASCADE</code>, no <code>session_replication_role</code>). Excluding a referenced parent while truncating only the child is supported. Excluding a parent that must still be truncated while leaving a referencing child will fail at truncate time.</li>
+<li><strong>H2 / MySQL:</strong> keep FK-off + per-table <code>TRUNCATE</code>, filtered by the same exclude set.</li>
+</ul>
+<p>Coverage tests: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForH2ExcludeTablesTestSuite.kt"><code>DatabaseTestSupportForH2ExcludeTablesTestSuite</code></a>, <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLExcludeTablesTestSuite.kt"><code>DatabaseTestSupportForPostgreSQLExcludeTablesTestSuite</code></a>.</p>
+<hr />
 <h2>Core Database Support Abstractions</h2>
 <h3><code>DatabaseTestSupport</code> interface</h3>
 <p>File: <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/dbcleanup/DatabaseTestSupport.kt#L1-L13"><code>src/main/kotlin/org/fit4j/dbcleanup/DatabaseTestSupport.kt:1-13</code></a></p>
@@ -4384,8 +4400,8 @@ class MySQLFIT { /* ... */ }
 <li>Aggregates sequence names from both <code>information_schema.sequences</code> and <code>pg_catalog</code> to cover:</li>
 <li>Explicitly created sequences.</li>
 <li>Sequences created implicitly for <code>SERIAL</code>/<code>BIGSERIAL</code> columns.</li>
-<li>Resets each sequence (likely via <code>ALTER SEQUENCE &lt;schema&gt;.&lt;name&gt; RESTART WITH 1</code> or using <code>setval</code>).</li>
-<li>Works closely with <code>executeClearAllTables</code> to ensure no residual rows remain before sequence reset.</li>
+<li>Resets each sequence (likely via <code>ALTER SEQUENCE &lt;schema&gt;.&lt;name&gt; RESTART WITH 1</code> or using <code>setval</code>), except sequences related to tables listed in <code>fit4j.dbcleanup.exclude-tables</code>.</li>
+<li><code>executeClearAllTables</code> issues a single <code>TRUNCATE TABLE "schema"."t1", "schema"."t2", …</code> for non-excluded tables (no <code>CASCADE</code>, no <code>session_replication_role</code>).</li>
 </ul>
 <p><strong>Sample Testcontainers configuration:</strong></p>
 <p>File: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLCheckingTestSuite.kt#L31-L43"><code>src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLCheckingTestSuite.kt:31-43</code></a></p>
@@ -5130,7 +5146,8 @@ graph TD
 <li><strong>Database lifecycle</strong></li>
 <li>Auto-configured <code>DatabaseTestSupport</code> bean picking H2, MySQL, or PostgreSQL.</li>
 <li>Clearing tables and resetting identifiers (sequences / auto-increment) between tests.</li>
-<li>Optional disabling of cleanup at configuration level.</li>
+<li>Optional <code>fit4j.dbcleanup.exclude-tables</code> to skip seed / migration tables during truncate and identifier reset.</li>
+<li>Optional disabling of cleanup at configuration level (<code>fit4j.dbcleanup=false</code> or <code>none</code>).</li>
 <li><strong>Kafka lifecycle</strong></li>
 <li>Optional <code>KafkaTopicCleaner</code> bean that deletes topics after each test method.</li>
 <li><strong>Testcontainers</strong></li>
@@ -5336,7 +5353,7 @@ graph TD
 <li>
 <p>Enumerates sequences in both <code>information_schema</code> and <code>pg_catalog</code> to ensure all relevant sequences are found.</p>
 </li>
-<li>Resets each sequence to a well-known starting value (typically 1).</li>
+<li>Resets each sequence to a well-known starting value (typically 1), except sequences related to tables listed in <code>fit4j.dbcleanup.exclude-tables</code>.</li>
 </ul>
 <p>This is validated here:</p>
 <p><code>kotlin
@@ -5350,7 +5367,7 @@ graph TD
 <p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLCheckingTestSuite.kt#L26-L36"><code>src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLCheckingTestSuite.kt:26-36</code></a>.</p>
 <ul>
 <li><strong>Table clearing</strong><br />
-  Uses PostgreSQL-specific SQL (not shown here) to truncate or delete data while dealing with foreign keys.</li>
+  Issues a single <code>TRUNCATE TABLE t1, t2, …</code> for non-excluded tables (no <code>CASCADE</code>, no <code>session_replication_role</code>). Exclude coverage: <a href="https://github.com/harezmi/fit4j/blob/main/src/test/kotlin/org/fit4j/helper/DatabaseTestSupportForPostgreSQLExcludeTablesTestSuite.kt"><code>DatabaseTestSupportForPostgreSQLExcludeTablesTestSuite</code></a>.</li>
 </ul>
 <h3>NoopDatabaseTestSupport</h3>
 <p>For scenarios where DB cleanup is entirely externalized (e.g., per-test containers or ephemeral DBs), <code>NoopDatabaseTestSupport</code> is available:</p>
@@ -5475,16 +5492,17 @@ inner class KafkaTopicCleanerDisabledFIT {
 <hr />
 <h2>Configuration Properties Affecting Data Lifecycle</h2>
 <h3>Database Cleanup Enabling</h3>
-<p>Though the implementation of <code>dbCleanUpEnabled()</code> is not shown, by convention it reads a property, typically:</p>
+<p><code>DatabaseTestSupportAutoConfiguration</code> reads cleanup settings from the environment:</p>
 <pre><code class="language-properties"># application-test.properties
-fit4j.db.cleanup.enabled=true
+fit4j.dbcleanup=true
+fit4j.dbcleanup.dataSource=dataSource
+fit4j.dbcleanup.exclude-tables=flyway_schema_history,seed_country
 </code></pre>
-<p>Likely behavior:</p>
 <ul>
-<li><code>true</code> (default): <code>cleanupEnabled = true</code> passed into <code>DatabaseTestSupportFor*</code> constructors; tables and identifiers are cleared between tests.</li>
-<li><code>false</code>: All cleanup methods are no-op; DB state persists across tests.</li>
+<li><code>fit4j.dbcleanup</code> (default <code>true</code>): set to <code>false</code> or <code>none</code> to disable post-test truncate and identifier reset.</li>
+<li><code>fit4j.dbcleanup.dataSource</code>: bean name when multiple <code>DataSource</code> beans exist.</li>
+<li><code>fit4j.dbcleanup.exclude-tables</code>: comma-separated simple table names skipped by truncate and identifier reset (case-insensitive). PostgreSQL truncates the remaining tables in one <code>TRUNCATE t1, t2, …</code> statement without <code>CASCADE</code> or <code>session_replication_role</code>.</li>
 </ul>
-<p>Actual property name and behavior should be confirmed in <code>TestHelperAutoConfiguration</code> implementation.</p>
 <h3>Kafka Topic Cleanup</h3>
 <p><code>KafkaTopicCleaner</code> is controlled through:</p>
 <pre><code class="language-properties"># application-test.properties
@@ -5524,7 +5542,7 @@ spring.kafka.consumer.auto-offset-reset=earliest
 </ul>
 <p>If you choose to run <strong>one container per test method</strong>, you may prefer:</p>
 <ul>
-<li>Disabling DB cleanup (<code>fit4j.db.cleanup.enabled=false</code>) and/or</li>
+<li>Disabling DB cleanup (<code>fit4j.dbcleanup=false</code>) and/or</li>
 <li>Providing a <code>NoopDatabaseTestSupport</code> bean.</li>
 </ul>
 <hr />
@@ -5587,7 +5605,7 @@ graph TD
 <ul>
 <li><strong>Configuration</strong></li>
 <li>Testcontainers-managed MySQL/PostgreSQL.</li>
-<li><code>fit4j.db.cleanup.enabled=true</code> (default).</li>
+<li><code>fit4j.dbcleanup=true</code> (default).</li>
 <li><code>fit4j.kafka.topicCleaner.enabled</code> as needed.</li>
 <li><strong>Behavior</strong></li>
 <li>Containers are reused across tests for performance.</li>
@@ -5630,7 +5648,7 @@ fun databaseTestSupport(): DatabaseTestSupport = NoopDatabaseTestSupport()</code
 </li>
 <li>Use <code>DatabaseTestSupport.resetAllIdentifiers()</code> explicitly in tests if needed.</li>
 <li>
-<p>Or ensure <code>fit4j.db.cleanup.enabled=true</code> and rely on automatic hooks.</p>
+<p>Or ensure <code>fit4j.dbcleanup=true</code> and rely on automatic hooks.</p>
 </li>
 <li>
 <p><strong>Slow tests due to repeated container startup</strong></p>
@@ -9204,12 +9222,15 @@ fit4j.kafka.waitLoopCount=50
 
 # Enabling topic cleanup
 fit4j.kafka.topicCleaner.enabled=true
+
+# Skip seed / migration tables during post-test DB cleanup
+fit4j.dbcleanup.exclude-tables=flyway_schema_history,seed_country
 </code></pre>
 <p>Notes:</p>
 <ul>
 <li>Properties like <code>fit4j.mockWebServer.host</code> and <code>fit4j.mockWebServer.port</code> are <strong>auto-set</strong> by FIT4J.</li>
 <li>Properties like <code>fit4j.embeddedRedisServer.port</code> and <code>fit4j.embeddedPostgresServer.port</code> are <strong>auto-set</strong> when the corresponding <code>@EnableEmbedded*</code> annotation is present.</li>
-<li>Properties like <code>fit4j.kafka.waitTimeout</code> are <strong>user-set</strong> knobs that modify FIT4J’s behavior.</li>
+<li>Properties like <code>fit4j.kafka.waitTimeout</code> and <code>fit4j.dbcleanup.exclude-tables</code> are <strong>user-set</strong> knobs that modify FIT4J’s behavior.</li>
 </ul>
 <hr />
 <h2>3. Conditional Configuration with <code>@EnableOnFIT</code></h2>
