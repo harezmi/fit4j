@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 
 @FIT
-@EmbeddedRedis
+@EnableEmbeddedRedis
 class EmbeddedRedisServerFIT {
     @Value("\${fit4j.embeddedRedisServer.port}")
     private lateinit var redisPort: Integer

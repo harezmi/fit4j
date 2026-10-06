@@ -1,7 +1,7 @@
 package org.fit4j.examples.redisembedded
 
 import org.fit4j.annotation.FIT
-import org.fit4j.redis.EmbeddedRedis
+import org.fit4j.redis.EnableEmbeddedRedis
 import org.fit4j.testcontainers.RedisConnectionProperties
 import org.fit4j.testcontainers.RedisDataPopulator
 import org.junit.jupiter.api.Assertions
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value
 import redis.clients.jedis.Jedis
 
 
-@EmbeddedRedis
+@EnableEmbeddedRedis
 @FIT
 class RedisEmbeddedExampleFIT {
 

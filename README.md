@@ -409,7 +409,7 @@ tests:
 * activating `test` profile, and enabling bean definition override in Spring ApplicationContext
 * running gRPC server in process mode, assigning a random value to the in-process name in order to avoid collisions among tests using grpc functionality
 * exposing embedded kafka broker as a bean and its address as property if `@EnableEmbeddedKafka` annotation is available
-* exposing embedded redis as a bean and its port as a property if `@EmbeddedRedis` annotation is available
+* exposing embedded redis as a bean and its port as a property if `@EnableEmbeddedRedis` annotation is available
 * exposing embedded Postgres as a bean and its port as a property if `@EnableEmbeddedPostgres` annotation is available
 * enabling declarative test container support if `@Testcontainers` annotation is available. Look at the related section for further info about declarative test containers support
 * exposing embedded dynamo db as a bean if `@EmbeddedDynamoDB` annotation is available
@@ -1600,10 +1600,10 @@ in your service with the embedded DynamoDB client.
 # How to Work with Embedded Redis?
 
 If you don't want to use Testcontainers to bootstrap Redis server, you have another choice, running redis embedded. You
-can use `@EmbeddedRedis` annotation on top of your test to enable it. 
+can use `@EnableEmbeddedRedis` annotation on top of your test to enable it. 
 
 ```kotlin
-@EmbeddedRedis  // Uses random port (default behavior)
+@EnableEmbeddedRedis  // Uses random port (default behavior)
 @FIT
 class SampleFIT {
     @Test
@@ -1613,18 +1613,18 @@ class SampleFIT {
 }
 ```
 
-The `@EmbeddedRedis` annotation accepts optional parameters:
+The `@EnableEmbeddedRedis` annotation accepts optional parameters:
 * `port`: Specific port to run Redis on (default: `6379`)
 * `useRandomPort`: Whether to use a random port instead of the specified port (default: `true`)
 
 Examples:
 
 ```kotlin
-@EmbeddedRedis(useRandomPort = true)  // Use random port (default)
+@EnableEmbeddedRedis(useRandomPort = true)  // Use random port (default)
 @FIT
 class RandomPortRedisFIT { }
 
-@EmbeddedRedis(port = 6379, useRandomPort = false)  // Use specific port 6379
+@EnableEmbeddedRedis(port = 6379, useRandomPort = false)  // Use specific port 6379
 @FIT
 class FixedPortRedisFIT { }
 ```
@@ -1809,7 +1809,7 @@ The FIT4J library exposes and uses various configuration properties starting wit
 | `fit4j.mockWebServer.host`                                     | String | *Auto-set* | Hostname of the MockWebServer instance. Set automatically when HTTP mocking is enabled. |
 | `fit4j.mockWebServer.port`                                     | Integer | *Auto-set* | Port number of the MockWebServer instance. Set automatically when HTTP mocking is enabled. |
 | **Embedded Redis Properties**                                  |
-| `fit4j.embeddedRedisServer.port`                               | Integer | *Auto-set* | Port number of the embedded Redis server. Set automatically when `@EmbeddedRedis` annotation is used. |
+| `fit4j.embeddedRedisServer.port`                               | Integer | *Auto-set* | Port number of the embedded Redis server. Set automatically when `@EnableEmbeddedRedis` annotation is used. |
 | **Embedded Postgres Properties**                               |
 | `fit4j.embeddedPostgresServer.port`                            | Integer | *Auto-set* | Port number of the embedded Postgres server. Set automatically when `@EnableEmbeddedPostgres` annotation is used. |
 | **Kafka Properties**                                           |
@@ -1940,7 +1940,7 @@ written with those annotations. Here is a more detailed table that lists availab
 | testClass FQN and simple names are exposed as an environment properties fit4j.testClass.name, fit4j.testClass.simpleName                                                                                                                                            | Yes              | Yes             | Yes                                                            |
 | DynamoDBEmbedded is exposed as a Spring bean if @EmbeddedDynamoDB annotation is used in test class                                                                                                                                                                  | Yes              | Yes             | Yes                                                            |
 | spring.kafka.bootstrap-servers property is set if @EnableEmbeddedKafka or @EmbeddedKafka is used in test class                                                                                                                                                      | Yes              | Yes             | Yes                                                            |
-| EmbeddedRedisServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedRedisServer.port if @EmbeddedRedis annotation is used in test class                                                                                    | Yes              | Yes             | Yes                                                            |
+| EmbeddedRedisServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedRedisServer.port if @EnableEmbeddedRedis annotation is used in test class                                                                                    | Yes              | Yes             | Yes                                                            |
 | EmbeddedPostgresServer is exposed as a Spring bean along with its port as an environment property fit4j.embeddedPostgresServer.port if @EnableEmbeddedPostgres annotation is used in test class                                                                    | Yes              | Yes             | Yes                                                            |
 | gRPC server runs in-process; FIT4J sets `spring.grpc.client.channel.testGrpcService.target` to the mock server channel | Yes              | Yes             | Yes                                                            |
 | okhttp3 MockWebServer is exposed as a Spring bean along with its host and port values as environment properties fit4j.mockWebServer.host, fit4j.mockWebServer.port if it is available in test classpath | Yes              | Yes             | Yes                                                            |

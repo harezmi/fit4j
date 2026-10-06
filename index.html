@@ -1311,7 +1311,7 @@ cd /path/to/fit4j
 <li>Each test suite needs boilerplate to:<ul>
 <li>Start containers.</li>
 <li>Configure ports.</li>
-<li>Wire beans (e.g., embedded Redis, embedded DynamoDB).</li>
+<li>Wire beans (e.g., embedded Redis, embedded Postgres, embedded DynamoDB).</li>
 <li>Override Spring properties correctly.</li>
 </ul>
 </li>
@@ -1327,7 +1327,8 @@ cd /path/to/fit4j
 <li>MySQL, DynamoDB, Kafka, Redis, Elasticsearch, S3 (via Localstack).</li>
 <li><strong>Embedded</strong> alternatives when containers are not desired:</li>
 <li>Embedded DynamoDB (<code>@EmbeddedDynamoDB</code>).</li>
-<li>Embedded Redis (<code>@EmbeddedRedis</code>).</li>
+<li>Embedded Redis (<code>@EnableEmbeddedRedis</code>).</li>
+<li>Embedded Postgres (<code>@EnableEmbeddedPostgres</code>, Zonky; no Docker).</li>
 <li>Embedded Kafka (via Spring Kafka Test).</li>
 <li>Automatic <strong>tracing of Kafka messages</strong> published/consumed by the service.</li>
 </ul>
@@ -1391,13 +1392,14 @@ The service under test remains intact; <strong>only external boundaries are mock
 <ul>
 <li>Relational DB:</li>
 <li>MySQL via Testcontainers.</li>
+<li>PostgreSQL via Testcontainers or embedded Postgres (<code>@EnableEmbeddedPostgres</code>).</li>
 <li>H2 in-memory (“H2 Embedded Database”).</li>
 <li>NoSQL:</li>
 <li>DynamoDB via Testcontainers.</li>
 <li>DynamoDB Embedded (<code>@EmbeddedDynamoDB</code>).</li>
 <li>Caching:</li>
 <li>Redis via Testcontainers.</li>
-<li>Redis Embedded (<code>@EmbeddedRedis</code>).</li>
+<li>Redis Embedded (<code>@EnableEmbeddedRedis</code>).</li>
 <li>Search:</li>
 <li>Elasticsearch via Testcontainers.</li>
 <li>Messaging:</li>
@@ -1465,9 +1467,16 @@ The service under test remains intact; <strong>only external boundaries are mock
 <li>
 <p><strong>Embedded Redis</strong></p>
 </li>
-<li>Enable with <code>@EmbeddedRedis</code> (referenced in <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L320-L380"><code>README.md:320-380</code></a>).</li>
+<li>Enable with <code>@EnableEmbeddedRedis</code> (referenced in <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L320-L380"><code>README.md:320-380</code></a>).</li>
 <li>
 <p>Provides an embedded Redis server with configurable port as a Spring bean/property.</p>
+</li>
+<li>
+<p><strong>Embedded Postgres</strong></p>
+</li>
+<li>Enable with <code>@EnableEmbeddedPostgres</code> (see “[How to Work with Embedded Postgres?]” in <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a>).</li>
+<li>
+<p>Starts a Zonky embedded Postgres on a random free TCP port, registers an <code>EmbeddedPostgresServer</code> bean, and exposes <code>fit4j.embeddedPostgresServer.port</code>.</p>
 </li>
 <li>
 <p><strong>Embedded Kafka</strong></p>
@@ -1550,7 +1559,8 @@ The service under test remains intact; <strong>only external boundaries are mock
 <li>Sets up infra-related features:</li>
 <li>Runs gRPC server in in-process mode (random name to avoid collisions).</li>
 <li>Exposes embedded Kafka broker bean and bootstrap property if <code>@EnableEmbeddedKafka</code> is present.</li>
-<li>Exposes embedded Redis bean and port if <code>@EmbeddedRedis</code> is present.</li>
+<li>Exposes embedded Redis bean and port if <code>@EnableEmbeddedRedis</code> is present.</li>
+<li>Exposes embedded Postgres bean and port if <code>@EnableEmbeddedPostgres</code> is present.</li>
 <li>Enables declarative Testcontainers if <code>@Testcontainers</code> is present.</li>
 <li>Exposes embedded DynamoDB bean if <code>@EmbeddedDynamoDB</code> is present.</li>
 </ul>
@@ -1679,7 +1689,7 @@ graph TD
 <li>REST, gRPC, or Kafka.</li>
 <li><strong>Locate infra configuration</strong></li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/fit4j-test-containers-sample.yml"><code>fit4j-test-containers-sample.yml</code></a> for Testcontainers.</li>
-<li>Look for <code>@EmbeddedRedis</code>, <code>@EmbeddedDynamoDB</code>, <code>@EnableEmbeddedKafka</code>.</li>
+<li>Look for <code>@EnableEmbeddedRedis</code>, <code>@EnableEmbeddedPostgres</code>, <code>@EmbeddedDynamoDB</code>, <code>@EnableEmbeddedKafka</code>.</li>
 <li><strong>Inspect external boundary trainings</strong></li>
 <li>How REST/gRPC dependencies are mocked.</li>
 <li><strong>Track side effects</strong></li>
@@ -1957,7 +1967,7 @@ graph TD
 <li><strong>gRPC &amp; Protobuf</strong>: for gRPC endpoints (<a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L8-L11"><code>gradle.properties:8-11</code></a>)</li>
 <li><strong>Spring Kafka + Kafka Test</strong>: for Kafka producer/consumer integration</li>
 <li><strong>Testcontainers</strong>: spinning up real infrastructure (MySQL, Kafka, Redis, Elasticsearch, etc.) in Docker (<a href="https://github.com/harezmi/fit4j/blob/main/gradle.properties#L5-L7"><code>gradle.properties:5-7</code></a>)</li>
-<li><strong>Embedded Redis</strong> (<code>com.github.codemonstur:embedded-redis</code>) and <strong>DynamoDB Local</strong> (<code>com.amazonaws:DynamoDBLocal</code>): in-process infrastructure</li>
+<li><strong>Embedded Redis</strong> (<code>com.github.codemonstur:embedded-redis</code>), <strong>Embedded Postgres</strong> (<code>io.zonky.test:embedded-postgres</code>), and <strong>DynamoDB Local</strong> (<code>com.amazonaws:DynamoDBLocal</code>): in-process / local infrastructure (no Docker)</li>
 <li><strong>Elasticsearch REST &amp; Java clients</strong></li>
 <li><strong>Jackson</strong> &amp; <strong>Protobuf JsonFormat</strong>: JSON and Protobuf serialization (<a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md"><code>LICENSE_COMPATIBILITY_ANALYSIS.md</code></a>)</li>
 </ul>
@@ -2120,6 +2130,7 @@ private fun registerHttpServer(context: ConfigurableApplicationContext) {
 <p>By convention (and based on the README features list <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L90-L104"><code>README.md:90-104</code></a>), the library also has similar customizers for:</p>
 <ul>
 <li><strong>Embedded Redis</strong> – spin up an embedded Redis server and override Redis connection properties.</li>
+<li><strong>Embedded Postgres</strong> – start a Zonky embedded Postgres on a random port and expose <code>fit4j.embeddedPostgresServer.port</code>.</li>
 <li><strong>Testcontainers-based infrastructure</strong> – automatically start containers defined in Fit4J configuration files and expose properties to the Spring environment.</li>
 </ul>
 <p>These follow the same pattern: implement <code>ContextCustomizer</code>, start resource, register bean, inject environment properties, and register shutdown hooks.</p>
@@ -2184,7 +2195,7 @@ spring.kafka.template.default-topic=fit4j-test-topic
 <h3>Database (MySQL, H2, etc.)</h3>
 <p>While direct DB auto-config fragments are not in the snippets, the architecture is:</p>
 <ul>
-<li>Use <strong>Testcontainers</strong> for real DB instances (MySQL, PostgreSQL, etc.).</li>
+<li>Use <strong>Testcontainers</strong> for real DB instances (MySQL, PostgreSQL, etc.), or <code>@EnableEmbeddedPostgres</code> for a Docker-free Zonky Postgres.</li>
 <li>Use <code>DatabaseTestSupport</code> implementations (H2/MySQL/PostgreSQL) to:</li>
 <li>Clear database state between tests.</li>
 <li>Populate initial data.</li>
@@ -2227,6 +2238,20 @@ spring.kafka.template.default-topic=fit4j-test-topic
 <li>Uses <code>embedded-redis</code> library (<a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L15-L18"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:15-18</code></a>).</li>
 <li>Enabled via annotation (described in README: “Embedded Redis support with configurable ports” <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L90-L104"><code>README.md:90-104</code></a>).</li>
 <li>Likely implemented via another <code>ContextCustomizer</code> similar to DynamoDB, starting/stopping embedded Redis and injecting host/port properties.</li>
+</ol>
+<h3>PostgreSQL</h3>
+<p>Two modes:</p>
+<ol>
+<li><strong>Testcontainers PostgreSQL</strong>:</li>
+<li>Declared in YAML as <code>org.testcontainers.containers.PostgreSQLContainer</code> (see Testcontainers sections).</li>
+<li>
+<p><strong>Embedded Postgres</strong>:</p>
+</li>
+<li>Powered by <a href="https://github.com/zonkyio/embedded-postgres">Zonky Embedded Postgres</a> (<code>io.zonky.test:embedded-postgres</code>).</li>
+<li>Enabled with <code>@EnableEmbeddedPostgres</code> on the test class (see “[How to Work with Embedded Postgres?]” in <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a>).</li>
+<li>FIT4J starts the server on a random free TCP port before the Spring <code>ApplicationContext</code> is refreshed, registers an <code>EmbeddedPostgresServer</code> bean, and exposes <code>fit4j.embeddedPostgresServer.port</code>.</li>
+<li>Optional classpath script <code>embedded-postgres-init.sql</code> is executed once after startup for schema/seed data.</li>
+<li>Docker is not required. Prefer Testcontainers when you need a specific image, extra extensions, or network-fault injection.</li>
 </ol>
 <h3>DynamoDB</h3>
 <p>Two options:</p>
@@ -2547,6 +2572,8 @@ every { service.call() } returns &quot;OK&quot;
     &gt; adding <code>@EmbeddedDynamoDB</code> on the test class starts an embedded DynamoDB instance and replaces the AWS client bean.</li>
 <li>Embedded Redis:</li>
 <li><a href="https://github.com/harezmi/fit4j/blob/main/README.md#L260-L280"><code>README.md:260-280</code></a> describes embedded Redis as an alternative to Testcontainers.</li>
+<li>Embedded Postgres:</li>
+<li><a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a> “How to Work with Embedded Postgres?” describes <code>@EnableEmbeddedPostgres</code> as a Docker-free alternative to PostgreSQL Testcontainers.</li>
 </ul>
 <p>Testcontainers is the recommended option for realistic integration tests; embedded variants are useful for fast feedback or CI environments with limited Docker support.</p>
 <hr />
@@ -2917,7 +2944,8 @@ graph TD
 <li>Runs gRPC server <strong>in-process</strong> at a random port and assigns a random in‑process name.</li>
 <li>Auto‑configures <code>spring.grpc.client.channel.testGrpcService.target</code> (in-process mock server).</li>
 <li>Exposes <strong>Embedded Kafka</strong> as a Spring bean and property if <code>@EnableEmbeddedKafka</code> is present.</li>
-<li>Exposes <strong>Embedded Redis</strong> as a Spring bean and property if <code>@EmbeddedRedis</code> is present.</li>
+<li>Exposes <strong>Embedded Redis</strong> as a Spring bean and property if <code>@EnableEmbeddedRedis</code> is present.</li>
+<li>Exposes <strong>Embedded Postgres</strong> as a Spring bean and property if <code>@EnableEmbeddedPostgres</code> is present.</li>
 <li>Enables <strong>declarative Testcontainers</strong> support if <code>@Testcontainers</code> is used.</li>
 </ul>
 <p>This annotation is intended for:</p>
@@ -3396,7 +3424,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 <li>
 <p><strong>DynamoDB, Redis, Testcontainers</strong>:</p>
 </li>
-<li>Annotations like <code>@EmbeddedDynamoDB</code>, <code>@EmbeddedRedis</code>, and <code>@Testcontainers</code> trigger corresponding beans and support.</li>
+<li>Annotations like <code>@EmbeddedDynamoDB</code>, <code>@EnableEmbeddedRedis</code>, <code>@EnableEmbeddedPostgres</code>, and <code>@Testcontainers</code> trigger corresponding beans and support.</li>
 <li>Fit4J autoconfigs are designed to respect these when present.</li>
 </ul>
 <p>Example test <a href="https://github.com/harezmi/fit4j/blob/main/application.yml"><code>application.yml</code></a> excerpt (values masked):</p>
@@ -3809,9 +3837,9 @@ graph TD
         testClass: Class&lt;*&gt;,
         configAttributes: MutableList&lt;ContextConfigurationAttributes&gt;
     ): ContextCustomizer? {
-        return if (isAnnotationPresent(testClass, EmbeddedRedis::class.java))
+        return if (isAnnotationPresent(testClass, EnableEmbeddedRedis::class.java))
             EmbeddedRedisContextCustomizer(
-                AnnotationUtils.findAnnotation(testClass, EmbeddedRedis::class.java)!!
+                AnnotationUtils.findAnnotation(testClass, EnableEmbeddedRedis::class.java)!!
             )
         else null
     }
@@ -3819,7 +3847,7 @@ graph TD
 </code></pre>
 <p>(see <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/context/EmbeddedRedisContextCustomizerFactory.kt"><code>src/main/kotlin/org/fit4j/context/EmbeddedRedisContextCustomizerFactory.kt</code></a>).</p>
 <ul>
-<li>Activates when a test class is annotated with <code>@EmbeddedRedis</code> (<code>org.fit4j.redis.EmbeddedRedis</code>).</li>
+<li>Activates when a test class is annotated with <code>@EnableEmbeddedRedis</code> (<code>org.fit4j.redis.EnableEmbeddedRedis</code>).</li>
 <li>Uses <code>AnnotationUtils.findAnnotation</code> to retrieve annotation arguments for configuration (e.g., port, database index) and passes them to <code>EmbeddedRedisContextCustomizer</code>.</li>
 </ul>
 <p><strong>Customizer</strong></p>
@@ -3828,6 +3856,36 @@ graph TD
 <li>Starts embedded Redis before the context is fully refreshed.</li>
 <li>Sets Redis host/port properties.</li>
 <li>Registers teardown callbacks so Redis stops after tests.</li>
+</ul>
+<hr />
+<h3>Embedded Postgres</h3>
+<p><strong>Factory</strong></p>
+<ul>
+<li><strong>File:</strong> <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/context/EmbeddedPostgresContextCustomizerFactory.kt"><code>src/main/kotlin/org/fit4j/context/EmbeddedPostgresContextCustomizerFactory.kt</code></a></li>
+</ul>
+<pre><code class="language-kotlin">class EmbeddedPostgresContextCustomizerFactory : AbstractContextCustomizerFactory() {
+    override fun buildContextCustomizer(
+        testClass: Class&lt;*&gt;,
+        configAttributes: MutableList&lt;ContextConfigurationAttributes&gt;
+    ): ContextCustomizer? {
+        return if (isAnnotationPresent(testClass, EnableEmbeddedPostgres::class.java))
+            EmbeddedPostgresContextCustomizer() else null
+    }
+}
+</code></pre>
+<p>(see <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/context/EmbeddedPostgresContextCustomizerFactory.kt"><code>src/main/kotlin/org/fit4j/context/EmbeddedPostgresContextCustomizerFactory.kt</code></a>).</p>
+<ul>
+<li>Activates when a test class is annotated with <code>@EnableEmbeddedPostgres</code> (<code>org.fit4j.postgres.EnableEmbeddedPostgres</code>).</li>
+</ul>
+<p><strong>Customizer</strong></p>
+<ul>
+<li><strong>File:</strong> <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/context/EmbeddedPostgresContextCustomizer.kt"><code>src/main/kotlin/org/fit4j/context/EmbeddedPostgresContextCustomizer.kt</code></a></li>
+<li><code>EmbeddedPostgresContextCustomizer</code>:</li>
+<li>Picks a random free TCP port.</li>
+<li>Starts <code>EmbeddedPostgresServer</code> (Zonky) before the context is fully refreshed.</li>
+<li>Registers the server as the <code>embeddedPostgresServer</code> singleton bean.</li>
+<li>Exposes <code>fit4j.embeddedPostgresServer.port</code>.</li>
+<li>If <code>embedded-postgres-init.sql</code> is on the classpath, runs it once after the server starts.</li>
 </ul>
 <hr />
 <h3>HTTP Web Server</h3>
@@ -4015,7 +4073,8 @@ class TestScopeAutoConfiguration {
 <ul>
 <li><code>@FIT</code> or <code>@IT</code> – Fit4J integration marker for tests.</li>
 <li><code>@EmbeddedKafka</code>, <code>@EnableEmbeddedKafka</code> – for Kafka.</li>
-<li><code>@EmbeddedRedis</code> – for Redis.</li>
+<li><code>@EnableEmbeddedRedis</code> – for Redis.</li>
+<li><code>@EnableEmbeddedPostgres</code> – for Postgres (Zonky).</li>
 <li><code>@EmbeddedDynamoDB</code> – for DynamoDB Local.</li>
 <li><code>@org.fit4j.testcontainers.Testcontainers</code> – for Testcontainers integration.</li>
 </ul>
@@ -7969,7 +8028,7 @@ graph TD
 <section id="section-testcontainers-and-embedded-services" class="dw-section">
   <div class="dw-section-inner">
     <h1>Testcontainers &amp; Embedded Services Integration</h1>
-<p>This section explains how FIT4J integrates Testcontainers and embedded services (Redis, DynamoDB, Elasticsearch, Kafka) into Spring Boot tests. It focuses on YAML-based <a href="https://github.com/harezmi/fit4j/blob/main/fit4j-test-containers.yml"><code>fit4j-test-containers.yml</code></a> definitions, <code>TestContainerDefinition</code> implementations, and context customization via annotations so you can bring up only the infrastructure your tests need.</p>
+<p>This section explains how FIT4J integrates Testcontainers and embedded services (Redis, Postgres, DynamoDB, Elasticsearch, Kafka) into Spring Boot tests. It focuses on YAML-based <a href="https://github.com/harezmi/fit4j/blob/main/fit4j-test-containers.yml"><code>fit4j-test-containers.yml</code></a> definitions, <code>TestContainerDefinition</code> implementations, and context customization via annotations so you can bring up only the infrastructure your tests need.</p>
 <hr />
 <h2>Overview</h2>
 <p>FIT4J adds a thin abstraction on top of <a href="https://www.testcontainers.org/">Testcontainers</a> and embedded servers to:</p>
@@ -7978,7 +8037,7 @@ graph TD
 <li>Selectively register and start containers per test class.</li>
 <li>Expose container connection properties as Spring configuration.</li>
 <li>Optionally populate containers with initial test data.</li>
-<li>Provide embedded alternatives for some services (e.g. Redis, DynamoDB, H2).</li>
+<li>Provide embedded alternatives for some services (e.g. Redis, Postgres, DynamoDB, H2).</li>
 </ul>
 <p>This integration is driven by:</p>
 <ul>
@@ -8362,12 +8421,12 @@ testcontainers.reuse.enable=true
 </code></pre>
 <p>This is described in <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a> near the Testcontainers section. Without the global property, the <code>reuse</code> flag in YAML is ignored.</p>
 <hr />
-<h2>Embedded Services (Redis, DynamoDB, H2)</h2>
+<h2>Embedded Services (Redis, Postgres, DynamoDB, H2)</h2>
 <p>For some services it may be preferable to avoid Docker entirely and use embedded implementations instead.</p>
 <h3>Embedded Redis</h3>
 <p>As an alternative to Redis Testcontainers:</p>
 <pre><code class="language-kotlin">// See README.md Embedded Redis example
-@EmbeddedRedis  // Uses random port (default behavior)
+@EnableEmbeddedRedis  // Uses random port (default behavior)
 @FIT
 class SampleFIT {
 
@@ -8377,7 +8436,7 @@ class SampleFIT {
     }
 }
 </code></pre>
-<p><code>@EmbeddedRedis</code> parameters:</p>
+<p><code>@EnableEmbeddedRedis</code> parameters:</p>
 <ul>
 <li><code>port</code>: Fixed port (default: <code>6379</code>).</li>
 <li><code>useRandomPort</code>: Choose random port (default: <code>true</code>).</li>
@@ -8387,6 +8446,29 @@ class SampleFIT {
 <li><code>fit4j.embeddedRedisServer.port</code> — can be referenced in Spring configuration and <code>@Value</code>.</li>
 </ul>
 <p>Use this when Docker is unavailable or you want faster start times with a purely in-memory Redis.</p>
+<h3>Embedded Postgres</h3>
+<p>If you do not want to use Testcontainers for PostgreSQL, you can run an embedded Postgres instance (powered by <a href="https://github.com/zonkyio/embedded-postgres">Zonky Embedded Postgres</a>). Annotate the test class with <code>@EnableEmbeddedPostgres</code>. FIT4J starts the server on a <strong>random free TCP port</strong> before the Spring <code>ApplicationContext</code> is refreshed and registers an <code>EmbeddedPostgresServer</code> bean.</p>
+<pre><code class="language-kotlin">// See README.md Embedded Postgres example
+import org.fit4j.annotation.FIT
+import org.fit4j.postgres.EnableEmbeddedPostgres
+
+@EnableEmbeddedPostgres
+@FIT
+class SampleFIT {
+    @Test
+    fun `test with embedded postgres`() {
+        // Postgres is available at the port exposed in fit4j.embeddedPostgresServer.port
+    }
+}
+</code></pre>
+<p>The port is exposed as <code>fit4j.embeddedPostgresServer.port</code>. Point your datasource at it in <code>application-test.properties</code> (Zonky defaults: user <code>postgres</code>, password <code>postgres</code>, database <code>postgres</code>):</p>
+<pre><code class="language-properties">spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+</code></pre>
+<h4>Optional init script</h4>
+<p>If a file named <code>embedded-postgres-init.sql</code> is on the test classpath, FIT4J runs it once after the server starts. Use this for schema or seed data that should exist for every test sharing that context.</p>
+<p>Docker is not required. Prefer Testcontainers PostgreSQL when you need a specific image, extra extensions, or network-fault injection.</p>
 <h3>Other embedded examples</h3>
 <p>The examples module documents several embedded options (see <a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/README.md#L1-L15"><code>fit4j-examples/README.md:1-15</code></a>):</p>
 <ul>
@@ -8451,7 +8533,7 @@ redis.port=${fit4j.redisContainerDefinition.port}
 </code></pre>
 <h3>4. Use embedded Redis instead of Testcontainers</h3>
 <pre><code class="language-kotlin">// See README.md Embedded Redis section
-@EmbeddedRedis(useRandomPort = true)
+@EnableEmbeddedRedis(useRandomPort = true)
 @FIT
 class EmbeddedRedisFIT {
 
@@ -8460,6 +8542,24 @@ class EmbeddedRedisFIT {
         // The port is available via fit4j.embeddedRedisServer.port
     }
 }
+</code></pre>
+<h3>5. Use embedded Postgres instead of Testcontainers</h3>
+<pre><code class="language-kotlin">// See README.md Embedded Postgres section
+import org.fit4j.postgres.EnableEmbeddedPostgres
+
+@EnableEmbeddedPostgres
+@FIT
+class EmbeddedPostgresFIT {
+
+    @Test
+    fun `test with embedded postgres`() {
+        // The port is available via fit4j.embeddedPostgresServer.port
+    }
+}
+</code></pre>
+<pre><code class="language-properties">spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
 </code></pre>
 <hr />
 <h2>When to Choose What</h2>
@@ -8735,6 +8835,31 @@ tests:
 <li>Spring bootstraps repositories using container-provided JDBC URL.</li>
 <li>Your service uses the DB as usual; tests can interrogate real relational state.</li>
 </ol>
+<h3>Embedded Postgres</h3>
+<p>From “[How to Work with Embedded Postgres?]” in <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a>:</p>
+<ul>
+<li>Annotate the test class with <code>@EnableEmbeddedPostgres</code> (<code>org.fit4j.postgres.EnableEmbeddedPostgres</code>).</li>
+<li>FIT4J starts a Zonky embedded Postgres on a random free TCP port and registers an <code>EmbeddedPostgresServer</code> bean.</li>
+<li>The port is exposed as <code>fit4j.embeddedPostgresServer.port</code> for datasource wiring (Zonky defaults: user/password/database <code>postgres</code>).</li>
+<li>Optional classpath file <code>embedded-postgres-init.sql</code> is executed once after startup for schema or seed data.</li>
+<li>Docker is not required. Prefer Testcontainers PostgreSQL for a specific image, extra extensions, or network-fault injection.</li>
+</ul>
+<pre><code class="language-kotlin">import org.fit4j.annotation.FIT
+import org.fit4j.postgres.EnableEmbeddedPostgres
+
+@EnableEmbeddedPostgres
+@FIT
+class SampleFIT {
+    @Test
+    fun `test with embedded postgres`() {
+        // Postgres is available at fit4j.embeddedPostgresServer.port
+    }
+}
+</code></pre>
+<pre><code class="language-properties">spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+</code></pre>
 <hr />
 <h2>Redis Integration (Testcontainers &amp; Embedded)</h2>
 <p>Fit4J supports Redis both as a Testcontainers service and embedded server.</p>
@@ -8781,7 +8906,7 @@ tests:
 <p>From <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L275-L310"><code>README.md:275-310</code></a>:</p>
 <ul>
 <li>Fit4J can start an embedded Redis (powered by <code>com.github.codemonstur:embedded-redis</code>, see <a href="https://github.com/harezmi/fit4j/blob/main/LICENSE_COMPATIBILITY_ANALYSIS.md#L20-L35"><code>LICENSE_COMPATIBILITY_ANALYSIS.md:20-35</code></a>).</li>
-<li>Activation is typically annotation-driven (e.g., <code>@EmbeddedRedis</code> on the test class) — see “[How to Work with Embedded Redis?]” section referenced in <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L275-L310"><code>README.md:275-310</code></a>.</li>
+<li>Activation is typically annotation-driven (e.g., <code>@EnableEmbeddedRedis</code> on the test class) — see “[How to Work with Embedded Redis?]” section referenced in <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L275-L310"><code>README.md:275-310</code></a>.</li>
 </ul>
 <p>Flow differences:</p>
 <ul>
@@ -8980,7 +9105,7 @@ tests:
 <p><strong>Annotations</strong> (described in <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L140-L190"><code>README.md:140-190</code></a> and <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L275-L310"><code>README.md:275-310</code></a>):</p>
 </li>
 <li><code>@Testcontainers</code> enables container bootstrap.</li>
-<li><code>@EmbeddedDynamoDB</code> and embedded Redis annotation (name may vary) switch to embedded infrastructure.</li>
+<li><code>@EmbeddedDynamoDB</code>, <code>@EnableEmbeddedRedis</code>, and <code>@EnableEmbeddedPostgres</code> switch to embedded infrastructure.</li>
 </ul>
 <p>When modifying these configs, consider:</p>
 <ul>
@@ -9068,6 +9193,11 @@ spring.datasource.url=${fit4j.mySQLContainerDefinition.jdbcUrl}
 spring.datasource.username=${fit4j.mySQLContainerDefinition.username}
 spring.datasource.password=${fit4j.mySQLContainerDefinition.password}
 
+# Using embedded Postgres
+spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+
 # Configuring Kafka timeouts
 fit4j.kafka.waitTimeout=2000
 fit4j.kafka.waitLoopCount=50
@@ -9078,6 +9208,7 @@ fit4j.kafka.topicCleaner.enabled=true
 <p>Notes:</p>
 <ul>
 <li>Properties like <code>fit4j.mockWebServer.host</code> and <code>fit4j.mockWebServer.port</code> are <strong>auto-set</strong> by FIT4J.</li>
+<li>Properties like <code>fit4j.embeddedRedisServer.port</code> and <code>fit4j.embeddedPostgresServer.port</code> are <strong>auto-set</strong> when the corresponding <code>@EnableEmbedded*</code> annotation is present.</li>
 <li>Properties like <code>fit4j.kafka.waitTimeout</code> are <strong>user-set</strong> knobs that modify FIT4J’s behavior.</li>
 </ul>
 <hr />
@@ -9186,6 +9317,15 @@ externalService.port=${fit4j.mockWebServer.port}
 </code></pre>
 <p>This causes your service under test to call the MockWebServer instead of a real external endpoint, while keeping all URLs and ports <strong>property-driven</strong>.</p>
 <p>Internally, <code>TestHttpAutoConfiguration</code> wraps these values into <code>MockWebServerProperties</code> as shown above.</p>
+<hr />
+<h2>4.1 Embedded Redis and Postgres Properties</h2>
+<p>When <code>@EnableEmbeddedRedis</code> is present, FIT4J auto-sets <code>fit4j.embeddedRedisServer.port</code>.</p>
+<p>When <code>@EnableEmbeddedPostgres</code> is present, FIT4J auto-sets <code>fit4j.embeddedPostgresServer.port</code>. Point Spring datasource properties at that port (Zonky defaults: user/password/database <code>postgres</code>):</p>
+<pre><code class="language-properties">spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+</code></pre>
+<p>Optional classpath script <code>embedded-postgres-init.sql</code> is run once after the embedded Postgres starts.</p>
 <hr />
 <h2>5. Testcontainers and <a href="https://github.com/harezmi/fit4j/blob/main/fit4j-test-containers.yml"><code>fit4j-test-containers.yml</code></a></h2>
 <h3>5.1 Declarative container definitions</h3>
@@ -10087,7 +10227,7 @@ spring.datasource.password=********
 <section id="section-api-reference-and-annotations" class="dw-section">
   <div class="dw-section-inner">
     <h1>Public API Reference &amp; Core Annotations</h1>
-<p>This page documents the public annotation-based API that FIT4J exposes to consumers. It explains how to use <code>@FIT</code>, <code>@IT</code>, <code>@FixtureForFIT</code>, <code>@EnableEmbeddedKafka</code>, and the test scoping annotations in your own test code, and how they compose with Spring Boot test infrastructure and configuration properties.</p>
+<p>This page documents the public annotation-based API that FIT4J exposes to consumers. It explains how to use <code>@FIT</code>, <code>@IT</code>, <code>@FixtureForFIT</code>, <code>@EnableEmbeddedKafka</code>, <code>@EnableEmbeddedRedis</code>, <code>@EnableEmbeddedPostgres</code>, and the test scoping annotations in your own test code, and how they compose with Spring Boot test infrastructure and configuration properties.</p>
 <p>The focus here is on how to write tests that leverage FIT4J’s features; internal implementation details and domain terminology are covered elsewhere (see [Glossary] and architecture sections).</p>
 <hr />
 <h2>Overview of the Annotation Model</h2>
@@ -10097,6 +10237,8 @@ spring.datasource.password=********
 <li><code>@FIT</code> builds on <code>@IT</code> and provides <strong>full functional‑integration‑test capabilities</strong> (fixtures, call/message tracking, etc.).</li>
 <li><code>@FixtureForFIT</code> configures <strong>method‑level fixtures</strong> for <code>@FIT</code> tests.</li>
 <li><code>@EnableEmbeddedKafka</code> enables FIT4J’s <strong>embedded Kafka support</strong> using Testcontainers / Spring Kafka test facilities.</li>
+<li><code>@EnableEmbeddedRedis</code> starts an embedded Redis and exposes <code>fit4j.embeddedRedisServer.port</code>.</li>
+<li><code>@EnableEmbeddedPostgres</code> starts a Zonky embedded Postgres and exposes <code>fit4j.embeddedPostgresServer.port</code>.</li>
 <li>Test scoping annotations like <code>@TestScoped</code> (and related <code>TestScope</code>) control <strong>lifecycle/visibility of beans within tests</strong> (likely implemented as a custom Spring scope).</li>
 </ul>
 <p>Use these annotations on JUnit 5 test classes and methods to declaratively enable the corresponding test infrastructure.</p>
@@ -10417,6 +10559,33 @@ class KafkaMessageWithHeadersFIT {
 <pre><code class="language-properties">spring.kafka.bootstrap-servers=localhost:9092
 spring.kafka.properties.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=&quot;user&quot; password=&quot;********&quot;;
 </code></pre>
+<hr />
+<h2><code>@EnableEmbeddedPostgres</code> – Postgres Support for Tests</h2>
+<p><code>@EnableEmbeddedPostgres</code> starts a Zonky embedded Postgres for <code>@IT</code> / <code>@FIT</code> tests without Docker. See “[How to Work with Embedded Postgres?]” in <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a>.</p>
+<pre><code class="language-kotlin">import org.fit4j.annotation.FIT
+import org.fit4j.postgres.EnableEmbeddedPostgres
+
+@EnableEmbeddedPostgres
+@FIT
+class SampleFIT {
+    @Test
+    fun `test with embedded postgres`() {
+        // Postgres is available at fit4j.embeddedPostgresServer.port
+    }
+}
+</code></pre>
+<ul>
+<li>FIT4J starts the server on a random free TCP port before the Spring <code>ApplicationContext</code> is refreshed.</li>
+<li>Registers an <code>EmbeddedPostgresServer</code> bean.</li>
+<li>Exposes <code>fit4j.embeddedPostgresServer.port</code> (auto-set).</li>
+<li>Zonky defaults: user <code>postgres</code>, password <code>postgres</code>, database <code>postgres</code>.</li>
+<li>If <code>embedded-postgres-init.sql</code> is on the test classpath, it is executed once after the server starts.</li>
+</ul>
+<pre><code class="language-properties">spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+</code></pre>
+<p>Prefer Testcontainers PostgreSQL when you need a specific image, extra extensions, or network-fault injection.</p>
 <hr />
 <h2>Test Scoping Annotations: <code>@TestScoped</code> / <code>TestScope</code></h2>
 <p>While the code snippets do not show the implementation, the presence of keywords <code>TestScoped</code> and <code>TestScope</code> in the section definition indicates a <strong>custom Spring bean scope</strong> designed for test usage.</p>

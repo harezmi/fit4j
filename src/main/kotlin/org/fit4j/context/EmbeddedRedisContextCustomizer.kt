@@ -1,6 +1,6 @@
 package org.fit4j.context
 
-import org.fit4j.redis.EmbeddedRedis
+import org.fit4j.redis.EnableEmbeddedRedis
 import org.fit4j.redis.EmbeddedRedisServer
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry
 import org.springframework.context.ConfigurableApplicationContext
@@ -9,7 +9,7 @@ import org.springframework.test.context.ContextCustomizer
 import org.springframework.test.context.MergedContextConfiguration
 import java.net.ServerSocket
 
-class EmbeddedRedisContextCustomizer(private val embeddedRedis: EmbeddedRedis) : ContextCustomizer {
+class EmbeddedRedisContextCustomizer(private val embeddedRedis: EnableEmbeddedRedis) : ContextCustomizer {
 
     private fun findAvailableTcpPort(): Int {
         return try {
