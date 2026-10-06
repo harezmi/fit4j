@@ -1,5 +1,6 @@
 package org.fit4j.autoconfigure
 
+import org.fit4j.dbcleanup.DatabaseCleanupExclusions
 import org.fit4j.dbcleanup.DatabaseTestSupport
 import org.fit4j.dbcleanup.DatabaseTestSupportForH2
 import org.fit4j.dbcleanup.DatabaseTestSupportForMysql
@@ -33,10 +34,13 @@ class DatabaseTestSupportAutoConfiguration(private val applicationContext: Appli
         val transactionManager = createTransactionManager(dataSource)
         val dbVendorName = detectDatabaseVendor(dataSource)
         val dbCleanUpEnabled = dbCleanUpEnabled()
+        val exclusions = DatabaseCleanupExclusions.parse(
+            applicationContext.environment.getProperty("fit4j.dbcleanup.exclude-tables"),
+        )
         return when (dbVendorName) {
-            "mysql" -> DatabaseTestSupportForMysql(dataSource, transactionManager, dbCleanUpEnabled)
-            "h2" -> DatabaseTestSupportForH2(dataSource, transactionManager, dbCleanUpEnabled)
-            "postgresql" -> DatabaseTestSupportForPostgreSQL(dataSource, transactionManager, dbCleanUpEnabled)
+            "mysql" -> DatabaseTestSupportForMysql(dataSource, transactionManager, dbCleanUpEnabled, exclusions)
+            "h2" -> DatabaseTestSupportForH2(dataSource, transactionManager, dbCleanUpEnabled, exclusions)
+            "postgresql" -> DatabaseTestSupportForPostgreSQL(dataSource, transactionManager, dbCleanUpEnabled, exclusions)
             else -> throw IllegalStateException("There is test support strategy for db vendor $dbVendorName")
         }
     }

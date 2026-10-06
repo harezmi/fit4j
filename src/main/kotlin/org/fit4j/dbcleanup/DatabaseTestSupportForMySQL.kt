@@ -11,8 +11,12 @@ import javax.sql.DataSource
  * using MySQL-specific SQL commands for clearing tables and resetting
  * auto-incrementing identifiers.
  */
-class DatabaseTestSupportForMysql(dataSource: DataSource, transactionManager: PlatformTransactionManager, cleanupEnabled:Boolean = true) :
-    AbstractDatabaseTestSupport(dataSource, transactionManager, cleanupEnabled) {
+class DatabaseTestSupportForMysql(
+    dataSource: DataSource,
+    transactionManager: PlatformTransactionManager,
+    cleanupEnabled: Boolean = true,
+    exclusions: DatabaseCleanupExclusions = DatabaseCleanupExclusions.parse(null),
+) : AbstractDatabaseTestSupport(dataSource, transactionManager, cleanupEnabled, exclusions) {
 
     override fun executeResetAllIdentifiers(jdbcTemplate: JdbcTemplate, schemaName: String) {
         // Query tables with their PK columns and auto-increment status (similar to H2/PostgreSQL approach)
@@ -42,8 +46,11 @@ class DatabaseTestSupportForMysql(dataSource: DataSource, transactionManager: Pl
         tablesWithPKColumns.forEach {
             val extra = it["extra"] as String?
             val columnName = it["column_name"]
-            val tableName = it["table_name"]
-            
+            val tableName = it["table_name"] as String?
+            if (tableName != null && exclusions.isExcluded(tableName)) {
+                return@forEach
+            }
+
             // Case A: Auto-increment column (MySQL-specific)
             if (extra?.contains("auto_increment", ignoreCase = true) == true) {
                 jdbcTemplate.execute("ALTER TABLE `$schemaName`.`$tableName` AUTO_INCREMENT = 1")
@@ -64,9 +71,10 @@ class DatabaseTestSupportForMysql(dataSource: DataSource, transactionManager: Pl
                   AND table_type = 'BASE TABLE'
             """.trimIndent(),
             String::class.java
-        )
+        ).filterNotNull()
 
-        tableNames.forEach { tableName ->
+        val toTruncate = exclusions.filter(tableNames) { it }
+        toTruncate.forEach { tableName ->
             // Note: AUTO_INCREMENT reset is handled separately in executeResetAllIdentifiers
             jdbcTemplate.execute("TRUNCATE TABLE `$schemaName`.`$tableName`")
         }
