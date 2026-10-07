@@ -413,6 +413,7 @@ tests:
 * exposing embedded Postgres as a bean and its port as a property if `@EnableEmbeddedPostgres` annotation is available
 * enabling declarative test container support if `@Testcontainers` annotation is available. Look at the related section for further info about declarative test containers support
 * exposing embedded dynamo db as a bean if `@EmbeddedDynamoDB` annotation is available
+* registering a `DatabaseTestSupport` bean (H2/MySQL/PostgreSQL) when a `DataSource` is present, with automatic table truncate and identifier reset after each test method (disable via `fit4j.dbcleanup=false`)
 
 # How to Define Request-Response Trainings for External Services?
 
@@ -1663,7 +1664,13 @@ spring.datasource.password=postgres
 
 ### Optional init script
 
-If a file named `embedded-postgres-init.sql` is on the test classpath, FIT4J runs it once after the server starts. Use this for schema or seed data that should exist for every test sharing that context.
+After the server starts, FIT4J looks for an optional SQL init script on the classpath and runs it once if the resource exists. The classpath-relative path is configurable via `fit4j.embeddedPostgresServer.initScript` (default: `embedded-postgres-init.sql`):
+
+```properties
+fit4j.embeddedPostgresServer.initScript=schema/postgres-init.sql
+```
+
+Use this for schema or seed data that should exist for every test sharing that context.
 
 Docker is not required. Prefer Testcontainers PostgreSQL when you need a specific image, extra extensions, or network-fault injection.
 
@@ -1812,6 +1819,7 @@ The FIT4J library exposes and uses various configuration properties starting wit
 | `fit4j.embeddedRedisServer.port`                               | Integer | *Auto-set* | Port number of the embedded Redis server. Set automatically when `@EnableEmbeddedRedis` annotation is used. |
 | **Embedded Postgres Properties**                               |
 | `fit4j.embeddedPostgresServer.port`                            | Integer | *Auto-set* | Port number of the embedded Postgres server. Set automatically when `@EnableEmbeddedPostgres` annotation is used. |
+| `fit4j.embeddedPostgresServer.initScript`                      | String | `embedded-postgres-init.sql` | Classpath-relative path of an optional SQL script executed once after `@EnableEmbeddedPostgres` starts the server. Skipped if the resource does not exist. |
 | **Kafka Properties**                                           |
 | `fit4j.kafka.waitTimeout`                                      | Long | `1000` | Timeout in milliseconds for waiting between retry attempts when checking for Kafka messages. |
 | `fit4j.kafka.waitLoopCount`                                    | Integer | `30` | Maximum number of retry loops when waiting for Kafka messages. Total timeout = `waitTimeout * waitLoopCount` (default: 30 seconds). |
@@ -1820,7 +1828,7 @@ The FIT4J library exposes and uses various configuration properties starting wit
 | **Declarative Fixture Properties**                             |
 | `fit4j.declarativeTestFixtureDrivenResponseGeneration.enabled` | Boolean | `false` | Enables declarative test fixture-driven response generation mode. When enabled, only declarative fixtures are used (programmatic builders are ignored). |
 | **Database Cleanup Properties**                                |
-| `fit4j.dbcleanup`                                              | String | `true` | Enables automatic database cleanup after each test method. Set to `false` to disable, or `none` for the same effect. |
+| `fit4j.dbcleanup`                                              | String | `true` | Enables automatic database cleanup after each test method for `@IT` / `@FIT` when a `DataSource` is present. Set to `false` to disable, or `none` for the same effect. |
 | `fit4j.dbcleanup.dataSource`                                     | String | `dataSource` | Bean name of the `DataSource` used for cleanup when multiple `DataSource` beans exist. Ignored when exactly one `DataSource` bean is present. FIT4J creates its own transaction manager for cleanup scoped to this data source. |
 | `fit4j.dbcleanup.exclude-tables`                               | String (comma-separated) | *(empty)* | Simple table names skipped by post-test truncate and identifier reset. Matching is case-insensitive. PostgreSQL truncates the remaining tables in one `TRUNCATE t1, t2, …` statement (no `CASCADE`, no `session_replication_role`). Excluding a referenced parent while truncating only the child is supported; excluding a parent that must still be truncated while leaving a referencing child will fail at truncate time. |
 | **TestContainer Properties**                                   |
@@ -1847,6 +1855,7 @@ The FIT4J library exposes and uses various configuration properties starting wit
    spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
    spring.datasource.username=postgres
    spring.datasource.password=postgres
+   fit4j.embeddedPostgresServer.initScript=schema/postgres-init.sql
    
    # Using TestContainer properties
    spring.datasource.url=${fit4j.mySQLContainerDefinition.jdbcUrl}
@@ -1949,6 +1958,7 @@ written with those annotations. Here is a more detailed table that lists availab
 | gRPC server runs in-process; FIT4J sets `spring.grpc.client.channel.testGrpcService.target` to the mock server channel | Yes              | Yes             | Yes                                                            |
 | okhttp3 MockWebServer is exposed as a Spring bean along with its host and port values as environment properties fit4j.mockWebServer.host, fit4j.mockWebServer.port if it is available in test classpath | Yes              | Yes             | Yes                                                            |
 | Declarative Test Container support is enabled if @Testcontainers annotation is used in test class                                                                                                                                                                   | Yes              | Yes             | Yes                                                            |
+| `DatabaseTestSupport` bean (H2/MySQL/PostgreSQL) with automatic post-test cleanup when a `DataSource` is present                                                                                                                                                     | Yes              | Yes             | Yes                                                            |
 | gRPC & HTTP request-response training and call tracking capability is enabled                                                                                                                                                                                       | No               | Yes             | Yes                                                            |
 | gRPC automatic service and type descriptor discovery capability is enabled                                                                                                                                                                                          | No               | Yes             | Yes                                                            |
 | Kafka message tracking capability is enabled                                                                                                                                                                                                                        | No               | Yes             | Yes                                                            |

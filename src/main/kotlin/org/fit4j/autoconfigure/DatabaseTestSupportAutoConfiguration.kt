@@ -23,7 +23,7 @@ import javax.sql.DataSource
         "org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration",
     ],
 )
-@EnableOnFIT
+@EnableOnIT
 @ConditionalOnBean(type = ["javax.sql.DataSource"])
 class DatabaseTestSupportAutoConfiguration(private val applicationContext: ApplicationContext) {
 

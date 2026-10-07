@@ -1740,7 +1740,7 @@ graph TD
 </tr>
 <tr>
 <td><strong>@IT annotation</strong></td>
-<td>Base annotation for integration tests in this library. Enables multiple configuration properties and beans useful for ordinary integration tests, such as in-process gRPC, declarative Testcontainers support, and other infra beans. <code>@FIT</code> builds on top of <code>@IT</code>. See <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L300-L330"><code>README.md:300-330</code></a>.</td>
+<td>Base annotation for integration tests in this library. Enables multiple configuration properties and beans useful for ordinary integration tests, such as in-process gRPC, declarative Testcontainers support, automatic <code>DatabaseTestSupport</code> cleanup when a <code>DataSource</code> is present, and other infra beans. <code>@FIT</code> builds on top of <code>@IT</code>. See <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L300-L330"><code>README.md:300-330</code></a>.</td>
 </tr>
 <tr>
 <td><strong>Functional Integration Test</strong></td>
@@ -1990,7 +1990,7 @@ grpcVersion=1.63.0
 <hr />
 <h2>Spring Boot Auto-Configuration Layer</h2>
 <h3>TestHelperAutoConfiguration</h3>
-<p><code>TestHelperAutoConfiguration</code> provides core test support beans such as JSON helpers, verification helpers, Kafka trackers, and database cleanup helpers.</p>
+<p><code>TestHelperAutoConfiguration</code> provides core FIT test support beans such as JSON helpers, verification helpers, and Kafka trackers (<code>@EnableOnFIT</code>).</p>
 <p>File: <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt#L1-L25"><code>src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt:1-25</code></a></p>
 <p>Key imported components:</p>
 <ul>
@@ -1998,20 +1998,25 @@ grpcVersion=1.63.0
 <li><code>VerificationHelper</code> (<code>org.fit4j.helper.VerificationHelper</code>)</li>
 <li><code>KafkaMessageTracker</code> (<code>org.fit4j.kafka.KafkaMessageTracker</code>)</li>
 <li><code>MockServiceCallTracker</code> (<code>org.fit4j.mock.MockServiceCallTracker</code>)</li>
-<li><code>DatabaseTestSupport</code> variants for H2/MySQL/PostgreSQL:</li>
-<li><code>DatabaseTestSupportForH2</code></li>
-<li><code>DatabaseTestSupportForMysql</code></li>
-<li><code>DatabaseTestSupportForPostgreSQL</code></li>
-<li><code>NoopDatabaseTestSupport</code></li>
 </ul>
 <p>It is annotated with:</p>
 <pre><code class="language-kotlin">// See src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt:16-18
 @AutoConfiguration
+@EnableOnFIT
 class TestHelperAutoConfiguration {
     // @Bean methods (omitted in snippet) create test helper beans
 }
 </code></pre>
 <p><strong>Why:</strong> Centralizes reusable testing utilities so every test suite doesn’t have to define them manually. It uses <code>@ConditionalOnMissingBean</code> (see imports at <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt#L19-L20"><code>src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt:19-20</code></a>) to avoid clashing with user-defined beans.</p>
+<h3>DatabaseTestSupportAutoConfiguration</h3>
+<p><code>DatabaseTestSupportAutoConfiguration</code> registers vendor-specific <code>DatabaseTestSupport</code> beans (H2/MySQL/PostgreSQL) for automatic post-test cleanup. It is gated by <code>@EnableOnIT</code> (active for both <code>@IT</code> and <code>@FIT</code>) and <code>@ConditionalOnBean(DataSource)</code>.</p>
+<p>File: <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/DatabaseTestSupportAutoConfiguration.kt"><code>src/main/kotlin/org/fit4j/autoconfigure/DatabaseTestSupportAutoConfiguration.kt</code></a></p>
+<ul>
+<li><code>DatabaseTestSupportForH2</code></li>
+<li><code>DatabaseTestSupportForMysql</code></li>
+<li><code>DatabaseTestSupportForPostgreSQL</code></li>
+<li>Optional user-provided <code>NoopDatabaseTestSupport</code> (or any <code>DatabaseTestSupport</code>) via <code>@ConditionalOnMissingBean</code></li>
+</ul>
 <h3>TestGrpcAutoConfiguration</h3>
 <p><code>TestGrpcAutoConfiguration</code> is the gRPC-focused auto-configuration.</p>
 <p>File: <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt#L1-L18"><code>src/main/kotlin/org/fit4j/autoconfigure/TestGrpcAutoConfiguration.kt:1-18</code></a></p>
@@ -2252,7 +2257,7 @@ spring.kafka.template.default-topic=fit4j-test-topic
 <li>Powered by <a href="https://github.com/zonkyio/embedded-postgres">Zonky Embedded Postgres</a> (<code>io.zonky.test:embedded-postgres</code>).</li>
 <li>Enabled with <code>@EnableEmbeddedPostgres</code> on the test class (see “[How to Work with Embedded Postgres?]” in <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a>).</li>
 <li>FIT4J starts the server on a random free TCP port before the Spring <code>ApplicationContext</code> is refreshed, registers an <code>EmbeddedPostgresServer</code> bean, and exposes <code>fit4j.embeddedPostgresServer.port</code>.</li>
-<li>Optional classpath script <code>embedded-postgres-init.sql</code> is executed once after startup for schema/seed data.</li>
+<li>Optional classpath SQL init script is executed once after startup for schema/seed data. Path is configurable via <code>fit4j.embeddedPostgresServer.initScript</code> (default: <code>embedded-postgres-init.sql</code>); skipped if the resource does not exist.</li>
 <li>Docker is not required. Prefer Testcontainers when you need a specific image, extra extensions, or network-fault injection.</li>
 </ol>
 <h3>DynamoDB</h3>
@@ -3183,11 +3188,6 @@ package org.fit4j.autoconfigure
 
 import tools.jackson.databind.json.JsonMapper
 import com.google.protobuf.util.JsonFormat
-import org.fit4j.dbcleanup.DatabaseTestSupport
-import org.fit4j.dbcleanup.DatabaseTestSupportForH2
-import org.fit4j.dbcleanup.DatabaseTestSupportForMysql
-import org.fit4j.dbcleanup.DatabaseTestSupportForPostgreSQL
-import org.fit4j.dbcleanup.NoopDatabaseTestSupport
 import org.fit4j.helper.JsonHelper
 import org.fit4j.helper.VerificationHelper
 import org.fit4j.kafka.KafkaMessageTracker
@@ -3199,11 +3199,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 <p><em>(rest of the file is not in the snippet but can be inferred)</em></p>
 <p><strong>Responsibilities:</strong></p>
 <ul>
-<li>Configure <code>DatabaseTestSupport</code> based on available DB drivers:</li>
-<li><code>DatabaseTestSupportForH2</code></li>
-<li><code>DatabaseTestSupportForMysql</code></li>
-<li><code>DatabaseTestSupportForPostgreSQL</code></li>
-<li>Fallback <code>NoopDatabaseTestSupport</code></li>
 <li>Provide <code>JsonHelper</code> and <code>VerificationHelper</code>:</li>
 <li>Simplify JSON assertions and transformations.</li>
 <li>Offer high‑level APIs to verify DB, Kafka, and external calls in tests.</li>
@@ -3213,6 +3208,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 <li>Bind <code>MockServiceCallTracker</code> into helper layer:</li>
 <li>Helpers can use call traces to build higher‑level assertions.</li>
 </ul>
+<p>Database cleanup beans are wired separately by <code>DatabaseTestSupportAutoConfiguration</code> (<code>@EnableOnIT</code>).</p>
 <p><code>JsonFormat</code> (from gRPC) is also exposed as a bean <strong>when on the classpath and with <code>@FIT</code></strong> (see <a href="https://github.com/harezmi/fit4j/blob/main/README.md"><code>README.md</code></a> capabilities table), allowing conversion between JSON and Protobuf for both fixtures and assertions.</p>
 <hr />
 <h2>Fixture Definition and Resolution</h2>
@@ -3887,7 +3883,7 @@ graph TD
 <li>Starts <code>EmbeddedPostgresServer</code> (Zonky) before the context is fully refreshed.</li>
 <li>Registers the server as the <code>embeddedPostgresServer</code> singleton bean.</li>
 <li>Exposes <code>fit4j.embeddedPostgresServer.port</code>.</li>
-<li>If <code>embedded-postgres-init.sql</code> is on the classpath, runs it once after the server starts.</li>
+<li>Reads <code>fit4j.embeddedPostgresServer.initScript</code> (default: <code>embedded-postgres-init.sql</code>) and, if that classpath resource exists, runs it once after the server starts.</li>
 </ul>
 <hr />
 <h3>HTTP Web Server</h3>
@@ -4137,7 +4133,7 @@ class ExampleBean(
 <li><code>NoopDatabaseTestSupport</code> for disabling cleanup.</li>
 <li>Example DynamoDB entities and schemas (e.g., <code>PlayerItem</code>) used in FIT tests with and without Testcontainers.</li>
 </ul>
-<p>These pieces ensure that each test method runs with a clean database state and predictable identifier/sequence values.</p>
+<p>These pieces ensure that each test method runs with a clean database state and predictable identifier/sequence values. <code>DatabaseTestSupportAutoConfiguration</code> is gated by <code>@EnableOnIT</code>, so it activates for both <code>@IT</code> and <code>@FIT</code> when a <code>DataSource</code> bean is present.</p>
 <h3>Configuration</h3>
 <p>When exactly one <code>DataSource</code> bean exists, FIT4J uses it automatically. When multiple <code>DataSource</code> beans are present, set <code>fit4j.dbcleanup.dataSource</code> to the bean name that should be cleaned (default: <code>dataSource</code>). FIT4J creates its own <code>DataSourceTransactionManager</code> for cleanup scoped to that data source; it does not require a <code>PlatformTransactionManager</code> bean in the application context.</p>
 <hr />
@@ -5392,27 +5388,33 @@ graph TD
   When incrementally adopting this library, you might temporarily supply <code>NoopDatabaseTestSupport</code> to keep behavior unchanged.</p>
 </li>
 </ul>
-<p>Note: <code>TestHelperAutoConfiguration</code> currently does not auto-select <code>NoopDatabaseTestSupport</code>; you would define your own bean to use it.</p>
+<p>Note: <code>DatabaseTestSupportAutoConfiguration</code> currently does not auto-select <code>NoopDatabaseTestSupport</code>; you would define your own bean to use it.</p>
 <hr />
 <h2>Auto-configuration &amp; Database Vendor Detection</h2>
-<p><code>TestHelperAutoConfiguration</code> wires the appropriate <code>DatabaseTestSupport</code> implementation based on the underlying database:</p>
-<pre><code class="language-kotlin">@Bean
-@ConditionalOnMissingBean
-fun databaseTestSupport(
-    dataSource: DataSource,
-    transactionManager: PlatformTransactionManager
-): DatabaseTestSupport {
-    val dbVendorName = detectDatabaseVendor(dataSource)
-    val dbCleanUpEnabled = this.dbCleanUpEnabled()
-    return when (dbVendorName) {
-        &quot;mysql&quot; -&gt; DatabaseTestSupportForMysql(dataSource, transactionManager, dbCleanUpEnabled)
-        &quot;h2&quot; -&gt; DatabaseTestSupportForH2(dataSource, transactionManager, dbCleanUpEnabled)
-        &quot;postgresql&quot; -&gt; DatabaseTestSupportForPostgreSQL(dataSource, transactionManager, dbCleanUpEnabled)
-        else -&gt; throw IllegalStateException(&quot;There is test support strategy for db vendor $dbVendorName&quot;)
+<p><code>DatabaseTestSupportAutoConfiguration</code> (<code>@EnableOnIT</code>, <code>@ConditionalOnBean(DataSource)</code>) wires the appropriate <code>DatabaseTestSupport</code> implementation based on the underlying database for both <code>@IT</code> and <code>@FIT</code> tests:</p>
+<pre><code class="language-kotlin">@AutoConfiguration
+@EnableOnIT
+@ConditionalOnBean(type = [&quot;javax.sql.DataSource&quot;])
+class DatabaseTestSupportAutoConfiguration(private val applicationContext: ApplicationContext) {
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun databaseTestSupport(): DatabaseTestSupport {
+        val dataSource = resolveDataSource()
+        val transactionManager = createTransactionManager(dataSource)
+        val dbVendorName = detectDatabaseVendor(dataSource)
+        val dbCleanUpEnabled = dbCleanUpEnabled()
+        // ... exclusions from fit4j.dbcleanup.exclude-tables
+        return when (dbVendorName) {
+            &quot;mysql&quot; -&gt; DatabaseTestSupportForMysql(dataSource, transactionManager, dbCleanUpEnabled, exclusions)
+            &quot;h2&quot; -&gt; DatabaseTestSupportForH2(dataSource, transactionManager, dbCleanUpEnabled, exclusions)
+            &quot;postgresql&quot; -&gt; DatabaseTestSupportForPostgreSQL(dataSource, transactionManager, dbCleanUpEnabled, exclusions)
+            else -&gt; throw IllegalStateException(&quot;There is test support strategy for db vendor $dbVendorName&quot;)
+        }
     }
 }
 </code></pre>
-<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt#L31-L44"><code>src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt:31-44</code></a>.</p>
+<p>See <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/DatabaseTestSupportAutoConfiguration.kt"><code>src/main/kotlin/org/fit4j/autoconfigure/DatabaseTestSupportAutoConfiguration.kt</code></a>.</p>
 <p>Key behavior:</p>
 <ul>
 <li>
@@ -5492,7 +5494,7 @@ inner class KafkaTopicCleanerDisabledFIT {
 <hr />
 <h2>Configuration Properties Affecting Data Lifecycle</h2>
 <h3>Database Cleanup Enabling</h3>
-<p><code>DatabaseTestSupportAutoConfiguration</code> reads cleanup settings from the environment:</p>
+<p><code>DatabaseTestSupportAutoConfiguration</code> is gated by <code>@EnableOnIT</code> (active for <code>@IT</code> and <code>@FIT</code> when a <code>DataSource</code> is present) and reads cleanup settings from the environment:</p>
 <pre><code class="language-properties"># application-test.properties
 fit4j.dbcleanup=true
 fit4j.dbcleanup.dataSource=dataSource
@@ -8485,7 +8487,10 @@ spring.datasource.username=postgres
 spring.datasource.password=postgres
 </code></pre>
 <h4>Optional init script</h4>
-<p>If a file named <code>embedded-postgres-init.sql</code> is on the test classpath, FIT4J runs it once after the server starts. Use this for schema or seed data that should exist for every test sharing that context.</p>
+<p>After the server starts, FIT4J looks for an optional SQL init script on the classpath and runs it once if the resource exists. The classpath-relative path is configurable via <code>fit4j.embeddedPostgresServer.initScript</code> (default: <code>embedded-postgres-init.sql</code>):</p>
+<pre><code class="language-properties">fit4j.embeddedPostgresServer.initScript=schema/postgres-init.sql
+</code></pre>
+<p>Use this for schema or seed data that should exist for every test sharing that context.</p>
 <p>Docker is not required. Prefer Testcontainers PostgreSQL when you need a specific image, extra extensions, or network-fault injection.</p>
 <h3>Other embedded examples</h3>
 <p>The examples module documents several embedded options (see <a href="https://github.com/harezmi/fit4j/blob/main/fit4j-examples/README.md#L1-L15"><code>fit4j-examples/README.md:1-15</code></a>):</p>
@@ -8859,7 +8864,7 @@ tests:
 <li>Annotate the test class with <code>@EnableEmbeddedPostgres</code> (<code>org.fit4j.postgres.EnableEmbeddedPostgres</code>).</li>
 <li>FIT4J starts a Zonky embedded Postgres on a random free TCP port and registers an <code>EmbeddedPostgresServer</code> bean.</li>
 <li>The port is exposed as <code>fit4j.embeddedPostgresServer.port</code> for datasource wiring (Zonky defaults: user/password/database <code>postgres</code>).</li>
-<li>Optional classpath file <code>embedded-postgres-init.sql</code> is executed once after startup for schema or seed data.</li>
+<li>Optional classpath SQL init script is executed once after startup for schema or seed data. Path is configurable via <code>fit4j.embeddedPostgresServer.initScript</code> (default: <code>embedded-postgres-init.sql</code>); skipped if the resource does not exist.</li>
 <li>Docker is not required. Prefer Testcontainers PostgreSQL for a specific image, extra extensions, or network-fault injection.</li>
 </ul>
 <pre><code class="language-kotlin">import org.fit4j.annotation.FIT
@@ -9225,12 +9230,15 @@ fit4j.kafka.topicCleaner.enabled=true
 
 # Skip seed / migration tables during post-test DB cleanup
 fit4j.dbcleanup.exclude-tables=flyway_schema_history,seed_country
+
+# Optional embedded Postgres init script (classpath-relative)
+fit4j.embeddedPostgresServer.initScript=schema/postgres-init.sql
 </code></pre>
 <p>Notes:</p>
 <ul>
 <li>Properties like <code>fit4j.mockWebServer.host</code> and <code>fit4j.mockWebServer.port</code> are <strong>auto-set</strong> by FIT4J.</li>
 <li>Properties like <code>fit4j.embeddedRedisServer.port</code> and <code>fit4j.embeddedPostgresServer.port</code> are <strong>auto-set</strong> when the corresponding <code>@EnableEmbedded*</code> annotation is present.</li>
-<li>Properties like <code>fit4j.kafka.waitTimeout</code> and <code>fit4j.dbcleanup.exclude-tables</code> are <strong>user-set</strong> knobs that modify FIT4J’s behavior.</li>
+<li>Properties like <code>fit4j.kafka.waitTimeout</code>, <code>fit4j.dbcleanup.exclude-tables</code>, and <code>fit4j.embeddedPostgresServer.initScript</code> are <strong>user-set</strong> knobs that modify FIT4J’s behavior.</li>
 </ul>
 <hr />
 <h2>3. Conditional Configuration with <code>@EnableOnFIT</code></h2>
@@ -9268,6 +9276,7 @@ annotation class EnableOnFIT
 <li><code>fit4j.testClass.isFunctionalIntegrationTest</code> – set to <code>true</code> when using <code>@FIT</code>.</li>
 </ul>
 <p>You <strong>never</strong> set <code>fit4j.testClass.isFunctionalIntegrationTest</code> yourself; it is driven by the annotation.</p>
+<p>There is a sibling gate <code>@EnableOnIT</code> (<a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/EnableOnIT.kt"><code>EnableOnIT.kt</code></a>) conditioned on <code>fit4j.testClass.isIntegrationTest=true</code>. It activates for both <code>@IT</code> and <code>@FIT</code>. Example: <code>DatabaseTestSupportAutoConfiguration</code> and <code>IntegrationTestGrpcAutoConfiguration</code>.</p>
 <h3>3.2 Auto-configuration classes gated by <code>@EnableOnFIT</code></h3>
 <p>Example: HTTP mocking auto-configuration.</p>
 <p><a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestHttpAutoConfiguration.kt#L1-L22"><code>src/main/kotlin/org/fit4j/autoconfigure/TestHttpAutoConfiguration.kt:1-22</code></a></p>
@@ -9346,7 +9355,9 @@ externalService.port=${fit4j.mockWebServer.port}
 spring.datasource.username=postgres
 spring.datasource.password=postgres
 </code></pre>
-<p>Optional classpath script <code>embedded-postgres-init.sql</code> is run once after the embedded Postgres starts.</p>
+<p>Optional classpath SQL init script is run once after the embedded Postgres starts. Configure the path with <code>fit4j.embeddedPostgresServer.initScript</code> (default: <code>embedded-postgres-init.sql</code>); skipped if the resource does not exist.</p>
+<pre><code class="language-properties">fit4j.embeddedPostgresServer.initScript=schema/postgres-init.sql
+</code></pre>
 <hr />
 <h2>5. Testcontainers and <a href="https://github.com/harezmi/fit4j/blob/main/fit4j-test-containers.yml"><code>fit4j-test-containers.yml</code></a></h2>
 <h3>5.1 Declarative container definitions</h3>
@@ -10600,11 +10611,13 @@ class SampleFIT {
 <li>Registers an <code>EmbeddedPostgresServer</code> bean.</li>
 <li>Exposes <code>fit4j.embeddedPostgresServer.port</code> (auto-set).</li>
 <li>Zonky defaults: user <code>postgres</code>, password <code>postgres</code>, database <code>postgres</code>.</li>
-<li>If <code>embedded-postgres-init.sql</code> is on the test classpath, it is executed once after the server starts.</li>
+<li>Optional classpath SQL init script is executed once after the server starts. Path is configurable via <code>fit4j.embeddedPostgresServer.initScript</code> (default: <code>embedded-postgres-init.sql</code>); skipped if the resource does not exist.</li>
 </ul>
 <pre><code class="language-properties">spring.datasource.url=jdbc:postgresql://localhost:${fit4j.embeddedPostgresServer.port}/postgres
 spring.datasource.username=postgres
 spring.datasource.password=postgres
+
+fit4j.embeddedPostgresServer.initScript=schema/postgres-init.sql
 </code></pre>
 <p>Prefer Testcontainers PostgreSQL when you need a specific image, extra extensions, or network-fault injection.</p>
 <hr />
