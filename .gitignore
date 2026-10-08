@@ -53,3 +53,5 @@ target/
 docs/superpowers
 .superpowers
 .worktrees/
+
+.kotlin/

@@ -61,10 +61,8 @@ class DatabaseTestSupportAutoConfiguration(private val applicationContext: Appli
     private fun createTransactionManager(dataSource: DataSource): PlatformTransactionManager =
         DataSourceTransactionManager(dataSource).apply { afterPropertiesSet() }
 
-    private fun dbCleanUpEnabled(): Boolean {
-        val prop = applicationContext.getEnvironment().getProperty("fit4j.dbcleanup", "true")
-        return if ("none".equals(prop)) false else prop.toBoolean()
-    }
+    private fun dbCleanUpEnabled(): Boolean =
+        applicationContext.environment.getProperty("fit4j.dbcleanup.enabled", Boolean::class.java, false)
 
     fun detectDatabaseVendor(dataSource: DataSource): String {
         return dataSource.connection.use { connection ->

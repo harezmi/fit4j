@@ -11,7 +11,13 @@ import java.lang.annotation.Target
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles(value = ["test"])
-@TestPropertySource(properties=["spring.main.allow-bean-definition-overriding=true","fit4j.testClass.isIntegrationTest=true"])
+@TestPropertySource(
+    properties = [
+        "spring.main.allow-bean-definition-overriding=true",
+        "fit4j.testClass.isIntegrationTest=true",
+        "fit4j.dbcleanup.enabled=false",
+    ]
+)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 annotation class IT(

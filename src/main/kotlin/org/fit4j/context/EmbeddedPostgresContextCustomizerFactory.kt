@@ -19,12 +19,15 @@ import kotlin.io.use
 import kotlin.to
 
 class EmbeddedPostgresContextCustomizerFactory : AbstractContextCustomizerFactory() {
+    companion object {
+        val customizer = EmbeddedPostgresContextCustomizer()
+    }
     override fun buildContextCustomizer(
         testClass: Class<*>,
         configAttributes: MutableList<ContextConfigurationAttributes>
     ): ContextCustomizer? {
         return if (isAnnotationPresent(testClass, EnableEmbeddedPostgres::class.java))
-            EmbeddedPostgresContextCustomizer() else null
+            customizer else null
     }
 }
 

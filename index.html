@@ -1740,7 +1740,7 @@ graph TD
 </tr>
 <tr>
 <td><strong>@IT annotation</strong></td>
-<td>Base annotation for integration tests in this library. Enables multiple configuration properties and beans useful for ordinary integration tests, such as in-process gRPC, declarative Testcontainers support, automatic <code>DatabaseTestSupport</code> cleanup when a <code>DataSource</code> is present, and other infra beans. <code>@FIT</code> builds on top of <code>@IT</code>. See <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L300-L330"><code>README.md:300-330</code></a>.</td>
+<td>Base annotation for integration tests in this library. Enables multiple configuration properties and beans useful for ordinary integration tests, such as in-process gRPC, declarative Testcontainers support, a <code>DatabaseTestSupport</code> bean when a <code>DataSource</code> is present (cleanup off by default via <code>fit4j.dbcleanup.enabled=false</code>), and other infra beans. <code>@FIT</code> builds on top of <code>@IT</code> and turns cleanup on by default. See <a href="https://github.com/harezmi/fit4j/blob/main/README.md#L300-L330"><code>README.md:300-330</code></a>.</td>
 </tr>
 <tr>
 <td><strong>Functional Integration Test</strong></td>
@@ -2009,7 +2009,7 @@ class TestHelperAutoConfiguration {
 </code></pre>
 <p><strong>Why:</strong> Centralizes reusable testing utilities so every test suite doesn’t have to define them manually. It uses <code>@ConditionalOnMissingBean</code> (see imports at <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt#L19-L20"><code>src/main/kotlin/org/fit4j/autoconfigure/TestHelperAutoConfiguration.kt:19-20</code></a>) to avoid clashing with user-defined beans.</p>
 <h3>DatabaseTestSupportAutoConfiguration</h3>
-<p><code>DatabaseTestSupportAutoConfiguration</code> registers vendor-specific <code>DatabaseTestSupport</code> beans (H2/MySQL/PostgreSQL) for automatic post-test cleanup. It is gated by <code>@EnableOnIT</code> (active for both <code>@IT</code> and <code>@FIT</code>) and <code>@ConditionalOnBean(DataSource)</code>.</p>
+<p><code>DatabaseTestSupportAutoConfiguration</code> registers vendor-specific <code>DatabaseTestSupport</code> beans (H2/MySQL/PostgreSQL). It is gated by <code>@EnableOnIT</code> (active for both <code>@IT</code> and <code>@FIT</code>) and <code>@ConditionalOnBean(DataSource)</code>. Automatic cleanup is off by default on <code>@IT</code> and on by default on <code>@FIT</code> via <code>fit4j.dbcleanup.enabled</code>.</p>
 <p>File: <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/autoconfigure/DatabaseTestSupportAutoConfiguration.kt"><code>src/main/kotlin/org/fit4j/autoconfigure/DatabaseTestSupportAutoConfiguration.kt</code></a></p>
 <ul>
 <li><code>DatabaseTestSupportForH2</code></li>
@@ -4133,7 +4133,7 @@ class ExampleBean(
 <li><code>NoopDatabaseTestSupport</code> for disabling cleanup.</li>
 <li>Example DynamoDB entities and schemas (e.g., <code>PlayerItem</code>) used in FIT tests with and without Testcontainers.</li>
 </ul>
-<p>These pieces ensure that each test method runs with a clean database state and predictable identifier/sequence values. <code>DatabaseTestSupportAutoConfiguration</code> is gated by <code>@EnableOnIT</code>, so it activates for both <code>@IT</code> and <code>@FIT</code> when a <code>DataSource</code> bean is present.</p>
+<p>These pieces ensure that each test method can run with a clean database state and predictable identifier/sequence values when cleanup is enabled. <code>DatabaseTestSupportAutoConfiguration</code> is gated by <code>@EnableOnIT</code>, so it activates for both <code>@IT</code> and <code>@FIT</code> when a <code>DataSource</code> bean is present. Automatic cleanup defaults to off for <code>@IT</code> (<code>fit4j.dbcleanup.enabled=false</code>) and on for <code>@FIT</code> (<code>fit4j.dbcleanup.enabled=true</code>).</p>
 <h3>Configuration</h3>
 <p>When exactly one <code>DataSource</code> bean exists, FIT4J uses it automatically. When multiple <code>DataSource</code> beans are present, set <code>fit4j.dbcleanup.dataSource</code> to the bean name that should be cleaned (default: <code>dataSource</code>). FIT4J creates its own <code>DataSourceTransactionManager</code> for cleanup scoped to that data source; it does not require a <code>PlatformTransactionManager</code> bean in the application context.</p>
 <hr />
@@ -5143,7 +5143,7 @@ graph TD
 <li>Auto-configured <code>DatabaseTestSupport</code> bean picking H2, MySQL, or PostgreSQL.</li>
 <li>Clearing tables and resetting identifiers (sequences / auto-increment) between tests.</li>
 <li>Optional <code>fit4j.dbcleanup.exclude-tables</code> to skip seed / migration tables during truncate and identifier reset.</li>
-<li>Optional disabling of cleanup at configuration level (<code>fit4j.dbcleanup=false</code> or <code>none</code>).</li>
+<li>Optional disabling of cleanup at configuration level (<code>fit4j.dbcleanup.enabled=false</code>).</li>
 <li><strong>Kafka lifecycle</strong></li>
 <li>Optional <code>KafkaTopicCleaner</code> bean that deletes topics after each test method.</li>
 <li><strong>Testcontainers</strong></li>
@@ -5496,12 +5496,12 @@ inner class KafkaTopicCleanerDisabledFIT {
 <h3>Database Cleanup Enabling</h3>
 <p><code>DatabaseTestSupportAutoConfiguration</code> is gated by <code>@EnableOnIT</code> (active for <code>@IT</code> and <code>@FIT</code> when a <code>DataSource</code> is present) and reads cleanup settings from the environment:</p>
 <pre><code class="language-properties"># application-test.properties
-fit4j.dbcleanup=true
+fit4j.dbcleanup.enabled=true
 fit4j.dbcleanup.dataSource=dataSource
 fit4j.dbcleanup.exclude-tables=flyway_schema_history,seed_country
 </code></pre>
 <ul>
-<li><code>fit4j.dbcleanup</code> (default <code>true</code>): set to <code>false</code> or <code>none</code> to disable post-test truncate and identifier reset.</li>
+<li><code>fit4j.dbcleanup.enabled</code> (Boolean): enables post-test truncate and identifier reset. Defaults to <code>false</code> on <code>@IT</code> and <code>true</code> on <code>@FIT</code> (via <code>@TestPropertySource</code>). Override per test if needed.</li>
 <li><code>fit4j.dbcleanup.dataSource</code>: bean name when multiple <code>DataSource</code> beans exist.</li>
 <li><code>fit4j.dbcleanup.exclude-tables</code>: comma-separated simple table names skipped by truncate and identifier reset (case-insensitive). PostgreSQL truncates the remaining tables in one <code>TRUNCATE t1, t2, …</code> statement without <code>CASCADE</code> or <code>session_replication_role</code>.</li>
 </ul>
@@ -5544,7 +5544,7 @@ spring.kafka.consumer.auto-offset-reset=earliest
 </ul>
 <p>If you choose to run <strong>one container per test method</strong>, you may prefer:</p>
 <ul>
-<li>Disabling DB cleanup (<code>fit4j.dbcleanup=false</code>) and/or</li>
+<li>Disabling DB cleanup (<code>fit4j.dbcleanup.enabled=false</code>) and/or</li>
 <li>Providing a <code>NoopDatabaseTestSupport</code> bean.</li>
 </ul>
 <hr />
@@ -5607,7 +5607,7 @@ graph TD
 <ul>
 <li><strong>Configuration</strong></li>
 <li>Testcontainers-managed MySQL/PostgreSQL.</li>
-<li><code>fit4j.dbcleanup=true</code> (default).</li>
+<li><code>fit4j.dbcleanup.enabled=true</code> (default on <code>@FIT</code>; <code>@IT</code> defaults to <code>false</code>).</li>
 <li><code>fit4j.kafka.topicCleaner.enabled</code> as needed.</li>
 <li><strong>Behavior</strong></li>
 <li>Containers are reused across tests for performance.</li>
@@ -5650,7 +5650,7 @@ fun databaseTestSupport(): DatabaseTestSupport = NoopDatabaseTestSupport()</code
 </li>
 <li>Use <code>DatabaseTestSupport.resetAllIdentifiers()</code> explicitly in tests if needed.</li>
 <li>
-<p>Or ensure <code>fit4j.dbcleanup=true</code> and rely on automatic hooks.</p>
+<p>Or ensure <code>fit4j.dbcleanup.enabled=true</code> and rely on automatic hooks.</p>
 </li>
 <li>
 <p><strong>Slow tests due to repeated container startup</strong></p>

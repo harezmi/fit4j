@@ -4,7 +4,6 @@ import org.fit4j.postgres.EmbeddedPostgresServer
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.env.MapPropertySource
-import org.springframework.core.env.getProperty
 import org.springframework.test.context.ContextCustomizer
 import org.springframework.test.context.MergedContextConfiguration
 import java.net.ServerSocket

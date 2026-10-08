@@ -18,6 +18,7 @@ import java.lang.annotation.Target
         "spring.main.allow-bean-definition-overriding=true",
         "fit4j.testClass.isIntegrationTest=true",
         "fit4j.testClass.isFunctionalIntegrationTest=true",
+        "fit4j.dbcleanup.enabled=true",
     ]
 )
 @Target(ElementType.TYPE)
