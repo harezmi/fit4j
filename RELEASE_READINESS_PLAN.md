@@ -121,7 +121,24 @@ Acceptance criteria:
 
 ## Phase 2: Define the 1.0 feature and compatibility contract
 
-**Status:** Not started
+**Status:** Complete (2026-10-20)
+
+### Execution record
+
+- Added `COMPATIBILITY.md` as the normative FIT4J 1.x platform, stability, semantic-versioning, deprecation,
+  configuration-format, and concurrency contract.
+- Replaced the README's broad compatibility claims with one exact matrix derived from the resolved Gradle
+  dependency graph and CI runtime matrix.
+- Declared the Spring Boot 4.1 BOM an existing published dependency contract, while leaving its exact metadata
+  audit to Phase 3.
+- Classified every user-facing integration and extension surface as stable API, stable SPI, experimental, or
+  internal implementation, with FIT4J maintainers as the explicit owner.
+- Classified network fault injection and its Toxiproxy control surface as stable API. There are currently no
+  experimental APIs and no APIs deprecated for removal before 1.0.
+- Documented the 1.x source/binary compatibility promise, YAML and property compatibility, experimental API
+  exception, minimum deprecation window, and emergency exception policy.
+- Confirmed that same-JVM JUnit parallel execution remains unsupported while isolated multi-process forks are
+  supported subject to memory, port, container, and external-service isolation.
 
 ### Freeze the supported platform matrix
 

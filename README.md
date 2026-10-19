@@ -105,25 +105,35 @@ Each example project is completely self-contained and can be run independently. 
 
 # Compatibility & Requirements
 
-FIT4J is built and tested against the versions below. Your service should use a compatible stack when adding FIT4J as a test dependency.
+FIT4J 1.0 uses the following exact tested baseline. Compatible patch releases within the listed Spring Boot
+4.1 and Kotlin 2.3 lines are supported; other dependency lines are supported only after they are added to CI
+and the [FIT4J 1.x compatibility contract](COMPATIBILITY.md).
 
-| Component | Version                                                                                       | Notes                                                                                                                                                                                                            |
-|-----------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **JDK (run tests)** | **17+**                                                                                       | Minimum for consuming services. FIT4J is compiled with a **JDK 25** toolchain and its test suite runs on **JDK 17 and 25** in CI.                                                                                |
-| **JDK (bytecode)** | **17**                                                                                        | The published JAR targets Java 17 (`javaBytecodeVersion=17`). You do not need JDK 25 to use FIT4J unless your own project requires it.                                                                           |
-| **FIT4J** | **<!--fit4jVersion-->0.1.9<!--/fit4jVersion-->+** | This release line targets Spring Boot **4.1.x**. **<!--fit4jVersion-->0.1.9<!--/fit4jVersion-->** makes gRPC starters optional (single JAR for HTTP/DB/Kafka FITs). Use FIT4J **0.0.x** (or earlier) with Spring Boot 3.5. |
-| **Spring Boot** | **4.1.x** (4.1.0)                                                                             | Required. FIT4J on this branch targets Spring Boot 4.x. Spring Boot 2.x and 3.x are not supported by this artifact — use an earlier FIT4J release on Boot 3.5. See [BOOT4_MIGRATION.md](BOOT4_MIGRATION.md).     |
-| **gRPC** | Boot **4.1** starters (`spring-boot-starter-grpc-server` / `spring-boot-starter-grpc-client`) | Replaces `net.devh:grpc-spring-boot-starter` and `org.springframework.grpc:spring-grpc-*`. Required when your service uses gRPC.                                                                                 |
-| **Kotlin** | **2.3+** (stdlib 2.3.0)                                                                       | Optional — only if your service is written in Kotlin. Java-only services do not need Kotlin on the classpath. Kotlin projects should use a version compatible with Spring Boot 4.x.                              |
-| **JUnit** | **5** (JUnit Platform)                                                                        | Required. FIT4J uses JUnit 5 extensions (`@ExtendWith`, `@FIT` / `@IT`). JUnit 4 is not supported.                                                                                                               |
-| **Docker** | —                                                                                             | Required when using Testcontainers-based infrastructure (MySQL, PostgreSQL, Kafka, Redis, Elasticsearch, etc.). Embedded alternatives (embedded Kafka, embedded Redis, embedded DynamoDB, embedded Postgres) do not require Docker. |
-| **Gradle / Maven** | Gradle or Maven                                                                               | Either build tool works for consuming FIT4J from Maven Central. FIT4J development uses the checked-in **Gradle 9.1.0** wrapper with the Foojay toolchain resolver (JDK 25 auto-provisioning).                    |
+| Component | Tested baseline | Support policy |
+|---|---|---|
+| **Java runtime / bytecode** | Runtime 17 and 25; bytecode 17 | Java 17 is the minimum. CI runs the suite on 17 and 25; compilation uses a JDK 25 toolchain. |
+| **Kotlin** | 2.3.21 | Kotlin 2.3.x consumers are supported. Java consumers do not need the Kotlin compiler. |
+| **Spring Boot** | 4.1.0 | Spring Boot 4.1.x is supported. Boot 3.x and 4.2+ are outside the 1.0 contract. |
+| **JUnit** | Jupiter / Platform 6.0.3 | Jupiter is required for `@FIT` and `@IT`; JUnit 4 is unsupported. |
+| **gRPC / protobuf** | Boot gRPC 4.1.0, Spring gRPC 1.1.0, grpc-java 1.81.0, grpc-kotlin 1.5.0, protobuf 4.34.2 | Optional; required only for gRPC features. |
+| **Testcontainers** | 2.0.5 | Docker-compatible runtime required for container-backed features. |
+| **Kafka** | Spring Kafka 4.1.0, Kafka clients 4.2.1 | Embedded and Testcontainers-backed Kafka are tested. |
+| **Databases** | H2 2.4.240; MySQL driver 9.7.0/image 8.0.37; PostgreSQL driver 42.7.11/image 16.1 | Cleanup behavior is supported for H2, MySQL, and PostgreSQL. |
+| **Redis** | Jedis 7.4.1; Redis image 6.2.1; embedded-redis 1.4.3 | Container and embedded modes are tested; embedded mode is subject to upstream native-binary support. |
+| **Elasticsearch** | Client 9.4.2; image 9.0.4 | Testcontainers-backed integration is tested. |
+| **DynamoDB Local** | 2.6.1 | Embedded mode is subject to upstream native SQLite support; container mode is the portable alternative. |
+| **Build tools** | Gradle wrapper 9.1.0; Maven Central metadata | Consumers may use Gradle or Maven. FIT4J development uses the checked-in wrapper. |
+
+The Spring Boot 4.1 BOM is currently published as part of FIT4J's API dependency constraints, so its alignment
+is part of the 1.x dependency contract rather than a build-only detail. Feature stability, extension SPI,
+deprecation rules, configuration-format guarantees, and concurrency limitations are defined in
+[COMPATIBILITY.md](COMPATIBILITY.md).
 
 ### Version alignment with your service
 
 - **Java:** Run your tests on JDK 17 or newer. FIT4J is compiled with **JDK 25**, emits **Java 17** bytecode, and is tested at runtime on **JDK 17 and 25**.
-- **Spring Boot:** Use **4.1.x** with FIT4J **<!--fit4jVersion-->0.1.9<!--/fit4jVersion-->+**. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers 2.0).
-- **Kotlin:** If you use Kotlin, ensure your Kotlin compiler targets JVM 17 (`jvmTarget = "17"`) and that your Kotlin version is compatible with your Spring Boot release. FIT4J itself is built with Kotlin Gradle plugin **2.3.21**; consuming projects are not required to match that plugin version.
+- **Spring Boot:** Use **4.1.x** with the FIT4J 1.x line. Migrating from Boot 3.5? See **[BOOT4_MIGRATION.md](BOOT4_MIGRATION.md)** (gRPC, HTTP, Jackson, Testcontainers 2.0).
+- **Kotlin:** If you use Kotlin, use the supported **2.3.x** line and target JVM 17 (`jvmTarget = "17"`). FIT4J itself is built with Kotlin Gradle plugin **2.3.21**.
 
 Version pins for the FIT4J build itself live in [`gradle.properties`](gradle.properties) (`springBootVersion`, `springGrpcVersion`, `javaToolchainVersion`, `javaBytecodeVersion`, `kotlinPluginVersion`, etc.).
 
