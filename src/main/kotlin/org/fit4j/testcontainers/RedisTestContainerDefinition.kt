@@ -1,7 +1,5 @@
 package org.fit4j.testcontainers
 
-import org.testcontainers.containers.GenericContainer
-
 class RedisTestContainerDefinition(map:Map<String,Any?>) : DataPopulatingTestContainerDefinition(map) {
 
     override fun dataPopulator(): TestContainerDataPopulator {
@@ -10,7 +8,7 @@ class RedisTestContainerDefinition(map:Map<String,Any?>) : DataPopulatingTestCon
     }
 
     private fun redisConnectionProperties(): RedisConnectionProperties {
-        val redisContainer = this.getContainer() as GenericContainer<*>
+        val redisContainer = this.getContainer()
         val connectionProperties = RedisConnectionProperties(
             redisContainer.host,
             redisContainer.firstMappedPort

@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Value
 @EnableEmbeddedRedis
 class EmbeddedRedisServerFIT {
     @Value("\${fit4j.embeddedRedisServer.port}")
-    private lateinit var redisPort: Integer
+    private var redisPort: Int = 0
     @Test
     fun `it should work`() {
-        val redisConnectionProperties = RedisConnectionProperties("localhost", redisPort.toInt())
+        val redisConnectionProperties = RedisConnectionProperties("localhost", redisPort)
         val redisDataPopulator = RedisDataPopulator(redisConnectionProperties)
         val jedis = redisDataPopulator.getJedis()
         jedis.set("stringKey","stringValue")

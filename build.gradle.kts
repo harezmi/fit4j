@@ -8,7 +8,7 @@ plugins {
 	`java-library`
 	kotlin("jvm")
 	kotlin("plugin.spring")
-    id("com.google.protobuf") version "0.9.4"
+    id("com.google.protobuf") version "0.9.6"
     id("signing")
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
@@ -19,6 +19,9 @@ val protobufJavaVersion: String by project
 val springGrpcVersion: String by project // unused; gRPC starters ship with Boot 4.1
 val grpcVersion: String by project
 val grpcKotlinStubVersion: String by project
+val testJavaVersion: Provider<Int> = providers.gradleProperty("testJavaVersion")
+	.orElse(javaToolchainVersion)
+	.map(String::toInt)
 
 repositories {
 	mavenCentral()
@@ -113,14 +116,18 @@ tasks.withType<KotlinCompile>().configureEach {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	javaLauncher.set(javaToolchains.launcherFor {
+		languageVersion.set(testJavaVersion.map(JavaLanguageVersion::of))
+	})
 	minHeapSize = "1g"
 	maxHeapSize = "5g"
 	maxParallelForks = 8
 	jvmArgs("--enable-native-access=ALL-UNNAMED")
 	// DynamoDBLocal embeds an older shaded kotlin.reflect; prefer Boot/Kotlin BOM jars first.
-	doFirst {
-		classpath = files(
-			classpath.files.sortedWith(
+	val unresolvedClasspath = classpath
+	classpath = objects.fileCollection().from(
+		unresolvedClasspath.elements.map { elements ->
+			elements.map { it.asFile }.sortedWith(
 				compareBy(
 					{ file ->
 						when {
@@ -133,8 +140,8 @@ tasks.withType<Test> {
 					{ it.name },
 				)
 			)
-		)
-	}
+		}
+	)
 }
 
 tasks.withType<PublishToMavenRepository> {

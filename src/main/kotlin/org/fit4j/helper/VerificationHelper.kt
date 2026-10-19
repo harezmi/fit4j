@@ -16,7 +16,7 @@ class VerificationHelper(private val jsonHelper: JsonHelper,
             if(jsonHelper.jsonProtoParser == null)
                 throw IllegalStateException(
                     "JsonFormat.Parser is not configured, make sure com.google.protobuf:protobuf-java-util dependency is in your classpath")
-            val protobufObject = entity as Message
+            val protobufObject = entity
             val builder = protobufObject.newBuilderForType()
             jsonHelper.jsonProtoParser.merge(expectedJson, builder)
             val expectedEventState = builder.build()

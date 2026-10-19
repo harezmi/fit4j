@@ -4,7 +4,7 @@ import org.fit4j.mock.CallTraceFactory
 
 class HttpCallTraceFactory : CallTraceFactory<HttpRequest, HttpResponse, HttpCallTrace> {
     override fun create(request: HttpRequest, response: HttpResponse?, exception: Throwable?): HttpCallTrace {
-        val httpResponse : HttpResponse? = if(response != null) response as HttpResponse else null
+        val httpResponse: HttpResponse? = response
         return HttpCallTrace(request, httpResponse, exception)
     }
 

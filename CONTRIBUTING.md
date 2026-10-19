@@ -64,7 +64,7 @@ We welcome suggestions for improvements! Please create an issue with:
 ### Prerequisites
 
 - **JDK 25** for building FIT4J (Gradle auto-provisions via the Foojay toolchain resolver if not installed locally)
-- **Gradle 8.14+** (wrapper included)
+- **Gradle 9.1.0** (use the checked-in wrapper)
 - **Git**
 - **Docker** (for Testcontainers-based tests)
 
@@ -80,6 +80,12 @@ Consuming FIT4J in your own service requires **JDK 17+** and **Spring Boot 4.1.x
 
 ```bash
 ./gradlew test
+```
+
+The default test runtime is JDK 25. To reproduce the minimum supported runtime used in CI:
+
+```bash
+./gradlew clean check -PtestJavaVersion=17
 ```
 
 ### Running Specific Tests
@@ -122,4 +128,3 @@ If you have questions about contributing, please:
 - Review the documentation
 
 Thank you for contributing to FIT4J! 🎉
-

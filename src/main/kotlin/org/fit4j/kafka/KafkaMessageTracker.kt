@@ -61,6 +61,7 @@ class KafkaMessageTracker(val waitTimeout : Long = 1000L, val waitLoopCount : In
         return this.getMessagesAt(processedMessages, topic, messageCount)
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun getMessagesAt(messageList: List<KafkaMessage>, topic: String, messageCount:Int=1): List<KafkaMessage> {
         synchronized(messageList) {
             var count = 0
@@ -72,6 +73,7 @@ class KafkaMessageTracker(val waitTimeout : Long = 1000L, val waitLoopCount : In
         }
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun <T : Any> waitFor(data:T, messageList: List<KafkaMessage>, target: String): KafkaMessage? {
         synchronized(messageList) {
             var count = 0

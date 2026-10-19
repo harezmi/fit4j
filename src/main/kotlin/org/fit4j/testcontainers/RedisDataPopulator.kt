@@ -15,7 +15,7 @@ class RedisDataPopulator(redisConnectionProperties: RedisConnectionProperties) :
             jedis.set(it.key, it.value)
         }
         redisData.hashes.forEach {
-            jedis.hmset(it.key, it.fields)
+            jedis.hset(it.key, it.fields)
         }
         redisData.lists.forEach {
             jedis.lpush(it.key, *it.values.toTypedArray())

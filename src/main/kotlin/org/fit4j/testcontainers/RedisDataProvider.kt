@@ -126,7 +126,7 @@ class RedisDataProvider(resource: Resource) {
     }
 
     private fun buildStreamEntry(data: Map<String,Any>): RedisStream {
-        val entries = (data.get("entries") as List<Map<String,String>>).map {
+        val entries = (data.get("entries") as List<Map<String,Any>>).map {
             StreamEntry(it["fields"] as Map<String, String>)
         }
         return RedisStream(data.get("key") as String, entries)

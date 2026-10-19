@@ -14,7 +14,7 @@ plugins {
     `java-library`
     kotlin("jvm")
     kotlin("plugin.spring")
-    id("com.google.protobuf") version "0.9.4"
+    id("com.google.protobuf") version "0.9.6"
 }
 
 repositories {
@@ -153,4 +153,3 @@ protobuf {
         }
     }
 }
-

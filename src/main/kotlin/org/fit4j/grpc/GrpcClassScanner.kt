@@ -1,6 +1,6 @@
 package org.fit4j.grpc
 
-import com.google.protobuf.GeneratedMessageV3
+import com.google.protobuf.Message
 import io.grpc.BindableService
 import org.springframework.grpc.server.service.GrpcService
 import org.fit4j.helper.ClassScanner
@@ -16,7 +16,7 @@ class GrpcClassScanner(private val environment:Environment, private val classSca
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     fun scanTypeDescriptorsFromClasspath() : List<ClassMetadata> {
-        val includeTypeFilter = AssignableTypeFilter(GeneratedMessageV3::class.java)
+        val includeTypeFilter = AssignableTypeFilter(Message::class.java)
         val packagesToScan = this.getPackagesToScan()
         val classNames = classScanner.getClassNames(includeTypeFilter, *packagesToScan)
         return classNames

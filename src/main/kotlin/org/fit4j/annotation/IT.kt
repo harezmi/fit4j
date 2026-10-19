@@ -4,10 +4,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.core.annotation.AliasFor
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
-import java.lang.annotation.ElementType
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
-import java.lang.annotation.Target
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles(value = ["test"])
@@ -18,8 +14,8 @@ import java.lang.annotation.Target
         "fit4j.dbcleanup.enabled=false",
     ]
 )
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class IT(
     @get:AliasFor(annotation = SpringBootTest::class, attribute = "webEnvironment")
     val webEnvironment : SpringBootTest.WebEnvironment = SpringBootTest.WebEnvironment.MOCK

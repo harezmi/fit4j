@@ -1,7 +1,5 @@
 package org.fit4j.testcontainers
 
-import org.testcontainers.containers.GenericContainer
-
 object NetworkFaultUpstreamPortResolver {
 
     private val DEFAULT_PORTS_BY_CONTAINER_CLASS = mapOf(
@@ -21,11 +19,9 @@ object NetworkFaultUpstreamPortResolver {
         val className = container.javaClass.name
         DEFAULT_PORTS_BY_CONTAINER_CLASS[className]?.let { return it }
 
-        if (container is GenericContainer<*>) {
-            val exposed = container.exposedPorts
-            if (exposed.isNotEmpty()) {
-                return exposed.first()
-            }
+        val exposed = container.exposedPorts
+        if (exposed.isNotEmpty()) {
+            return exposed.first()
         }
 
         throw IllegalStateException(

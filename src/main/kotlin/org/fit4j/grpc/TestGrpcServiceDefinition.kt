@@ -20,7 +20,7 @@ data class TestGrpcServiceDefinition(val bindableService: BindableService) {
     }
     fun getBuilderForRequest(methodDef:ServerMethodDefinition<out Any,out Any>): Message.Builder {
         val req = this.getRequest(methodDef)
-        val reqBuilder = ReflectionUtils.findMethod(req!!::class.java,"toBuilder")!!.invoke(req) as Message.Builder
+        val reqBuilder = ReflectionUtils.findMethod(req::class.java,"toBuilder")!!.invoke(req) as Message.Builder
         return reqBuilder
     }
 
@@ -33,7 +33,7 @@ data class TestGrpcServiceDefinition(val bindableService: BindableService) {
     }
     fun getBuilderForResponse(methodDef:ServerMethodDefinition<out Any,out Any>): Message.Builder {
         val res = this.getResponse(methodDef)
-        val resBuilder = ReflectionUtils.findMethod(res!!::class.java,"toBuilder")!!.invoke(res) as Message.Builder
+        val resBuilder = ReflectionUtils.findMethod(res::class.java,"toBuilder")!!.invoke(res) as Message.Builder
         return resBuilder
     }
 

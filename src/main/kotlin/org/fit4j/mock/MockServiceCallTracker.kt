@@ -24,7 +24,8 @@ class MockServiceCallTracker(val callTraceFactoryList: List<CallTraceFactory<*,*
     private fun callTrace(request: Any, response: Any?, exception: Throwable? = null): CallTrace<*,*>? {
         var callTrace: CallTrace<*,*>? = null
         for (callTraceFactory in callTraceFactoryList) {
-            val ct = callTraceFactory as CallTraceFactory<Any, Any, CallTrace<*,*>>
+            @Suppress("UNCHECKED_CAST")
+            val ct = callTraceFactory as CallTraceFactory<Any, Any, CallTrace<Any, Any>>
             if (ct.isApplicableFor(request)) {
                 callTrace = ct.create(request, response, exception)
                 break

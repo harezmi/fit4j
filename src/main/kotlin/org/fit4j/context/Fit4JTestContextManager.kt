@@ -58,7 +58,7 @@ class Fit4JTestContextManager {
                 existingFailedCalls = mutableListOf()
                 store.put("failed-calls", existingFailedCalls)
             }
-            (existingFailedCalls as MutableList<FailedCall>).add(failedCall)
+            existingFailedCalls.add(failedCall)
         }
 
         @JvmStatic

@@ -103,7 +103,7 @@ class DatabaseTestSupportForH2(
 
     override fun connection(): Connection {
         val conn = super.connection()
-        val unwrappedConn = if(conn is HikariProxyConnection) (conn as HikariProxyConnection).unwrap(JdbcConnection::class.java) else conn
+        val unwrappedConn = if(conn is HikariProxyConnection) conn.unwrap(JdbcConnection::class.java) else conn
         return unwrappedConn
     }
 }

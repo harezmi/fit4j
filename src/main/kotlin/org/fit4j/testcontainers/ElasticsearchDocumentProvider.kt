@@ -8,23 +8,19 @@ import org.yaml.snakeyaml.Yaml
 
 class ElasticsearchDocumentProvider(resource: Resource) {
 
-    private lateinit var createRequests:List<CreateRequest<Map<Any,Any>>>
-
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
-
-    init {
+    private val createRequests: List<CreateRequest<Map<Any,Any>>> =
         if(resource.exists()) {
             logger.debug("Loading Elasticsearch documents from ${resource.filename}")
             val yaml = Yaml()
             val definitions: List<Map<String, Any>> = yaml.load(resource.inputStream)
-            createRequests = definitions.map {
+            definitions.map {
                 buildCreateRequest(it.get("document") as Map<String, Any>)
             }
         } else {
             logger.debug("No Elasticsearch documents found at ${resource.filename}, check your filename or make sure it is located in the classpath")
-            createRequests = emptyList()
+            emptyList()
         }
-    }
 
     fun getCreateRequests():List<CreateRequest<Map<Any,Any>>> {
         return createRequests

@@ -26,7 +26,7 @@ class ElasticsearchDataPopulatorFIT {
                 .id("3")
                 .index("test")
                 .build()
-            val getResponse = client.get(getRequest, Object::class.java)
+            val getResponse = client.get(getRequest, Any::class.java)
 
             Assertions.assertEquals("3", getResponse.id())
         }

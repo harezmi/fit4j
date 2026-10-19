@@ -32,7 +32,7 @@ class KafkaMessageTrackerProtobufFIT {
 
         val kafkaMessage = kafkaMessageTracker.waitForReceiving(message)
         val event = kafkaMessage?.data as TestGrpc.FooCreatedEvent
-        Assertions.assertEquals(123, event?.foo!!.id)
+        Assertions.assertEquals(123, event.foo.id)
         val messagePublished = kafkaMessageTracker.getMessagesPublishedAt("sample-topic-1").first()
         Assertions.assertEquals(message, messagePublished.data)
 
@@ -61,5 +61,4 @@ class FooCreatedEventDeserializer : MessageDeserializer() {
         return TestGrpc.FooCreatedEvent.parseFrom(data)
     }
 }
-
 

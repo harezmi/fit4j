@@ -13,11 +13,11 @@ class RedisDataPopulatorFIT {
     @Value("\${fit4j.redisContainerDefinition.host}")
     private lateinit var redisHost: String
     @Value("\${fit4j.redisContainerDefinition.port}")
-    private lateinit var redisPort: Integer
+    private var redisPort: Int = 0
 
     @Test
     fun `it should load data from yaml file into redis`() {
-        val redisConnectionProperties = RedisConnectionProperties(redisHost, redisPort.toInt())
+        val redisConnectionProperties = RedisConnectionProperties(redisHost, redisPort)
         val redisDataPopulator = RedisDataPopulator(redisConnectionProperties)
         val jedis = redisDataPopulator.getJedis()
         val value = jedis.get("stringKey")
