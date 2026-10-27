@@ -9,8 +9,61 @@ plugins {
 	kotlin("jvm")
 	kotlin("plugin.spring")
     id("com.google.protobuf") version "0.9.6"
+    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.18.2"
     id("signing")
     id("com.vanniktech.maven.publish") version "0.34.0"
+}
+
+apiValidation {
+	// Public for Spring discovery, but explicitly outside the supported consumer API.
+	ignoredPackages.add("org.fit4j.autoconfigure")
+	ignoredPackages.add("org.fit4j.context")
+	ignoredPackages.add("org.fit4j.expression")
+	ignoredPackages.add("org.fit4j.scope")
+	ignoredClasses.addAll(
+		listOf(
+			"org.fit4j.grpc.DefaultGrpcMockResponseProvider",
+			"org.fit4j.grpc.GrpcClassScanner",
+			"org.fit4j.grpc.GrpcResponseBuilderRegistry",
+			"org.fit4j.grpc.GrpcTestFixtureBuilder",
+			"org.fit4j.grpc.GrpcTypeDescriptorsProvider",
+			"org.fit4j.grpc.JsonToGrpcResponseConverter",
+			"org.fit4j.grpc.TestGrpcServiceConfigurer",
+			"org.fit4j.grpc.TestGrpcServiceDefinition",
+			"org.fit4j.grpc.TestGrpcServiceDefinitionProvider",
+			"org.fit4j.helper.BrowserLauncher",
+			"org.fit4j.helper.ClassScanner",
+			"org.fit4j.helper.GrpcClasspath",
+			"org.fit4j.http.DefaultHttpMockResponseProvider",
+			"org.fit4j.http.HttpHeadersRegisteringRequestInterceptor",
+			"org.fit4j.http.HttpServerDispatcher",
+			"org.fit4j.http.HttpServerWrapper",
+			"org.fit4j.http.HttpTestFixtureBuilder",
+			"org.fit4j.http.JsonToHttpResponseConverter",
+			"org.fit4j.http.MockWebServerProperties",
+			"org.fit4j.kafka.KafkaListenerContainerFactoryTrackingBeanPostProcessor",
+			"org.fit4j.kafka.KafkaMessageTrackingProducerListener",
+			"org.fit4j.kafka.KafkaMessageTrackingRecordInterceptor",
+			"org.fit4j.kafka.KafkaTemplateTrackingBeanPostProcessor",
+			"org.fit4j.kafka.KafkaTestEnabledCondition",
+			"org.fit4j.kafka.TestKafkaConsumerDefinitionProvider",
+			"org.fit4j.kafka.TestMessageListener",
+			"org.fit4j.kafka.TopicNameExpressionResolver",
+			"org.fit4j.testcontainers.ContainerMapExpressionResolver",
+			"org.fit4j.testcontainers.NetworkFaultPropertySourceFactory",
+			"org.fit4j.testcontainers.NetworkFaultRegistrar",
+			"org.fit4j.testcontainers.NetworkFaultUpstreamPortResolver",
+			"org.fit4j.testcontainers.ProxiedTargetParser",
+			"org.fit4j.testcontainers.TestContainerDefinitionRegistrar",
+			"org.fit4j.testcontainers.TestContainerResourcePaths",
+			"org.fit4j.testcontainers.TestContainersDefinitionProvider",
+			"org.fit4j.testcontainers.ToxiproxyBootstrap",
+		)
+	)
+}
+
+tasks.named("check") {
+	dependsOn("apiCheck")
 }
 
 val javaToolchainVersion: String by project

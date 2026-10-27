@@ -203,9 +203,10 @@ Acceptance criteria:
 
 - Added `DEPENDENCY_SURFACE.md` with a source-backed inventory of every direct production dependency, public
   signature exposure, chosen Gradle scope, feature classpath additions, and publication guarantees.
-- Kept a single batteries-included artifact for 1.0. A late module split is deferred to a future major release
-  because it would simultaneously change packages, coordinates, Spring discovery metadata, and DSL entry
-  points; the FIT4J JAR itself is only about 0.5 MiB.
+- Finalized a single batteries-included artifact for the entire 1.x line. A module split is deferred to 2.0 or
+  later because changing coordinates within 1.x would undermine the compatibility promise. A late split before
+  1.0 would simultaneously change packages, coordinates, Spring discovery metadata, and DSL entry points; the
+  FIT4J JAR itself is only about 0.5 MiB.
 - Removed three unused Resilience4j dependencies and moved MockK from production runtime to test-only scope.
 - Promoted dependencies exposed by stable signatures to `api`; retained implementation-only integration and
   reflective/container providers in runtime scope; kept Boot/gRPC starters compile-only.
@@ -245,7 +246,9 @@ Make an explicit 1.0 decision between:
 
 Do not perform a late module split only for cosmetic reasons. Base the decision on clean consumer dependency
 graphs, optional-classpath behavior, artifact size, and whether users can safely use core features without
-installing every integration stack. If modularization is deferred, document that as a deliberate 1.0 constraint.
+installing every integration stack. The decision is final for FIT4J 1.x: publish only
+`io.github.harezmi:fit4j`. Feature modules will not be introduced during 1.x. Reconsider modularization for
+2.0 only, with measured consumer graphs and a migration plan.
 
 ### Verify optional-classpath behavior
 
@@ -269,7 +272,27 @@ Acceptance criteria:
 
 ## Phase 4: Define and freeze the public API
 
-**Status:** Not started
+**Status:** Complete (2026-10-27)
+
+### Execution record
+
+- Added `API_SURFACE.md`, classifying supported application API, extension SPI, and framework-visible internal
+  infrastructure. FIT4J 1.0 has no experimental API category.
+- Added Kotlin Binary Compatibility Validator 0.18.2 and the reviewed `api/fit4j.api` baseline.
+  Spring discovery packages and explicitly listed implementation helpers are excluded; generated test protobuf
+  types never enter the main-source baseline.
+- Wired `apiCheck` into `check`, so the existing CI `check` job and later release verification cannot silently
+  accept an unreviewed binary API change.
+- Added compile-only Java and Kotlin consumer fixtures covering `@FIT`, `@IT`, fixture selection, the HTTP DSL,
+  Kafka tracking, embedded PostgreSQL, and extension interfaces. Existing Java/Kotlin integration tests cover
+  the gRPC DSL and broader runtime behavior.
+- Added Java overloads for `KafkaMessageTracker` constructor and topic-query defaults discovered during the
+  Java ergonomics review.
+- Added reflection-based contract tests for stable annotation defaults and FIT4J property keys, which are not
+  represented by a JVM signature dump.
+- Added lifecycle, concurrency, nullability, and failure KDoc to the primary annotations, `Fit4J`, and
+  `KafkaMessageTracker`. Comprehensive KDoc coverage is explicitly non-blocking for 1.0.0 and is planned as
+  follow-up documentation work for 1.0.1.
 
 ### Classify current public declarations
 
@@ -317,7 +340,8 @@ Acceptance criteria:
 
 - The checked-in API baseline contains only intentional API and SPI.
 - Accidental binary API changes fail CI.
-- Stable public types have KDoc describing lifecycle, thread-safety, nullability, and failure behavior.
+- Primary public entry points and non-obvious API/SPI contracts document lifecycle, thread-safety, nullability,
+  and failure behavior. Comprehensive stable-API KDoc is deferred to 1.0.1 and does not block 1.0.0.
 - Java and Kotlin consumer fixtures compile without accessing internal implementation classes.
 - Annotation defaults and configuration keys intended for 1.x are covered by compatibility tests.
 

@@ -6,6 +6,13 @@ import org.fit4j.grpc.dsl.GrpcDsl
 import org.fit4j.grpc.dsl.GrpcDslBuilder
 import java.util.function.Consumer
 
+/**
+ * Registers HTTP and gRPC responses for the currently executing FIT4J test.
+ *
+ * Registrations belong to the current test execution and are cleared by FIT4J's test lifecycle. Calls are
+ * expected from the test thread; sharing a registration block across concurrently executing tests is unsupported.
+ * Invalid DSL input fails immediately with the corresponding validation exception.
+ */
 object Fit4J {
 
     @JvmStatic

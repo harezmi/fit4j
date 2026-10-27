@@ -20,6 +20,12 @@ import org.springframework.test.context.TestPropertySource
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @ExtendWith(Fit4JTestExtension::class)
+/**
+ * Runs a functional integration test with the FIT4J Spring and JUnit lifecycle.
+ *
+ * A test class owns its fixture selection and mock state. Parallel execution in the same JVM is unsupported.
+ * Context-startup and fixture-loading failures are reported as test initialization failures.
+ */
 annotation class FIT(
     val fixtureFilePath: String = "",
     @get:AliasFor(annotation = SpringBootTest::class, attribute = "webEnvironment")

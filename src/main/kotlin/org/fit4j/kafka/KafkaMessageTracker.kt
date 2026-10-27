@@ -5,7 +5,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
 import org.springframework.test.context.event.annotation.AfterTestMethod
 
-class KafkaMessageTracker(val waitTimeout : Long = 1000L, val waitLoopCount : Int = 30) {
+/**
+ * Tracks Kafka messages observed during the current FIT4J test execution.
+ *
+ * Individual collections are synchronized, but one tracker must not be shared by concurrently executing tests.
+ * Waiting methods throw [MessageNotReceivedException] when the configured polling period expires.
+ */
+class KafkaMessageTracker @JvmOverloads constructor(val waitTimeout : Long = 1000L, val waitLoopCount : Int = 30) {
     private val publishedMessages : MutableList<KafkaMessage> = mutableListOf()
     private val processedMessages : MutableList<KafkaMessage> = mutableListOf()
     private val receivedMessages : MutableList<KafkaMessage> = mutableListOf()
@@ -49,14 +55,17 @@ class KafkaMessageTracker(val waitTimeout : Long = 1000L, val waitLoopCount : In
         return this.messageExists(data, publishedMessages)
     }
 
+    @JvmOverloads
     fun getMessagesPublishedAt(topic: String, messageCount:Int=1): List<KafkaMessage> {
         return this.getMessagesAt(publishedMessages, topic, messageCount)
     }
 
+    @JvmOverloads
     fun getMessagesReceivedAt(topic: String, messageCount:Int=1): List<KafkaMessage> {
         return this.getMessagesAt(receivedMessages, topic, messageCount)
     }
 
+    @JvmOverloads
     fun getMessagesProcessedAt(topic: String, messageCount:Int=1): List<KafkaMessage> {
         return this.getMessagesAt(processedMessages, topic, messageCount)
     }

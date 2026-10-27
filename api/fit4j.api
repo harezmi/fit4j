@@ -1,0 +1,1383 @@
+public final class org/fit4j/Fit4J {
+	public static final field INSTANCE Lorg/fit4j/Fit4J;
+	public static final fun grpc (Ljava/util/function/Consumer;)V
+	public static final synthetic fun grpc (Lkotlin/jvm/functions/Function1;)V
+	public static final fun http (Ljava/util/function/Consumer;)V
+	public static final synthetic fun http (Lkotlin/jvm/functions/Function1;)V
+}
+
+public abstract interface annotation class org/fit4j/annotation/FIT : java/lang/annotation/Annotation {
+	public abstract fun fixtureFilePath ()Ljava/lang/String;
+	public abstract fun webEnvironment ()Lorg/springframework/boot/test/context/SpringBootTest$WebEnvironment;
+}
+
+public abstract interface annotation class org/fit4j/annotation/FixtureForFIT : java/lang/annotation/Annotation {
+	public abstract fun name ()Ljava/lang/String;
+}
+
+public abstract interface annotation class org/fit4j/annotation/IT : java/lang/annotation/Annotation {
+	public abstract fun webEnvironment ()Lorg/springframework/boot/test/context/SpringBootTest$WebEnvironment;
+}
+
+public abstract class org/fit4j/dbcleanup/AbstractDatabaseTestSupport : org/fit4j/dbcleanup/DatabaseTestSupport {
+	public fun <init> (Ljavax/sql/DataSource;Lorg/springframework/transaction/PlatformTransactionManager;ZLorg/fit4j/dbcleanup/DatabaseCleanupExclusions;)V
+	public synthetic fun <init> (Ljavax/sql/DataSource;Lorg/springframework/transaction/PlatformTransactionManager;ZLorg/fit4j/dbcleanup/DatabaseCleanupExclusions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun clearAllTables ()V
+	public fun connection ()Ljava/sql/Connection;
+	public final fun doCleanUp ()V
+	public abstract fun executeClearAllTables (Lorg/springframework/jdbc/core/JdbcTemplate;Ljava/lang/String;)V
+	public abstract fun executeResetAllIdentifiers (Lorg/springframework/jdbc/core/JdbcTemplate;Ljava/lang/String;)V
+	public final fun getCleanupEnabled ()Z
+	public final fun getDataSource ()Ljavax/sql/DataSource;
+	protected final fun getExclusions ()Lorg/fit4j/dbcleanup/DatabaseCleanupExclusions;
+	public final fun getTransactionManager ()Lorg/springframework/transaction/PlatformTransactionManager;
+	public fun openDBConsole ()V
+	public fun resetAllIdentifiers ()V
+	public abstract fun schemaName ()Ljava/lang/String;
+}
+
+public final class org/fit4j/dbcleanup/DatabaseCleanupExclusions {
+	public static final field Companion Lorg/fit4j/dbcleanup/DatabaseCleanupExclusions$Companion;
+	public fun <init> (Ljava/util/Set;)V
+	public final fun filter (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public final fun isExcluded (Ljava/lang/String;)Z
+}
+
+public final class org/fit4j/dbcleanup/DatabaseCleanupExclusions$Companion {
+	public final fun parse (Ljava/lang/String;)Lorg/fit4j/dbcleanup/DatabaseCleanupExclusions;
+}
+
+public abstract interface class org/fit4j/dbcleanup/DatabaseTestSupport {
+	public abstract fun clearAllTables ()V
+	public abstract fun connection ()Ljava/sql/Connection;
+	public abstract fun openDBConsole ()V
+	public abstract fun resetAllIdentifiers ()V
+}
+
+public final class org/fit4j/dbcleanup/DatabaseTestSupportForH2 : org/fit4j/dbcleanup/AbstractDatabaseTestSupport {
+	public fun <init> (Ljavax/sql/DataSource;Lorg/springframework/transaction/PlatformTransactionManager;ZLorg/fit4j/dbcleanup/DatabaseCleanupExclusions;)V
+	public synthetic fun <init> (Ljavax/sql/DataSource;Lorg/springframework/transaction/PlatformTransactionManager;ZLorg/fit4j/dbcleanup/DatabaseCleanupExclusions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun connection ()Ljava/sql/Connection;
+	public fun executeClearAllTables (Lorg/springframework/jdbc/core/JdbcTemplate;Ljava/lang/String;)V
+	public fun executeResetAllIdentifiers (Lorg/springframework/jdbc/core/JdbcTemplate;Ljava/lang/String;)V
+	public fun schemaName ()Ljava/lang/String;
+}
+
+public final class org/fit4j/dbcleanup/DatabaseTestSupportForMysql : org/fit4j/dbcleanup/AbstractDatabaseTestSupport {
+	public fun <init> (Ljavax/sql/DataSource;Lorg/springframework/transaction/PlatformTransactionManager;ZLorg/fit4j/dbcleanup/DatabaseCleanupExclusions;)V
+	public synthetic fun <init> (Ljavax/sql/DataSource;Lorg/springframework/transaction/PlatformTransactionManager;ZLorg/fit4j/dbcleanup/DatabaseCleanupExclusions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun executeClearAllTables (Lorg/springframework/jdbc/core/JdbcTemplate;Ljava/lang/String;)V
+	public fun executeResetAllIdentifiers (Lorg/springframework/jdbc/core/JdbcTemplate;Ljava/lang/String;)V
+	public fun schemaName ()Ljava/lang/String;
+}
+
+public final class org/fit4j/dbcleanup/DatabaseTestSupportForPostgreSQL : org/fit4j/dbcleanup/AbstractDatabaseTestSupport {
+	public fun <init> (Ljavax/sql/DataSource;Lorg/springframework/transaction/PlatformTransactionManager;ZLorg/fit4j/dbcleanup/DatabaseCleanupExclusions;)V
+	public synthetic fun <init> (Ljavax/sql/DataSource;Lorg/springframework/transaction/PlatformTransactionManager;ZLorg/fit4j/dbcleanup/DatabaseCleanupExclusions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun executeClearAllTables (Lorg/springframework/jdbc/core/JdbcTemplate;Ljava/lang/String;)V
+	public fun executeResetAllIdentifiers (Lorg/springframework/jdbc/core/JdbcTemplate;Ljava/lang/String;)V
+	public fun schemaName ()Ljava/lang/String;
+}
+
+public final class org/fit4j/dbcleanup/NoopDatabaseTestSupport : org/fit4j/dbcleanup/DatabaseTestSupport {
+	public fun <init> ()V
+	public fun clearAllTables ()V
+	public fun connection ()Ljava/sql/Connection;
+	public fun openDBConsole ()V
+	public fun resetAllIdentifiers ()V
+}
+
+public abstract interface annotation class org/fit4j/dynamodb/EmbeddedDynamoDB : java/lang/annotation/Annotation {
+}
+
+public final class org/fit4j/grpc/Fit4jGrpcClientExecutionIdInterceptor : io/grpc/ClientInterceptor {
+	public fun <init> ()V
+	public fun interceptCall (Lio/grpc/MethodDescriptor;Lio/grpc/CallOptions;Lio/grpc/Channel;)Lio/grpc/ClientCall;
+}
+
+public final class org/fit4j/grpc/Fit4jGrpcExecutionContext {
+	public static final field INSTANCE Lorg/fit4j/grpc/Fit4jGrpcExecutionContext;
+	public final fun getCONTEXT_KEY ()Lio/grpc/Context$Key;
+	public final fun getExecutionId ()Ljava/lang/String;
+}
+
+public final class org/fit4j/grpc/Fit4jGrpcServerExecutionIdInterceptor : io/grpc/ServerInterceptor {
+	public fun <init> ()V
+	public fun interceptCall (Lio/grpc/ServerCall;Lio/grpc/Metadata;Lio/grpc/ServerCallHandler;)Lio/grpc/ServerCall$Listener;
+}
+
+public final class org/fit4j/grpc/GrpcCallTrace : org/fit4j/mock/CallTrace {
+	public fun <init> (Lcom/google/protobuf/MessageLite;Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public final fun copy (Lcom/google/protobuf/MessageLite;Ljava/lang/Object;Ljava/lang/Throwable;)Lorg/fit4j/grpc/GrpcCallTrace;
+	public static synthetic fun copy$default (Lorg/fit4j/grpc/GrpcCallTrace;Lcom/google/protobuf/MessageLite;Ljava/lang/Object;Ljava/lang/Throwable;ILjava/lang/Object;)Lorg/fit4j/grpc/GrpcCallTrace;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getError ()Ljava/lang/Throwable;
+	public fun getErrorMessage ()Ljava/lang/String;
+	public fun getRequest ()Lcom/google/protobuf/MessageLite;
+	public synthetic fun getRequest ()Ljava/lang/Object;
+	public fun getResponse ()Ljava/lang/Object;
+	public fun getStatus ()I
+	public fun hasError ()Z
+	public fun hashCode ()I
+	public fun matchesRequestPath (Ljava/lang/String;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/grpc/GrpcCallTraceFactory : org/fit4j/mock/CallTraceFactory {
+	public fun <init> ()V
+	public fun create (Lcom/google/protobuf/MessageLite;Ljava/lang/Object;Ljava/lang/Throwable;)Lorg/fit4j/grpc/GrpcCallTrace;
+	public synthetic fun create (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Throwable;)Lorg/fit4j/mock/CallTrace;
+	public fun isApplicableFor (Ljava/lang/Object;)Z
+}
+
+public abstract interface class org/fit4j/grpc/GrpcResponseJsonBuilder : org/fit4j/mock/MockResponseJsonBuilder {
+}
+
+public final class org/fit4j/grpc/GrpcServiceNotCreatedException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+}
+
+public final class org/fit4j/grpc/GrpcTestFixture : org/fit4j/mock/declarative/TestFixture, org/fit4j/grpc/GrpcResponseJsonBuilder {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Class;Lorg/fit4j/mock/declarative/TestFixturePredicate;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/Class;Lorg/fit4j/mock/declarative/TestFixturePredicate;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun build (Lcom/google/protobuf/Message;)Ljava/lang/String;
+	public synthetic fun build (Ljava/lang/Object;)Ljava/lang/String;
+	public final fun component1 ()Ljava/lang/Class;
+	public final fun component2 ()Lorg/fit4j/mock/declarative/TestFixturePredicate;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/Class;Lorg/fit4j/mock/declarative/TestFixturePredicate;Ljava/util/List;)Lorg/fit4j/grpc/GrpcTestFixture;
+	public static synthetic fun copy$default (Lorg/fit4j/grpc/GrpcTestFixture;Ljava/lang/Class;Lorg/fit4j/mock/declarative/TestFixturePredicate;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/grpc/GrpcTestFixture;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPredicate ()Lorg/fit4j/mock/declarative/TestFixturePredicate;
+	public final fun getRequestType ()Ljava/lang/Class;
+	public final fun getResponses ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun isApplicableFor (Ljava/lang/Object;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/grpc/GrpcTestFixtureResponse {
+	public fun <init> ()V
+	public fun <init> (ILjava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;)Lorg/fit4j/grpc/GrpcTestFixtureResponse;
+	public static synthetic fun copy$default (Lorg/fit4j/grpc/GrpcTestFixtureResponse;ILjava/lang/String;ILjava/lang/Object;)Lorg/fit4j/grpc/GrpcTestFixtureResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getResponseBody ()Ljava/lang/String;
+	public final fun getStatusCode ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class org/fit4j/grpc/dsl/GrpcDsl {
+	public abstract fun register ()V
+	public abstract fun request (Ljava/lang/Class;)Lorg/fit4j/grpc/dsl/GrpcRequestTrainingDsl;
+	public abstract fun request (Ljava/lang/Class;Ljava/util/function/Consumer;)Lorg/fit4j/grpc/dsl/GrpcDslBuilder;
+	public abstract synthetic fun request (Ljava/lang/Class;Lkotlin/jvm/functions/Function1;)Lorg/fit4j/grpc/dsl/GrpcDslBuilder;
+}
+
+public final class org/fit4j/grpc/dsl/GrpcDslBuilder : org/fit4j/grpc/dsl/GrpcDsl {
+	public fun <init> ()V
+	public fun register ()V
+	public fun request (Ljava/lang/Class;)Lorg/fit4j/grpc/dsl/GrpcRequestTrainingDsl;
+	public fun request (Ljava/lang/Class;Ljava/util/function/Consumer;)Lorg/fit4j/grpc/dsl/GrpcDslBuilder;
+	public synthetic fun request (Ljava/lang/Class;Lkotlin/jvm/functions/Function1;)Lorg/fit4j/grpc/dsl/GrpcDslBuilder;
+}
+
+public final class org/fit4j/grpc/dsl/GrpcDslRegistry {
+	public static final field INSTANCE Lorg/fit4j/grpc/dsl/GrpcDslRegistry;
+	public final fun register (Lorg/fit4j/grpc/dsl/GrpcTrainingDefinition;)V
+	public final fun resetCurrentTest ()V
+	public final fun resolveResponse (Lcom/google/protobuf/Message;)Ljava/lang/String;
+}
+
+public final class org/fit4j/grpc/dsl/GrpcRequestMatcher {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Class;Ljava/util/function/Predicate;)V
+	public synthetic fun <init> (Ljava/lang/Class;Ljava/util/function/Predicate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Class;
+	public final fun component2 ()Ljava/util/function/Predicate;
+	public final fun copy (Ljava/lang/Class;Ljava/util/function/Predicate;)Lorg/fit4j/grpc/dsl/GrpcRequestMatcher;
+	public static synthetic fun copy$default (Lorg/fit4j/grpc/dsl/GrpcRequestMatcher;Ljava/lang/Class;Ljava/util/function/Predicate;ILjava/lang/Object;)Lorg/fit4j/grpc/dsl/GrpcRequestMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPredicate ()Ljava/util/function/Predicate;
+	public final fun getRequestType ()Ljava/lang/Class;
+	public fun hashCode ()I
+	public final fun matches (Lcom/google/protobuf/Message;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/grpc/dsl/GrpcRequestTrainingDsl {
+	public final fun predicate (Ljava/lang/String;)Lorg/fit4j/grpc/dsl/GrpcRequestTrainingDsl;
+	public final fun predicate (Ljava/util/function/Predicate;)Lorg/fit4j/grpc/dsl/GrpcRequestTrainingDsl;
+	public final fun requestType (Ljava/lang/Class;)Lorg/fit4j/grpc/dsl/GrpcRequestTrainingDsl;
+	public final fun respond (Ljava/util/function/Consumer;)Lorg/fit4j/grpc/dsl/GrpcDslBuilder;
+	public final synthetic fun respond (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/grpc/dsl/GrpcDslBuilder;
+	public final fun responds (Ljava/util/function/Consumer;)Lorg/fit4j/grpc/dsl/GrpcDslBuilder;
+	public final synthetic fun responds (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/grpc/dsl/GrpcDslBuilder;
+}
+
+public final class org/fit4j/grpc/dsl/GrpcResponseDefinition {
+	public fun <init> ()V
+	public fun <init> (ILjava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;)Lorg/fit4j/grpc/dsl/GrpcResponseDefinition;
+	public static synthetic fun copy$default (Lorg/fit4j/grpc/dsl/GrpcResponseDefinition;ILjava/lang/String;ILjava/lang/Object;)Lorg/fit4j/grpc/dsl/GrpcResponseDefinition;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()Ljava/lang/String;
+	public final fun getStatusCode ()I
+	public fun hashCode ()I
+	public final fun toRawJsonContent ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/grpc/dsl/GrpcResponseDsl {
+	public fun <init> ()V
+	public final fun bodyAsJson (Ljava/lang/Object;)Lorg/fit4j/grpc/dsl/GrpcResponseDsl;
+	public final fun bodyAsJson (Ljava/lang/String;)Lorg/fit4j/grpc/dsl/GrpcResponseDsl;
+	public final fun noContent ()Lorg/fit4j/grpc/dsl/GrpcResponseDsl;
+	public final fun status (I)Lorg/fit4j/grpc/dsl/GrpcResponseDsl;
+	public final fun status (Lio/grpc/Status$Code;)Lorg/fit4j/grpc/dsl/GrpcResponseDsl;
+}
+
+public final class org/fit4j/grpc/dsl/GrpcResponseSequenceDsl {
+	public fun <init> ()V
+	public final fun response (Ljava/util/function/Consumer;)Lorg/fit4j/grpc/dsl/GrpcResponseSequenceDsl;
+	public final synthetic fun response (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/grpc/dsl/GrpcResponseSequenceDsl;
+}
+
+public final class org/fit4j/grpc/dsl/GrpcTrainingDefinition {
+	public fun <init> (Lorg/fit4j/grpc/dsl/GrpcRequestMatcher;Ljava/util/List;)V
+	public final fun buildResponse (Lcom/google/protobuf/Message;)Ljava/lang/String;
+	public final fun getRequestMatcher ()Lorg/fit4j/grpc/dsl/GrpcRequestMatcher;
+	public final fun matches (Lcom/google/protobuf/Message;)Z
+	public final fun reset ()V
+}
+
+public final class org/fit4j/helper/JsonHelper {
+	public fun <init> (Lcom/google/protobuf/util/JsonFormat$Parser;Lcom/google/protobuf/util/JsonFormat$Parser;Ltools/jackson/databind/json/JsonMapper;)V
+	public final fun component1 ()Lcom/google/protobuf/util/JsonFormat$Parser;
+	public final fun component2 ()Lcom/google/protobuf/util/JsonFormat$Parser;
+	public final fun component3 ()Ltools/jackson/databind/json/JsonMapper;
+	public final fun copy (Lcom/google/protobuf/util/JsonFormat$Parser;Lcom/google/protobuf/util/JsonFormat$Parser;Ltools/jackson/databind/json/JsonMapper;)Lorg/fit4j/helper/JsonHelper;
+	public static synthetic fun copy$default (Lorg/fit4j/helper/JsonHelper;Lcom/google/protobuf/util/JsonFormat$Parser;Lcom/google/protobuf/util/JsonFormat$Parser;Ltools/jackson/databind/json/JsonMapper;ILjava/lang/Object;)Lorg/fit4j/helper/JsonHelper;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getJsonMapper ()Ltools/jackson/databind/json/JsonMapper;
+	public final fun getJsonProtoParser ()Lcom/google/protobuf/util/JsonFormat$Parser;
+	public final fun getJsonProtoPrinter ()Lcom/google/protobuf/util/JsonFormat$Parser;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/helper/VerificationHelper {
+	public fun <init> (Lorg/fit4j/helper/JsonHelper;Lorg/fit4j/mock/MockServiceCallTracker;Lorg/fit4j/kafka/KafkaMessageTracker;)V
+	public final fun verifyHttpRequest (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun verifyHttpRequest (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;I)V
+	public static synthetic fun verifyHttpRequest$default (Lorg/fit4j/helper/VerificationHelper;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;IILjava/lang/Object;)V
+	public static synthetic fun verifyHttpRequest$default (Lorg/fit4j/helper/VerificationHelper;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)V
+	public final fun verifyJson (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun verifyMessageProcessedAt (Ljava/lang/String;Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+	public final fun verifyMessagePublishedAt (Ljava/lang/String;Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+	public final fun verifyMessageReceivedAt (Ljava/lang/String;Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+	public final fun verifyObject (Ljava/lang/String;Ljava/lang/Object;)V
+}
+
+public final class org/fit4j/http/Fit4jExecutionIdClientHttpRequestInterceptor : org/springframework/http/client/ClientHttpRequestInterceptor {
+	public fun <init> ()V
+	public fun intercept (Lorg/springframework/http/HttpRequest;[BLorg/springframework/http/client/ClientHttpRequestExecution;)Lorg/springframework/http/client/ClientHttpResponse;
+}
+
+public final class org/fit4j/http/HttpCallTrace : org/fit4j/mock/CallTrace {
+	public fun <init> (Lorg/fit4j/http/HttpRequest;Lorg/fit4j/http/HttpResponse;Ljava/lang/Throwable;)V
+	public final fun copy (Lorg/fit4j/http/HttpRequest;Lorg/fit4j/http/HttpResponse;Ljava/lang/Throwable;)Lorg/fit4j/http/HttpCallTrace;
+	public static synthetic fun copy$default (Lorg/fit4j/http/HttpCallTrace;Lorg/fit4j/http/HttpRequest;Lorg/fit4j/http/HttpResponse;Ljava/lang/Throwable;ILjava/lang/Object;)Lorg/fit4j/http/HttpCallTrace;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getError ()Ljava/lang/Throwable;
+	public fun getErrorMessage ()Ljava/lang/String;
+	public synthetic fun getRequest ()Ljava/lang/Object;
+	public fun getRequest ()Lorg/fit4j/http/HttpRequest;
+	public synthetic fun getResponse ()Ljava/lang/Object;
+	public fun getResponse ()Lorg/fit4j/http/HttpResponse;
+	public fun getStatus ()I
+	public fun hasError ()Z
+	public fun hashCode ()I
+	public fun matchesRequestPath (Ljava/lang/String;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/HttpCallTraceFactory : org/fit4j/mock/CallTraceFactory {
+	public fun <init> ()V
+	public synthetic fun create (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Throwable;)Lorg/fit4j/mock/CallTrace;
+	public fun create (Lorg/fit4j/http/HttpRequest;Lorg/fit4j/http/HttpResponse;Ljava/lang/Throwable;)Lorg/fit4j/http/HttpCallTrace;
+	public fun isApplicableFor (Ljava/lang/Object;)Z
+}
+
+public abstract interface class org/fit4j/http/HttpHeadersSource : java/util/function/Supplier {
+}
+
+public final class org/fit4j/http/HttpRequest {
+	public fun <init> (Lcom/sun/net/httpserver/HttpExchange;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/util/Map;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)Lorg/fit4j/http/HttpRequest;
+	public static synthetic fun copy$default (Lorg/fit4j/http/HttpRequest;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/http/HttpRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()Ljava/lang/String;
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getMethod ()Ljava/lang/String;
+	public final fun getPath ()Ljava/lang/String;
+	public final fun getRequestUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/HttpResponse {
+	public fun <init> ()V
+	public fun <init> (ILjava/util/Map;Lorg/fit4j/http/HttpResponseBody;)V
+	public synthetic fun <init> (ILjava/util/Map;Lorg/fit4j/http/HttpResponseBody;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun bodyAsBytes ()[B
+	public final fun bodyAsText ()Ljava/lang/String;
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Lorg/fit4j/http/HttpResponseBody;
+	public final fun copy (ILjava/util/Map;Lorg/fit4j/http/HttpResponseBody;)Lorg/fit4j/http/HttpResponse;
+	public static synthetic fun copy$default (Lorg/fit4j/http/HttpResponse;ILjava/util/Map;Lorg/fit4j/http/HttpResponseBody;ILjava/lang/Object;)Lorg/fit4j/http/HttpResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()Lorg/fit4j/http/HttpResponseBody;
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getStatusCode ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class org/fit4j/http/HttpResponseBody {
+	public static final field Companion Lorg/fit4j/http/HttpResponseBody$Companion;
+	public fun asBytes (Ljava/nio/charset/Charset;)[B
+	public static synthetic fun asBytes$default (Lorg/fit4j/http/HttpResponseBody;Ljava/nio/charset/Charset;ILjava/lang/Object;)[B
+	public fun asText (Ljava/nio/charset/Charset;)Ljava/lang/String;
+	public static synthetic fun asText$default (Lorg/fit4j/http/HttpResponseBody;Ljava/nio/charset/Charset;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun bytes ([B)Lorg/fit4j/http/HttpResponseBody;
+	public static final fun empty ()Lorg/fit4j/http/HttpResponseBody;
+	public static final fun text (Ljava/lang/String;)Lorg/fit4j/http/HttpResponseBody;
+}
+
+public final class org/fit4j/http/HttpResponseBody$Bytes : org/fit4j/http/HttpResponseBody {
+	public fun <init> ([B)V
+	public fun asBytes (Ljava/nio/charset/Charset;)[B
+	public fun asText (Ljava/nio/charset/Charset;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContent ()[B
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/HttpResponseBody$Companion {
+	public final fun bytes ([B)Lorg/fit4j/http/HttpResponseBody;
+	public final fun empty ()Lorg/fit4j/http/HttpResponseBody;
+	public final fun text (Ljava/lang/String;)Lorg/fit4j/http/HttpResponseBody;
+}
+
+public final class org/fit4j/http/HttpResponseBody$Empty : org/fit4j/http/HttpResponseBody {
+	public static final field INSTANCE Lorg/fit4j/http/HttpResponseBody$Empty;
+	public fun asBytes (Ljava/nio/charset/Charset;)[B
+	public fun asText (Ljava/nio/charset/Charset;)Ljava/lang/String;
+}
+
+public final class org/fit4j/http/HttpResponseBody$Text : org/fit4j/http/HttpResponseBody {
+	public fun <init> (Ljava/lang/String;)V
+	public fun asBytes (Ljava/nio/charset/Charset;)[B
+	public fun asText (Ljava/nio/charset/Charset;)Ljava/lang/String;
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/fit4j/http/HttpResponseBody$Text;
+	public static synthetic fun copy$default (Lorg/fit4j/http/HttpResponseBody$Text;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/http/HttpResponseBody$Text;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContent ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class org/fit4j/http/HttpResponseJsonBuilder : org/fit4j/mock/MockResponseJsonBuilder {
+}
+
+public final class org/fit4j/http/HttpTestFixture : org/fit4j/mock/declarative/TestFixture, org/fit4j/http/HttpResponseJsonBuilder {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lorg/fit4j/mock/declarative/TestFixturePredicate;Lorg/fit4j/expression/PropertyAndExpressionResolver;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lorg/fit4j/mock/declarative/TestFixturePredicate;Lorg/fit4j/expression/PropertyAndExpressionResolver;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun build (Ljava/lang/Object;)Ljava/lang/String;
+	public fun build (Lorg/fit4j/http/HttpRequest;)Ljava/lang/String;
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lorg/fit4j/mock/declarative/TestFixturePredicate;
+	public final fun component4 ()Lorg/fit4j/expression/PropertyAndExpressionResolver;
+	public final fun component5 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lorg/fit4j/mock/declarative/TestFixturePredicate;Lorg/fit4j/expression/PropertyAndExpressionResolver;Ljava/util/List;)Lorg/fit4j/http/HttpTestFixture;
+	public static synthetic fun copy$default (Lorg/fit4j/http/HttpTestFixture;Ljava/lang/String;Ljava/lang/String;Lorg/fit4j/mock/declarative/TestFixturePredicate;Lorg/fit4j/expression/PropertyAndExpressionResolver;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/http/HttpTestFixture;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExpressionResolver ()Lorg/fit4j/expression/PropertyAndExpressionResolver;
+	public final fun getMethod ()Ljava/lang/String;
+	public final fun getPredicate ()Lorg/fit4j/mock/declarative/TestFixturePredicate;
+	public final fun getRequestPath ()Ljava/lang/String;
+	public final fun getResponses ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun isApplicableFor (Ljava/lang/Object;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/HttpTestFixtureResponse {
+	public fun <init> ()V
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/HttpTestFixtureResponse;
+	public static synthetic fun copy$default (Lorg/fit4j/http/HttpTestFixtureResponse;ILjava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/http/HttpTestFixtureResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHeaders ()Ljava/lang/String;
+	public final fun getResponseBody ()Ljava/lang/String;
+	public final fun getStatusCode ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class org/fit4j/http/dsl/HttpDsl {
+	public abstract fun path (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public abstract fun register ()V
+	public abstract fun request (Ljava/util/function/Consumer;)Lorg/fit4j/http/dsl/HttpDslBuilder;
+	public abstract synthetic fun request (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/http/dsl/HttpDslBuilder;
+}
+
+public final class org/fit4j/http/dsl/HttpDslBuilder : org/fit4j/http/dsl/HttpDsl {
+	public fun <init> ()V
+	public fun path (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public fun register ()V
+	public fun request (Ljava/util/function/Consumer;)Lorg/fit4j/http/dsl/HttpDslBuilder;
+	public synthetic fun request (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/http/dsl/HttpDslBuilder;
+}
+
+public final class org/fit4j/http/dsl/HttpDslRegistry {
+	public static final field INSTANCE Lorg/fit4j/http/dsl/HttpDslRegistry;
+	public final fun register (Lorg/fit4j/http/dsl/HttpTrainingDefinition;)V
+	public final fun resetCurrentTest ()V
+	public final fun resolveResponse (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponse;
+}
+
+public final class org/fit4j/http/dsl/HttpHeadersDsl {
+	public final fun header (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public abstract class org/fit4j/http/dsl/HttpRequestBodyMatcher {
+	public abstract fun matches (Ljava/lang/String;)Z
+}
+
+public final class org/fit4j/http/dsl/HttpRequestBodyMatcher$Contains : org/fit4j/http/dsl/HttpRequestBodyMatcher {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Contains;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Contains;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Contains;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun matches (Ljava/lang/String;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpRequestBodyMatcher$Empty : org/fit4j/http/dsl/HttpRequestBodyMatcher {
+	public static final field INSTANCE Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Empty;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun matches (Ljava/lang/String;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpRequestBodyMatcher$Exact : org/fit4j/http/dsl/HttpRequestBodyMatcher {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Exact;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Exact;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Exact;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun matches (Ljava/lang/String;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpRequestBodyMatcher$Json : org/fit4j/http/dsl/HttpRequestBodyMatcher {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Json;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Json;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$Json;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun matches (Ljava/lang/String;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpRequestBodyMatcher$RegexMatch : org/fit4j/http/dsl/HttpRequestBodyMatcher {
+	public fun <init> (Lkotlin/text/Regex;)V
+	public final fun component1 ()Lkotlin/text/Regex;
+	public final fun copy (Lkotlin/text/Regex;)Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$RegexMatch;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$RegexMatch;Lkotlin/text/Regex;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpRequestBodyMatcher$RegexMatch;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Lkotlin/text/Regex;
+	public fun hashCode ()I
+	public fun matches (Ljava/lang/String;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpRequestMatcher {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lorg/fit4j/http/dsl/HttpRequestBodyMatcher;Ljava/util/function/Predicate;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lorg/fit4j/http/dsl/HttpRequestBodyMatcher;Ljava/util/function/Predicate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()Lorg/fit4j/http/dsl/HttpRequestBodyMatcher;
+	public final fun component11 ()Ljava/util/function/Predicate;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/util/Map;
+	public final fun component5 ()Ljava/util/Map;
+	public final fun component6 ()Ljava/util/Map;
+	public final fun component7 ()Ljava/util/Map;
+	public final fun component8 ()Ljava/util/Map;
+	public final fun component9 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lorg/fit4j/http/dsl/HttpRequestBodyMatcher;Ljava/util/function/Predicate;)Lorg/fit4j/http/dsl/HttpRequestMatcher;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpRequestMatcher;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lorg/fit4j/http/dsl/HttpRequestBodyMatcher;Ljava/util/function/Predicate;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpRequestMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBodyMatcher ()Lorg/fit4j/http/dsl/HttpRequestBodyMatcher;
+	public final fun getHeaderContains ()Ljava/util/Map;
+	public final fun getHeaderRegex ()Ljava/util/Map;
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getMethod ()Ljava/lang/String;
+	public final fun getPath ()Ljava/lang/String;
+	public final fun getPathVariables ()Ljava/util/Map;
+	public final fun getPredicate ()Ljava/util/function/Predicate;
+	public final fun getQueryParamContains ()Ljava/util/Map;
+	public final fun getQueryParamRegex ()Ljava/util/Map;
+	public final fun getQueryParams ()Ljava/util/Map;
+	public fun hashCode ()I
+	public final fun matches (Lorg/fit4j/http/HttpRequest;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpRequestTrainingDsl {
+	public final fun body (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun bodyAbsent ()Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun bodyAsJson (Ljava/lang/Object;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun bodyAsJson (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun bodyContains (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun bodyEmpty ()Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun bodyMatches (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun contentType (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun contentTypeContains (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun contentTypeMatches (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun header (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun headerContains (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun headerMatches (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun headers (Ljava/util/function/Consumer;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun headers (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun method (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun noContent ()Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun path (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun pathTemplate (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun pathVariable (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun predicate (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun predicate (Ljava/util/function/Predicate;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun queryParam (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun queryParamContains (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun queryParamRegex (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpRequestTrainingDsl;
+	public final fun respond (Ljava/util/function/Consumer;)Lorg/fit4j/http/dsl/HttpDslBuilder;
+	public final synthetic fun respond (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/http/dsl/HttpDslBuilder;
+	public final fun responds (Ljava/util/function/Consumer;)Lorg/fit4j/http/dsl/HttpDslBuilder;
+	public final synthetic fun responds (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/http/dsl/HttpDslBuilder;
+}
+
+public final class org/fit4j/http/dsl/HttpResponseDefinition {
+	public fun <init> ()V
+	public fun <init> (ILjava/util/Map;Lorg/fit4j/http/dsl/HttpResponseTemplate;)V
+	public synthetic fun <init> (ILjava/util/Map;Lorg/fit4j/http/dsl/HttpResponseTemplate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Lorg/fit4j/http/dsl/HttpResponseTemplate;
+	public final fun copy (ILjava/util/Map;Lorg/fit4j/http/dsl/HttpResponseTemplate;)Lorg/fit4j/http/dsl/HttpResponseDefinition;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpResponseDefinition;ILjava/util/Map;Lorg/fit4j/http/dsl/HttpResponseTemplate;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpResponseDefinition;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()Lorg/fit4j/http/dsl/HttpResponseTemplate;
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getStatusCode ()I
+	public fun hashCode ()I
+	public final fun toHttpResponse (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponse;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpResponseDsl {
+	public fun <init> ()V
+	public final fun bodyAsBytes ([B)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun bodyAsJson (Ljava/lang/Object;)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun bodyAsJson (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun bodyAsResource (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun bodyAsResource (Lorg/springframework/core/io/Resource;)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun bodyAsText (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun header (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun headers (Ljava/util/function/Consumer;)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun headers (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/http/dsl/HttpResponseDsl;
+	public final fun status (I)Lorg/fit4j/http/dsl/HttpResponseDsl;
+}
+
+public final class org/fit4j/http/dsl/HttpResponseSequenceDsl {
+	public fun <init> ()V
+	public final fun response (Ljava/util/function/Consumer;)Lorg/fit4j/http/dsl/HttpResponseSequenceDsl;
+	public final synthetic fun response (Lkotlin/jvm/functions/Function1;)Lorg/fit4j/http/dsl/HttpResponseSequenceDsl;
+}
+
+public abstract class org/fit4j/http/dsl/HttpResponseTemplate {
+	public static final field Companion Lorg/fit4j/http/dsl/HttpResponseTemplate$Companion;
+	public abstract fun resolve (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponseBody;
+}
+
+public final class org/fit4j/http/dsl/HttpResponseTemplate$Bytes : org/fit4j/http/dsl/HttpResponseTemplate {
+	public fun <init> ([B)V
+	public final fun component1 ()[B
+	public final fun copy ([B)Lorg/fit4j/http/dsl/HttpResponseTemplate$Bytes;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpResponseTemplate$Bytes;[BILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpResponseTemplate$Bytes;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()[B
+	public fun hashCode ()I
+	public fun resolve (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponseBody;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpResponseTemplate$Companion {
+}
+
+public final class org/fit4j/http/dsl/HttpResponseTemplate$Empty : org/fit4j/http/dsl/HttpResponseTemplate {
+	public static final field INSTANCE Lorg/fit4j/http/dsl/HttpResponseTemplate$Empty;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun resolve (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponseBody;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpResponseTemplate$ResourceLocation : org/fit4j/http/dsl/HttpResponseTemplate {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpResponseTemplate$ResourceLocation;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpResponseTemplate$ResourceLocation;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpResponseTemplate$ResourceLocation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun resolve (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponseBody;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpResponseTemplate$ResourceRef : org/fit4j/http/dsl/HttpResponseTemplate {
+	public fun <init> (Lorg/springframework/core/io/Resource;)V
+	public final fun component1 ()Lorg/springframework/core/io/Resource;
+	public final fun copy (Lorg/springframework/core/io/Resource;)Lorg/fit4j/http/dsl/HttpResponseTemplate$ResourceRef;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpResponseTemplate$ResourceRef;Lorg/springframework/core/io/Resource;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpResponseTemplate$ResourceRef;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getResource ()Lorg/springframework/core/io/Resource;
+	public fun hashCode ()I
+	public fun resolve (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponseBody;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpResponseTemplate$Text : org/fit4j/http/dsl/HttpResponseTemplate {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/fit4j/http/dsl/HttpResponseTemplate$Text;
+	public static synthetic fun copy$default (Lorg/fit4j/http/dsl/HttpResponseTemplate$Text;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/http/dsl/HttpResponseTemplate$Text;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun resolve (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponseBody;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/http/dsl/HttpTrainingDefinition {
+	public fun <init> (Lorg/fit4j/http/dsl/HttpRequestMatcher;Ljava/util/List;)V
+	public final fun buildResponse (Lorg/fit4j/http/HttpRequest;)Lorg/fit4j/http/HttpResponse;
+	public final fun getRequestMatcher ()Lorg/fit4j/http/dsl/HttpRequestMatcher;
+	public final fun matches (Lorg/fit4j/http/HttpRequest;)Z
+	public final fun reset ()V
+}
+
+public abstract interface annotation class org/fit4j/kafka/EnableEmbeddedKafka : java/lang/annotation/Annotation {
+}
+
+public final class org/fit4j/kafka/HeaderNotFoundException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class org/fit4j/kafka/KafkaMessage {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Long;Lorg/apache/kafka/common/header/Headers;Ljava/lang/Object;Ljava/lang/Object;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Long;Lorg/apache/kafka/common/header/Headers;Ljava/lang/Object;Ljava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/Integer;
+	public final fun component3 ()Ljava/lang/Long;
+	public final fun component4 ()Lorg/apache/kafka/common/header/Headers;
+	public final fun component5 ()Ljava/lang/Object;
+	public final fun component6 ()Ljava/lang/Object;
+	public final fun containsHeader (Ljava/lang/String;)Z
+	public final fun containsHeader (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun copy (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Long;Lorg/apache/kafka/common/header/Headers;Ljava/lang/Object;Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+	public static synthetic fun copy$default (Lorg/fit4j/kafka/KafkaMessage;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Long;Lorg/apache/kafka/common/header/Headers;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Ljava/lang/Object;
+	public final fun getHeaderValue (Ljava/lang/String;)[B
+	public final fun getHeaderValueAsString (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getHeaders ()Lorg/apache/kafka/common/header/Headers;
+	public final fun getKey ()Ljava/lang/Object;
+	public final fun getPartition ()Ljava/lang/Integer;
+	public final fun getTimestamp ()Ljava/lang/Long;
+	public final fun getTopic ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun setKey (Ljava/lang/Object;)V
+	public final fun setPartition (Ljava/lang/Integer;)V
+	public final fun setTimestamp (Ljava/lang/Long;)V
+	public final fun setTopic (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/kafka/KafkaMessageExtractor {
+	public fun <init> ()V
+	public final fun extract ([Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+	public final fun extractFromSend ([Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+}
+
+public final class org/fit4j/kafka/KafkaMessageTracker {
+	public fun <init> ()V
+	public fun <init> (J)V
+	public fun <init> (JI)V
+	public synthetic fun <init> (JIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getMessagesProcessedAt (Ljava/lang/String;)Ljava/util/List;
+	public final fun getMessagesProcessedAt (Ljava/lang/String;I)Ljava/util/List;
+	public static synthetic fun getMessagesProcessedAt$default (Lorg/fit4j/kafka/KafkaMessageTracker;Ljava/lang/String;IILjava/lang/Object;)Ljava/util/List;
+	public final fun getMessagesPublishedAt (Ljava/lang/String;)Ljava/util/List;
+	public final fun getMessagesPublishedAt (Ljava/lang/String;I)Ljava/util/List;
+	public static synthetic fun getMessagesPublishedAt$default (Lorg/fit4j/kafka/KafkaMessageTracker;Ljava/lang/String;IILjava/lang/Object;)Ljava/util/List;
+	public final fun getMessagesReceivedAt (Ljava/lang/String;)Ljava/util/List;
+	public final fun getMessagesReceivedAt (Ljava/lang/String;I)Ljava/util/List;
+	public static synthetic fun getMessagesReceivedAt$default (Lorg/fit4j/kafka/KafkaMessageTracker;Ljava/lang/String;IILjava/lang/Object;)Ljava/util/List;
+	public final fun getWaitLoopCount ()I
+	public final fun getWaitTimeout ()J
+	public final fun isPublished (Ljava/lang/Object;)Z
+	public final fun markAsProcessed (Lorg/fit4j/kafka/KafkaMessage;)V
+	public final fun markAsPublished (Lorg/fit4j/kafka/KafkaMessage;)V
+	public final fun markAsReceived (Lorg/fit4j/kafka/KafkaMessage;)V
+	public final fun printCurrentlyTrackedMessages ()V
+	public final fun reset ()V
+	public final fun waitForProcessing (Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+	public final fun waitForPublish (Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+	public final fun waitForReceiving (Ljava/lang/Object;)Lorg/fit4j/kafka/KafkaMessage;
+}
+
+public final class org/fit4j/kafka/KafkaTopicCleaner : org/springframework/beans/factory/DisposableBean, org/springframework/beans/factory/InitializingBean {
+	public fun <init> (Lorg/springframework/core/env/ConfigurableEnvironment;)V
+	public fun afterPropertiesSet ()V
+	public final fun cleanUp ()V
+	public fun destroy ()V
+	public final fun getEnvironment ()Lorg/springframework/core/env/ConfigurableEnvironment;
+}
+
+public abstract class org/fit4j/kafka/MessageDeserializer : org/apache/kafka/common/serialization/Deserializer {
+	public fun <init> ()V
+	public fun deserialize (Ljava/lang/String;[B)Ljava/lang/Object;
+	protected abstract fun parseFrom ([B)Lcom/google/protobuf/Message;
+}
+
+public final class org/fit4j/kafka/MessageNotReceivedException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class org/fit4j/kafka/MessageSerializer : org/apache/kafka/common/serialization/Serializer {
+	public fun <init> ()V
+	public fun serialize (Ljava/lang/String;Ljava/lang/Object;)[B
+}
+
+public final class org/fit4j/kafka/SpringKafkaHeader : org/apache/kafka/common/header/Header {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/String;Ljava/lang/Object;)Lorg/fit4j/kafka/SpringKafkaHeader;
+	public static synthetic fun copy$default (Lorg/fit4j/kafka/SpringKafkaHeader;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lorg/fit4j/kafka/SpringKafkaHeader;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun key ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public fun value ()[B
+}
+
+public final class org/fit4j/kafka/TestKafkaConsumerConfigurer {
+	public fun <init> (Lorg/fit4j/kafka/TestMessageListener;Lorg/springframework/context/support/GenericApplicationContext;Ljava/util/List;)V
+	public final fun initialize ()V
+}
+
+public final class org/fit4j/kafka/TestKafkaConsumerDefinition {
+	public fun <init> (Ljava/lang/String;Lorg/springframework/kafka/config/ConcurrentKafkaListenerContainerFactory;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/springframework/kafka/config/ConcurrentKafkaListenerContainerFactory;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lorg/springframework/kafka/config/ConcurrentKafkaListenerContainerFactory;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Lorg/springframework/kafka/config/ConcurrentKafkaListenerContainerFactory;Ljava/util/Map;)Lorg/fit4j/kafka/TestKafkaConsumerDefinition;
+	public static synthetic fun copy$default (Lorg/fit4j/kafka/TestKafkaConsumerDefinition;Ljava/lang/String;Lorg/springframework/kafka/config/ConcurrentKafkaListenerContainerFactory;Ljava/util/Map;ILjava/lang/Object;)Lorg/fit4j/kafka/TestKafkaConsumerDefinition;
+	public final fun createContainer (Ljava/lang/Object;)Lorg/springframework/kafka/listener/ConcurrentMessageListenerContainer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContainerFactory ()Lorg/springframework/kafka/config/ConcurrentKafkaListenerContainerFactory;
+	public final fun getContainerProperties ()Ljava/util/Map;
+	public final fun getTopicName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class org/fit4j/mock/CallTrace {
+	public abstract fun getError ()Ljava/lang/Throwable;
+	public abstract fun getErrorMessage ()Ljava/lang/String;
+	public abstract fun getRequest ()Ljava/lang/Object;
+	public abstract fun getResponse ()Ljava/lang/Object;
+	public abstract fun getStatus ()I
+	public abstract fun hasError ()Z
+	public abstract fun matchesRequestPath (Ljava/lang/String;)Z
+}
+
+public abstract interface class org/fit4j/mock/CallTraceFactory {
+	public abstract fun create (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Throwable;)Lorg/fit4j/mock/CallTrace;
+	public static synthetic fun create$default (Lorg/fit4j/mock/CallTraceFactory;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Throwable;ILjava/lang/Object;)Lorg/fit4j/mock/CallTrace;
+	public abstract fun isApplicableFor (Ljava/lang/Object;)Z
+}
+
+public final class org/fit4j/mock/CallTraceFactory$DefaultImpls {
+	public static synthetic fun create$default (Lorg/fit4j/mock/CallTraceFactory;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Throwable;ILjava/lang/Object;)Lorg/fit4j/mock/CallTrace;
+}
+
+public final class org/fit4j/mock/MockResponseFactory {
+	public fun <init> (Ljava/util/List;Lorg/springframework/core/env/ConfigurableEnvironment;Lorg/fit4j/mock/declarative/DeclarativeTestFixtureDrivenServiceResponseProvider;)V
+	public final fun getResponseFor (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class org/fit4j/mock/MockResponseJsonBuilder {
+	public abstract fun build (Ljava/lang/Object;)Ljava/lang/String;
+}
+
+public final class org/fit4j/mock/MockResponseNotDefinedException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public abstract interface class org/fit4j/mock/MockResponseProvider : org/springframework/core/Ordered {
+	public fun getOrder ()I
+	public abstract fun getResponseFor (Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun isApplicableFor (Ljava/lang/Object;)Z
+}
+
+public final class org/fit4j/mock/MockResponseProvider$DefaultImpls {
+	public static fun getOrder (Lorg/fit4j/mock/MockResponseProvider;)I
+}
+
+public final class org/fit4j/mock/MockServiceCallTracker {
+	public static final field Companion Lorg/fit4j/mock/MockServiceCallTracker$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public final fun dumpCurrentState ()V
+	public final fun getCallTraceFactoryList ()Ljava/util/List;
+	public final fun getGrpcRequest (Ljava/lang/Class;)Ljava/util/List;
+	public final fun getHttpRequest (Ljava/lang/String;)Ljava/util/List;
+	public final fun getTraces ()Ljava/util/List;
+	public final fun hasAnyError ([I)Z
+	public final fun hasGrpcError (I)Z
+	public final fun hasHttpError (I)Z
+	public final fun logFailures ()V
+	public final fun reset ()V
+	public final fun track (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public static synthetic fun track$default (Lorg/fit4j/mock/MockServiceCallTracker;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Throwable;ILjava/lang/Object;)V
+}
+
+public final class org/fit4j/mock/MockServiceCallTracker$Companion {
+}
+
+public abstract interface class org/fit4j/mock/declarative/DeclarativeTestFixtureBuilder {
+	public abstract fun build (Ljava/util/Map;)Lorg/fit4j/mock/declarative/TestFixture;
+	public abstract fun protocol ()Ljava/lang/String;
+}
+
+public final class org/fit4j/mock/declarative/DeclarativeTestFixtureDrivenServiceResponseProvider {
+	public fun <init> (Ljava/util/List;Lorg/fit4j/mock/declarative/DeclarativeTestFixtureProvider;)V
+	public final fun getResponseFor (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class org/fit4j/mock/declarative/DeclarativeTestFixtureProvider {
+	public fun <init> (Lorg/springframework/context/ApplicationContext;Ljava/util/List;Ljava/lang/String;)V
+	public synthetic fun <init> (Lorg/springframework/context/ApplicationContext;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getTestFixtures (Ljava/lang/String;)Lorg/fit4j/mock/declarative/TestFixturesGroup;
+	public final fun getTestFixturesForCurrentTest ()Lorg/fit4j/mock/declarative/TestFixturesGroup;
+	public final fun reset ()V
+}
+
+public final class org/fit4j/mock/declarative/JsonContentExpressionResolver {
+	public fun <init> (Ltools/jackson/databind/json/JsonMapper;Lorg/fit4j/expression/PropertyAndExpressionResolver;)V
+	public final fun getExpressionResolver ()Lorg/fit4j/expression/PropertyAndExpressionResolver;
+	public final fun getJsonMapper ()Ltools/jackson/databind/json/JsonMapper;
+	public final fun resolveExpressions (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun resolveExpressions$default (Lorg/fit4j/mock/declarative/JsonContentExpressionResolver;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/String;
+}
+
+public abstract interface class org/fit4j/mock/declarative/JsonToMockResponseConverter : org/springframework/core/Ordered {
+	public abstract fun convert (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun getOrder ()I
+	public abstract fun isApplicableFor (Ljava/lang/Object;)Z
+}
+
+public final class org/fit4j/mock/declarative/JsonToMockResponseConverter$DefaultImpls {
+	public static fun getOrder (Lorg/fit4j/mock/declarative/JsonToMockResponseConverter;)I
+}
+
+public final class org/fit4j/mock/declarative/PredicateEvaluator {
+	public fun <init> (Lorg/springframework/context/ApplicationContext;)V
+	public final fun evaluate (Ljava/lang/String;Ljava/util/Map;)Z
+	public final fun getApplicationContext ()Lorg/springframework/context/ApplicationContext;
+	public final fun validate (Ljava/lang/String;)V
+}
+
+public abstract class org/fit4j/mock/declarative/TestFixture {
+	public fun <init> (Lorg/fit4j/mock/declarative/TestFixturePredicate;)V
+	protected final fun evaluatePredicate (Ljava/lang/Object;)Z
+	public final fun getAcceptedRequests ()Ljava/util/List;
+	public abstract fun isApplicableFor (Ljava/lang/Object;)Z
+	public final fun obtainResponse (Ljava/lang/Object;Ljava/util/List;)Ljava/lang/Object;
+	public final fun reset ()V
+}
+
+public final class org/fit4j/mock/declarative/TestFixturePredicate {
+	public fun <init> (Ljava/lang/String;Lorg/fit4j/mock/declarative/PredicateEvaluator;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lorg/fit4j/mock/declarative/PredicateEvaluator;
+	public final fun copy (Ljava/lang/String;Lorg/fit4j/mock/declarative/PredicateEvaluator;)Lorg/fit4j/mock/declarative/TestFixturePredicate;
+	public static synthetic fun copy$default (Lorg/fit4j/mock/declarative/TestFixturePredicate;Ljava/lang/String;Lorg/fit4j/mock/declarative/PredicateEvaluator;ILjava/lang/Object;)Lorg/fit4j/mock/declarative/TestFixturePredicate;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun evaluate (Ljava/util/Map;)Z
+	public final fun getEvaluator ()Lorg/fit4j/mock/declarative/PredicateEvaluator;
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/mock/declarative/TestFixturesGroup {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun build (Ljava/lang/Object;)Ljava/lang/String;
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/fit4j/mock/declarative/TestFixturesGroup;
+	public static synthetic fun copy$default (Lorg/fit4j/mock/declarative/TestFixturesGroup;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/mock/declarative/TestFixturesGroup;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getGlobalTestFixtures ()Lorg/fit4j/mock/declarative/TestFixturesGroup;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getPrimaryTestFixtures ()Ljava/util/List;
+	public fun hashCode ()I
+	public final fun reset ()V
+	public final fun setGlobalTestFixtures (Lorg/fit4j/mock/declarative/TestFixturesGroup;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/postgres/EmbeddedPostgresServer : org/springframework/beans/factory/DisposableBean, org/springframework/beans/factory/InitializingBean {
+	public fun <init> (ILjava/lang/String;)V
+	public fun afterPropertiesSet ()V
+	public fun destroy ()V
+	public final fun getBuilder ()Lio/zonky/test/db/postgres/embedded/EmbeddedPostgres$Builder;
+}
+
+public abstract interface annotation class org/fit4j/postgres/EnableEmbeddedPostgres : java/lang/annotation/Annotation {
+}
+
+public final class org/fit4j/redis/EmbeddedRedisServer : org/springframework/beans/factory/DisposableBean, org/springframework/beans/factory/InitializingBean {
+	public fun <init> (I)V
+	public fun afterPropertiesSet ()V
+	public fun destroy ()V
+}
+
+public abstract interface annotation class org/fit4j/redis/EnableEmbeddedRedis : java/lang/annotation/Annotation {
+	public abstract fun port ()I
+	public abstract fun useRandomPort ()Z
+}
+
+public final class org/fit4j/testcontainers/BitmapBit {
+	public fun <init> (IZ)V
+	public final fun component1 ()I
+	public final fun component2 ()Z
+	public final fun copy (IZ)Lorg/fit4j/testcontainers/BitmapBit;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/BitmapBit;IZILjava/lang/Object;)Lorg/fit4j/testcontainers/BitmapBit;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOffset ()I
+	public final fun getValue ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class org/fit4j/testcontainers/DataPopulatingTestContainerDefinition : org/fit4j/testcontainers/MapBasedTestContainerDefinition, org/springframework/beans/factory/InitializingBean, org/springframework/context/ResourceLoaderAware {
+	public fun <init> (Ljava/util/Map;)V
+	public fun afterPropertiesSet ()V
+	protected fun commonFields ()Ljava/util/List;
+	protected abstract fun dataPopulator ()Lorg/fit4j/testcontainers/TestContainerDataPopulator;
+	public fun setResourceLoader (Lorg/springframework/core/io/ResourceLoader;)V
+}
+
+public final class org/fit4j/testcontainers/ElasticsearchConnectionProperties {
+	public static final field Companion Lorg/fit4j/testcontainers/ElasticsearchConnectionProperties$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljavax/net/ssl/SSLContext;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljavax/net/ssl/SSLContext;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljavax/net/ssl/SSLContext;)Lorg/fit4j/testcontainers/ElasticsearchConnectionProperties;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/ElasticsearchConnectionProperties;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljavax/net/ssl/SSLContext;ILjava/lang/Object;)Lorg/fit4j/testcontainers/ElasticsearchConnectionProperties;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHttpHostAddress ()Ljava/lang/String;
+	public final fun getPassword ()Ljava/lang/String;
+	public final fun getSslContext ()Ljavax/net/ssl/SSLContext;
+	public final fun getUsername ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/ElasticsearchConnectionProperties$Companion {
+	public final fun fromElasticsearchContainer (Lorg/testcontainers/elasticsearch/ElasticsearchContainer;)Lorg/fit4j/testcontainers/ElasticsearchConnectionProperties;
+}
+
+public final class org/fit4j/testcontainers/ElasticsearchDataPopulator : java/lang/AutoCloseable, org/fit4j/testcontainers/TestContainerDataPopulator {
+	public fun <init> (Lorg/fit4j/testcontainers/ElasticsearchConnectionProperties;)V
+	public fun close ()V
+	public final fun getElasticSearchClient ()Lco/elastic/clients/elasticsearch/ElasticsearchClient;
+	public fun populateData (Lorg/springframework/core/io/Resource;)V
+}
+
+public final class org/fit4j/testcontainers/ElasticsearchDocumentProvider {
+	public fun <init> (Lorg/springframework/core/io/Resource;)V
+	public final fun getCreateRequests ()Ljava/util/List;
+}
+
+public final class org/fit4j/testcontainers/ElasticsearchTestContainerDefinition : org/fit4j/testcontainers/DataPopulatingTestContainerDefinition {
+	public fun <init> (Ljava/util/Map;)V
+	public fun getPropertySource ()Lorg/springframework/core/env/PropertySource;
+}
+
+public final class org/fit4j/testcontainers/GeoLocation {
+	public fun <init> (Ljava/lang/String;DD)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()D
+	public final fun component3 ()D
+	public final fun copy (Ljava/lang/String;DD)Lorg/fit4j/testcontainers/GeoLocation;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/GeoLocation;Ljava/lang/String;DDILjava/lang/Object;)Lorg/fit4j/testcontainers/GeoLocation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLatitude ()D
+	public final fun getLongitude ()D
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public class org/fit4j/testcontainers/MapBasedTestContainerDefinition : org/fit4j/testcontainers/TestContainerDefinition {
+	public fun <init> (Ljava/util/Map;)V
+	protected fun commonFields ()Ljava/util/List;
+	public fun destroy ()V
+	public fun getBeanName ()Ljava/lang/String;
+	public fun getContainer ()Lorg/testcontainers/containers/GenericContainer;
+	public fun getImageName ()Ljava/lang/String;
+	public fun getPropertySource ()Lorg/springframework/core/env/PropertySource;
+	public fun isReusable ()Z
+	public fun startContainer ()V
+	public fun stopContainer ()V
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface annotation class org/fit4j/testcontainers/NetworkFault : java/lang/annotation/Annotation {
+	public abstract fun proxied ()[Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/NetworkFaultProperties {
+	public static final field Companion Lorg/fit4j/testcontainers/NetworkFaultProperties$Companion;
+	public fun <init> (Lorg/testcontainers/utility/DockerImageName;)V
+	public final fun component1 ()Lorg/testcontainers/utility/DockerImageName;
+	public final fun copy (Lorg/testcontainers/utility/DockerImageName;)Lorg/fit4j/testcontainers/NetworkFaultProperties;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/NetworkFaultProperties;Lorg/testcontainers/utility/DockerImageName;ILjava/lang/Object;)Lorg/fit4j/testcontainers/NetworkFaultProperties;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getToxiproxyImage ()Lorg/testcontainers/utility/DockerImageName;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/NetworkFaultProperties$Companion {
+	public final fun from (Lorg/springframework/core/env/Environment;)Lorg/fit4j/testcontainers/NetworkFaultProperties;
+}
+
+public final class org/fit4j/testcontainers/NetworkFaultProxy {
+	public final fun getProxyPort ()I
+	public final fun setConnectionCut (Z)V
+	public final fun toxics ()Leu/rekawek/toxiproxy/model/ToxicList;
+	public final fun unwrap ()Leu/rekawek/toxiproxy/Proxy;
+}
+
+public final class org/fit4j/testcontainers/NetworkFaultRegistrar$Companion {
+	public final fun isEnabled ([Ljava/lang/String;)Z
+	public final fun proxyBeanName (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/ProxiedTarget {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Integer;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/Integer;
+	public final fun copy (Ljava/lang/String;Ljava/lang/Integer;)Lorg/fit4j/testcontainers/ProxiedTarget;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/ProxiedTarget;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lorg/fit4j/testcontainers/ProxiedTarget;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getName ()Ljava/lang/String;
+	public final fun getUpstreamPort ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisBitmap {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/fit4j/testcontainers/RedisBitmap;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisBitmap;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisBitmap;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBits ()Ljava/util/List;
+	public final fun getKey ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisConnectionProperties {
+	public fun <init> (Ljava/lang/String;I)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()I
+	public final fun copy (Ljava/lang/String;I)Lorg/fit4j/testcontainers/RedisConnectionProperties;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisConnectionProperties;Ljava/lang/String;IILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisConnectionProperties;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHost ()Ljava/lang/String;
+	public final fun getPort ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisData {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Ljava/util/List;
+	public final fun component6 ()Ljava/util/List;
+	public final fun component7 ()Ljava/util/List;
+	public final fun component8 ()Ljava/util/List;
+	public final fun component9 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;)Lorg/fit4j/testcontainers/RedisData;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisData;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisData;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBitmaps ()Ljava/util/List;
+	public final fun getGeospatials ()Ljava/util/List;
+	public final fun getHashes ()Ljava/util/List;
+	public final fun getHyperloglogs ()Ljava/util/List;
+	public final fun getLists ()Ljava/util/List;
+	public final fun getSets ()Ljava/util/List;
+	public final fun getSortedsets ()Ljava/util/List;
+	public final fun getStreams ()Ljava/util/List;
+	public final fun getStrings ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisDataPopulator : org/fit4j/testcontainers/TestContainerDataPopulator {
+	public fun <init> (Lorg/fit4j/testcontainers/RedisConnectionProperties;)V
+	public final fun getJedis ()Lredis/clients/jedis/Jedis;
+	public fun populateData (Lorg/springframework/core/io/Resource;)V
+}
+
+public final class org/fit4j/testcontainers/RedisDataProvider {
+	public fun <init> (Lorg/springframework/core/io/Resource;)V
+	public final fun getRedisData ()Lorg/fit4j/testcontainers/RedisData;
+}
+
+public final class org/fit4j/testcontainers/RedisGeo {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/fit4j/testcontainers/RedisGeo;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisGeo;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisGeo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getLocations ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisHash {
+	public fun <init> (Ljava/lang/String;Ljava/util/Map;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Ljava/util/Map;)Lorg/fit4j/testcontainers/RedisHash;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisHash;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisHash;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFields ()Ljava/util/Map;
+	public final fun getKey ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisHyperLogLog {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/fit4j/testcontainers/RedisHyperLogLog;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisHyperLogLog;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisHyperLogLog;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getValues ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisList {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/fit4j/testcontainers/RedisList;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisList;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisList;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getValues ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisSet {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/fit4j/testcontainers/RedisSet;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisSet;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisSet;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getMembers ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisSortedSet {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/fit4j/testcontainers/RedisSortedSet;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisSortedSet;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisSortedSet;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getMembers ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisStream {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/fit4j/testcontainers/RedisStream;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisStream;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisStream;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEntries ()Ljava/util/List;
+	public final fun getKey ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisString {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/fit4j/testcontainers/RedisString;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/RedisString;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/fit4j/testcontainers/RedisString;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/RedisTestContainerDefinition : org/fit4j/testcontainers/DataPopulatingTestContainerDefinition {
+	public fun <init> (Ljava/util/Map;)V
+}
+
+public final class org/fit4j/testcontainers/SortedSetMember {
+	public fun <init> (Ljava/lang/String;D)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()D
+	public final fun copy (Ljava/lang/String;D)Lorg/fit4j/testcontainers/SortedSetMember;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/SortedSetMember;Ljava/lang/String;DILjava/lang/Object;)Lorg/fit4j/testcontainers/SortedSetMember;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getScore ()D
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/StreamEntry {
+	public fun <init> (Ljava/util/Map;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/Map;)Lorg/fit4j/testcontainers/StreamEntry;
+	public static synthetic fun copy$default (Lorg/fit4j/testcontainers/StreamEntry;Ljava/util/Map;ILjava/lang/Object;)Lorg/fit4j/testcontainers/StreamEntry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFields ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/TestContainerClassAliases {
+	public static final field INSTANCE Lorg/fit4j/testcontainers/TestContainerClassAliases;
+	public final fun isElasticsearchContainer (Ljava/lang/String;)Z
+	public final fun isGenericContainer (Ljava/lang/String;)Z
+	public final fun isKafkaContainer (Ljava/lang/String;)Z
+	public final fun isMySqlContainer (Ljava/lang/String;)Z
+	public final fun isRedisContainer (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun resolve (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public abstract interface class org/fit4j/testcontainers/TestContainerDataPopulator {
+	public abstract fun populateData (Lorg/springframework/core/io/Resource;)V
+}
+
+public abstract interface class org/fit4j/testcontainers/TestContainerDefinition : org/springframework/beans/factory/DisposableBean, org/springframework/beans/factory/NamedBean {
+	public fun destroy ()V
+	public fun getBeanName ()Ljava/lang/String;
+	public abstract fun getContainer ()Lorg/testcontainers/containers/GenericContainer;
+	public abstract fun getImageName ()Ljava/lang/String;
+	public abstract fun getPropertySource ()Lorg/springframework/core/env/PropertySource;
+	public fun isReusable ()Z
+	public fun startContainer ()V
+	public fun stopContainer ()V
+}
+
+public final class org/fit4j/testcontainers/TestContainerDefinition$DefaultImpls {
+	public static fun destroy (Lorg/fit4j/testcontainers/TestContainerDefinition;)V
+	public static fun getBeanName (Lorg/fit4j/testcontainers/TestContainerDefinition;)Ljava/lang/String;
+	public static fun isReusable (Lorg/fit4j/testcontainers/TestContainerDefinition;)Z
+	public static fun startContainer (Lorg/fit4j/testcontainers/TestContainerDefinition;)V
+	public static fun stopContainer (Lorg/fit4j/testcontainers/TestContainerDefinition;)V
+}
+
+public abstract interface annotation class org/fit4j/testcontainers/Testcontainers : java/lang/annotation/Annotation {
+	public abstract fun definitions ()[Ljava/lang/String;
+	public abstract fun inheritDefinitions ()Z
+	public abstract fun networkFault ()Lorg/fit4j/testcontainers/NetworkFault;
+	public abstract fun resourcePath ()Ljava/lang/String;
+}
+
+public final class org/fit4j/testcontainers/ToxiproxyBootstrap$Companion {
+}

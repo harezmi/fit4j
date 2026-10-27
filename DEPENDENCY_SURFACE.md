@@ -6,10 +6,11 @@ Boot BOM is used only while building and testing FIT4J and is not exported to co
 
 ## Packaging decision
 
-FIT4J 1.0 deliberately remains one batteries-included artifact. Splitting it immediately before 1.0 would
+FIT4J 1.x deliberately remains one batteries-included artifact: `io.github.harezmi:fit4j`. No feature-module
+coordinates will be introduced during the 1.x line. Splitting it immediately before 1.0 would
 move packages, coordinates, Spring discovery metadata, and DSL entry points at the same moment the public API
 is being frozen. The current JAR is approximately 0.5 MiB; most cost is in transitive integration libraries,
-not FIT4J bytecode. A module split is deferred to a future major release and must be driven by measured
+not FIT4J bytecode. A module split is deferred to 2.0 or later and must be driven by measured
 consumer graphs and migration tooling.
 
 The single artifact means supported HTTP, database, Kafka, embedded-service, Testcontainers, Redis, and
