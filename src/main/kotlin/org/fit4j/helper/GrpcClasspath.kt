@@ -5,20 +5,19 @@ package org.fit4j.helper
  */
 object GrpcClasspath {
 
-    private val present: Boolean by lazy {
-        listOf(
+    fun isPresent(): Boolean {
+        val classLoader = Thread.currentThread().contextClassLoader ?: GrpcClasspath::class.java.classLoader
+        return listOf(
             "io.grpc.BindableService",
             "io.grpc.inprocess.InProcessChannelBuilder",
             "org.springframework.grpc.server.InProcessGrpcServerFactory",
         ).all { className ->
             try {
-                Class.forName(className, false, GrpcClasspath::class.java.classLoader)
+                Class.forName(className, false, classLoader)
                 true
             } catch (_: Throwable) {
                 false
             }
         }
     }
-
-    fun isPresent(): Boolean = present
 }

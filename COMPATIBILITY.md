@@ -17,7 +17,7 @@ is supported only after it appears in this table and CI.
 | Kotlin | Kotlin 2.3.21 compiler and standard library; Kotlin 2.3.x consumers are supported. Java consumers do not need the Kotlin compiler. |
 | Spring Boot | 4.1.0 baseline; compatible 4.1.x patches are supported. Spring Boot 3.x and 4.2+ are outside the 1.0 contract. |
 | JUnit | JUnit Jupiter and JUnit Platform 6.0.3; the Jupiter extension model is required. JUnit 4 is unsupported. |
-| gRPC and protobuf | Spring Boot gRPC starters 4.1.0, Spring gRPC 1.1.0, grpc-java 1.81.0, grpc-kotlin 1.5.0, and protobuf-java 4.34.2 as resolved by the Boot BOM. gRPC remains optional at runtime. |
+| gRPC and protobuf | Spring Boot gRPC starters 4.1.0, Spring gRPC 1.1.0, grpc-java 1.81.0, grpc-kotlin 1.5.0, and protobuf-java 4.34.2. gRPC remains optional at runtime. |
 | Testcontainers | Testcontainers 2.0.5. A Docker-compatible runtime is required only for container-backed features. |
 | Kafka | Spring Kafka 4.1.0 and Kafka clients 4.2.1. Embedded Kafka and Testcontainers Kafka are tested; the container fixture uses `confluentinc/cp-kafka:7.6.1`. |
 | Databases | H2 2.4.240; MySQL Connector/J 9.7.0 with `mysql:8.0.37`; PostgreSQL JDBC 42.7.11 with `postgres:16.1`; embedded PostgreSQL 2.2.2. Database cleanup is tested for H2, MySQL, and PostgreSQL. |
@@ -25,11 +25,10 @@ is supported only after it appears in this table and CI.
 | Elasticsearch | Elasticsearch Java client 9.4.2 and the tested container image `elasticsearch:9.0.4`. |
 | DynamoDB Local | DynamoDB Local 2.6.1. It includes native SQLite libraries; supported host architectures are limited to those for which the upstream artifact supplies a working native library. A Docker-backed DynamoDB definition remains available as an alternative. |
 
-FIT4J currently publishes the Spring Boot 4.1 BOM as an API platform. It is therefore part of the 1.x
-dependency contract, not merely a build-time convenience: Gradle consumers receive its version constraints,
-and Maven publication metadata may expose corresponding dependency management. Phase 3 will audit the exact
-published surface, but removing or materially weakening this alignment before 2.0 requires a documented
-migration because it can change consumer dependency resolution.
+FIT4J uses the Spring Boot 4.1 BOM internally to resolve its build and test classpaths, but does not publish the
+BOM as a platform dependency. Published Maven and Gradle metadata instead contains explicit versions only for
+FIT4J's direct dependencies. Adding FIT4J therefore does not import the entire Boot dependency-management
+policy into a consumer project. Applications should continue to use their own supported Spring Boot 4.1.x BOM.
 
 ## Feature and API stability
 

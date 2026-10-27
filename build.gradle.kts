@@ -38,66 +38,72 @@ configurations.all {
 
 dependencies {
 	val springBootVersion : String by project
-	val springGrpcVersion : String by project
+	val springKafkaVersion : String by project
 	val kotlinVersion : String by project
 	val mockkVersion : String by project
 	val protobufJavaVersion : String by project
 	val dynamoDBLocalVersion : String by project
 	val redisVersion: String by project
+	val h2Version: String by project
+	val byteBuddyVersion: String by project
+	val snakeYamlVersion: String by project
+	val commonsLangVersion: String by project
+	val jacksonVersion: String by project
+	val testcontainersVersion: String by project
+	val elasticsearchVersion: String by project
+	val embeddedRedisVersion: String by project
+	val embeddedPostgresVersion: String by project
+	val jakartaAnnotationVersion: String by project
 
-	api(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 	compileOnly(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
-	implementation("org.springframework.boot:spring-boot-starter-jdbc")
+	testImplementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
+	implementation("org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion")
 	compileOnly("org.springframework.boot:spring-boot-starter-grpc-server")
 	compileOnly("org.springframework.boot:spring-boot-starter-grpc-client")
 	compileOnly("io.grpc:grpc-inprocess")
 	compileOnly("io.grpc:grpc-api")
 	compileOnly("io.grpc:grpc-stub")
 	testImplementation("io.grpc:grpc-kotlin-stub")
-	implementation("org.springframework.boot:spring-boot-test")
-	implementation("org.springframework.boot:spring-boot-restclient")
-	implementation("org.springframework.boot:spring-boot-resttestclient")
-	implementation("org.springframework.boot:spring-boot-starter")
-	implementation("org.springframework.boot:spring-boot-kafka")
-	implementation("org.springframework.boot:spring-boot-jackson")
-	implementation("com.h2database:h2")
-	implementation("org.springframework.kafka:spring-kafka-test")
-	implementation("org.springframework.kafka:spring-kafka")
-	implementation("net.bytebuddy:byte-buddy")
-	implementation("org.yaml:snakeyaml")
-	implementation("org.apache.commons:commons-lang3")
-	implementation("tools.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+	api("org.springframework.boot:spring-boot-test:$springBootVersion")
+	api("org.springframework.boot:spring-boot-restclient:$springBootVersion")
+	implementation("org.springframework.boot:spring-boot-resttestclient:$springBootVersion")
+	implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
+	implementation("org.springframework.boot:spring-boot-kafka:$springBootVersion")
+	implementation("org.springframework.boot:spring-boot-jackson:$springBootVersion")
+	implementation("com.h2database:h2:$h2Version")
+	implementation("org.springframework.kafka:spring-kafka-test:$springKafkaVersion")
+	api("org.springframework.kafka:spring-kafka:$springKafkaVersion")
+	implementation("net.bytebuddy:byte-buddy:$byteBuddyVersion")
+	implementation("org.yaml:snakeyaml:$snakeYamlVersion")
+	implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
+	api("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
+	api("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-	implementation("com.google.protobuf:protobuf-java:$protobufJavaVersion")
-	implementation("com.google.protobuf:protobuf-java-util:$protobufJavaVersion")
-	implementation("io.mockk:mockk:$mockkVersion")
+	api("com.google.protobuf:protobuf-java:$protobufJavaVersion")
+	api("com.google.protobuf:protobuf-java-util:$protobufJavaVersion")
+	testImplementation("io.mockk:mockk:$mockkVersion")
 	testImplementation("org.springframework.boot:spring-boot-starter-grpc-server")
 	testImplementation("org.springframework.boot:spring-boot-starter-grpc-client")
 	testImplementation("org.springframework.boot:spring-boot-starter-grpc-server-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-grpc-client-test")
-	implementation("org.testcontainers:testcontainers")
-	implementation("org.testcontainers:testcontainers-junit-jupiter")
-	implementation("org.testcontainers:testcontainers-kafka")
-	implementation("org.testcontainers:testcontainers-elasticsearch")
-	implementation("org.testcontainers:testcontainers-mysql")
-	implementation("org.testcontainers:testcontainers-postgresql")
-	implementation("org.testcontainers:testcontainers-toxiproxy")
-	implementation("co.elastic.clients:elasticsearch-java")
-	implementation("redis.clients:jedis:$redisVersion")
-	implementation("com.github.codemonstur:embedded-redis:1.4.3")
-
-	implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.2.0")
-	implementation("io.github.resilience4j:resilience4j-kotlin:2.2.0")
-	implementation("io.github.resilience4j:resilience4j-micrometer:2.2.0")
+	api("org.testcontainers:testcontainers:$testcontainersVersion")
+	api("org.testcontainers:testcontainers-junit-jupiter:$testcontainersVersion")
+	implementation("org.testcontainers:testcontainers-kafka:$testcontainersVersion")
+	api("org.testcontainers:testcontainers-elasticsearch:$testcontainersVersion")
+	implementation("org.testcontainers:testcontainers-mysql:$testcontainersVersion")
+	implementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
+	api("org.testcontainers:testcontainers-toxiproxy:$testcontainersVersion")
+	api("co.elastic.clients:elasticsearch-java:$elasticsearchVersion")
+	api("redis.clients:jedis:$redisVersion")
+	implementation("com.github.codemonstur:embedded-redis:$embeddedRedisVersion")
 
 	implementation("com.amazonaws:DynamoDBLocal:$dynamoDBLocalVersion") {
 		exclude(group = "org.slf4j", module = "slf4j-api")
 	}
 
-	implementation("jakarta.annotation:jakarta.annotation-api")
+	implementation("jakarta.annotation:jakarta.annotation-api:$jakartaAnnotationVersion")
 
-    implementation("io.zonky.test:embedded-postgres:2.2.2")
+    api("io.zonky.test:embedded-postgres:$embeddedPostgresVersion")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test-classic")
 	testImplementation("org.springframework.boot:spring-boot-resttestclient")

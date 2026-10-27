@@ -124,10 +124,10 @@ and the [FIT4J 1.x compatibility contract](COMPATIBILITY.md).
 | **DynamoDB Local** | 2.6.1 | Embedded mode is subject to upstream native SQLite support; container mode is the portable alternative. |
 | **Build tools** | Gradle wrapper 9.1.0; Maven Central metadata | Consumers may use Gradle or Maven. FIT4J development uses the checked-in wrapper. |
 
-The Spring Boot 4.1 BOM is currently published as part of FIT4J's API dependency constraints, so its alignment
-is part of the 1.x dependency contract rather than a build-only detail. Feature stability, extension SPI,
+FIT4J uses the Spring Boot 4.1 BOM internally but does not export it. Your application retains control of its
+own Boot BOM and unrelated dependency versions. Feature stability, extension SPI, dependency scopes,
 deprecation rules, configuration-format guarantees, and concurrency limitations are defined in
-[COMPATIBILITY.md](COMPATIBILITY.md).
+[COMPATIBILITY.md](COMPATIBILITY.md) and [DEPENDENCY_SURFACE.md](DEPENDENCY_SURFACE.md).
 
 ### Version alignment with your service
 
@@ -256,7 +256,9 @@ dependencies {
 ```
 <!--/fit4jVersion-->
 
-> **<!--fit4jVersion-->0.1.9<!--/fit4jVersion-->** publishes the Boot BOM on the API variant and makes gRPC starters optional — you only add them for gRPC FITs. On **0.1.1** with Gradle, if you see `Could not find spring-boot-starter-grpc-server:.` (empty version), add the `platform(...)` line above or upgrade to **<!--fit4jVersion-->0.1.9<!--/fit4jVersion-->+**.
+> FIT4J 1.x publishes explicit versions for its direct dependencies and does not export the Boot BOM. Keep the
+> platform declaration above so your application owns dependency alignment. gRPC starters remain optional and
+> must be added only for gRPC FITs.
 
 **Maven:**
 <!--fit4jVersion-->

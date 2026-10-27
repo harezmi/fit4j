@@ -129,8 +129,8 @@ Acceptance criteria:
   configuration-format, and concurrency contract.
 - Replaced the README's broad compatibility claims with one exact matrix derived from the resolved Gradle
   dependency graph and CI runtime matrix.
-- Declared the Spring Boot 4.1 BOM an existing published dependency contract, while leaving its exact metadata
-  audit to Phase 3.
+- Identified the Spring Boot 4.1 BOM as part of the then-current published dependency contract and deferred the
+  final publication policy to Phase 3, where it was removed from consumer metadata.
 - Classified every user-facing integration and extension surface as stable API, stable SPI, experimental, or
   internal implementation, with FIT4J maintainers as the explicit owner.
 - Classified network fault injection and its Toxiproxy control surface as stable API. There are currently no
@@ -197,7 +197,29 @@ Acceptance criteria:
 
 ## Phase 3: Rationalize the published dependency surface
 
-**Status:** Not started
+**Status:** Complete (2026-10-27)
+
+### Execution record
+
+- Added `DEPENDENCY_SURFACE.md` with a source-backed inventory of every direct production dependency, public
+  signature exposure, chosen Gradle scope, feature classpath additions, and publication guarantees.
+- Kept a single batteries-included artifact for 1.0. A late module split is deferred to a future major release
+  because it would simultaneously change packages, coordinates, Spring discovery metadata, and DSL entry
+  points; the FIT4J JAR itself is only about 0.5 MiB.
+- Removed three unused Resilience4j dependencies and moved MockK from production runtime to test-only scope.
+- Promoted dependencies exposed by stable signatures to `api`; retained implementation-only integration and
+  reflective/container providers in runtime scope; kept Boot/gRPC starters compile-only.
+- Stopped publishing the Spring Boot BOM. Direct published dependencies now have explicit versions, leaving
+  consumer applications in control of their Boot BOM and unrelated dependency alignment.
+- Added isolated-classloader tests for core/HTTP/database use without gRPC or container/client stacks and
+  activation tests proving embedded/container integrations remain inactive unless selected.
+- Corrected gRPC presence detection to use the active thread context classloader, which is required in isolated
+  test engines, plugin hosts, and layered classloader environments.
+- Regenerated and inspected the Maven POM and Gradle module metadata: API/runtime scopes are distinct, all
+  direct versions are present, and the Boot BOM, MockK, Resilience4j, test-only dependencies, and compile-only
+  gRPC dependencies are absent.
+- Aligned the examples wrapper distribution with Gradle 9.1.0 and verified all 13 example projects through the
+  composite build against the revised dependency surface.
 
 ### Inventory every main dependency
 
