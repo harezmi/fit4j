@@ -107,6 +107,7 @@ dependencies {
 	val embeddedRedisVersion: String by project
 	val embeddedPostgresVersion: String by project
 	val jakartaAnnotationVersion: String by project
+	val cucumberVersion: String by project
 
 	compileOnly(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 	testImplementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
@@ -164,6 +165,9 @@ dependencies {
 	testImplementation("com.mysql:mysql-connector-j")
     testImplementation("org.postgresql:postgresql")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+	testImplementation("io.cucumber:cucumber-java:$cucumberVersion")
+	testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
+	testImplementation("org.junit.platform:junit-platform-suite")
 }
 
 tasks.withType<KotlinCompile>().configureEach {

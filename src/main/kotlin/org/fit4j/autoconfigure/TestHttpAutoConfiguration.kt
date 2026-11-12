@@ -22,6 +22,7 @@ import org.fit4j.mock.declarative.PredicateEvaluator
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.restclient.RestClientCustomizer
 import org.springframework.boot.restclient.RestTemplateCustomizer
 import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.context.ApplicationListener
@@ -81,6 +82,18 @@ class TestHttpAutoConfiguration {
     @Bean
     fun mockWebCallTraceFactory() : HttpCallTraceFactory {
         return HttpCallTraceFactory()
+    }
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    fun fit4jExecutionIdRestClientCustomizer(): RestClientCustomizer {
+        return RestClientCustomizer { builder ->
+            builder.requestInterceptors { interceptors ->
+                if (interceptors.none { it is Fit4jExecutionIdClientHttpRequestInterceptor }) {
+                    interceptors.add(0, Fit4jExecutionIdClientHttpRequestInterceptor())
+                }
+            }
+        }
     }
 
     @Bean

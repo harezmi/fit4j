@@ -167,6 +167,28 @@ repositories {
 }
 ```
 
+### Verify a published snapshot
+
+After publishing, confirm that Central Portal serves the snapshot JAR with the isolated
+`snapshot-check` project (it reads `group` / `version` from the root `gradle.properties`):
+
+```bash
+./gradlew -p snapshot-check verifySnapshot --refresh-dependencies
+```
+
+A successful run prints the resolved `io.github.harezmi:fit4j:<version>` JAR path from the local
+Gradle cache. Override the version when needed:
+
+```bash
+./gradlew -p snapshot-check verifySnapshot -Pfit4jVersion=1.0.0-SNAPSHOT --refresh-dependencies
+```
+
+You can also inspect the snapshot repository listing directly:
+
+```text
+https://central.sonatype.com/repository/maven-snapshots/io/github/harezmi/fit4j/<version>/
+```
+
 ## Publish a release
 
 1. Set a non-snapshot `version` in `gradle.properties`.
