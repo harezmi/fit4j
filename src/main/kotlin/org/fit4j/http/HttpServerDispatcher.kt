@@ -43,15 +43,19 @@ class HttpServerDispatcher(
                     os.write(bodyBytes)
                 }
             } else {
-                exchange.sendResponseHeaders(500, 0)
+                sendEmptyErrorResponse(exchange)
             }
         } catch (ex: Exception) {
             logger.error("Failed to handle HTTP request ${exchange.requestURI.path}", ex)
             error = ex
-            exchange.sendResponseHeaders(500, 0)
+            sendEmptyErrorResponse(exchange)
         } finally {
             mockServiceCallTracker.track(request, response, error)
         }
     }
 
+    private fun sendEmptyErrorResponse(exchange: HttpExchange) {
+        exchange.sendResponseHeaders(500, -1)
+        exchange.responseBody.close()
+    }
 }

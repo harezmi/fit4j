@@ -1,14 +1,14 @@
-package org.fit4j.dsl.cucumber
+package org.fit4j.cucumber
 
 import io.cucumber.java.After
 import io.cucumber.java.Before
 import org.fit4j.context.Fit4jTestExecutionRegistry
 
 /**
- * Example Cucumber hooks for FIT4J when scenarios are not JUnit `@FIT` methods.
- * Application suites can copy this pattern into their own glue package.
+ * Opens a FIT4J execution scope for each Cucumber scenario so HTTP/gRPC DSL stubs
+ * are visible to mock server worker threads via execution-id propagation.
  */
-class Fit4jExecutionScopeHooks {
+class Fit4jCucumberSpringHooks {
 
     @Before
     fun beforeScenario() {
