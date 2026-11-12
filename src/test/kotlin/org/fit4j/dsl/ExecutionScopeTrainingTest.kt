@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtensionContext
 import java.util.concurrent.atomic.AtomicReference
 
 class ExecutionScopeTrainingTest {
@@ -51,8 +50,6 @@ class ExecutionScopeTrainingTest {
     }
 
     private fun registry() = TestTrainingRegistry<String, String, String>(
-        ExtensionContext.Namespace.create("execution-scope-training"),
-        "trainings",
         "HTTP",
         { training, request -> training.startsWith(request) },
         { training, _ -> training },

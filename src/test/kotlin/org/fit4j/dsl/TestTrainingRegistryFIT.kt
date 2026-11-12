@@ -4,13 +4,10 @@ import org.fit4j.annotation.FIT
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtensionContext
 
 @FIT
 class TestTrainingRegistryFIT {
     private fun registry(protocol: String) = TestTrainingRegistry<String, String, String>(
-        ExtensionContext.Namespace.create("registry-test", protocol),
-        "trainings",
         protocol,
         { training, request -> training.startsWith(request) },
         { training, _ -> training }

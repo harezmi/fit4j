@@ -10,8 +10,9 @@ internal object GrpcExecutionIdSupport {
         }
         return try {
             val clazz = Class.forName(EXECUTION_CONTEXT_CLASS, false, GrpcExecutionIdSupport::class.java.classLoader)
+            val instance = clazz.getField("INSTANCE").get(null)
             val method = clazz.getMethod("getExecutionId")
-            method.invoke(null) as String?
+            method.invoke(instance) as String?
         } catch (_: Throwable) {
             null
         }

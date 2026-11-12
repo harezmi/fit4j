@@ -2,12 +2,9 @@ package org.fit4j.grpc.dsl
 
 import com.google.protobuf.Message
 import org.fit4j.dsl.TestTrainingRegistry
-import org.junit.jupiter.api.extension.ExtensionContext
 
 object GrpcDslRegistry {
     private val registry = TestTrainingRegistry<GrpcTrainingDefinition, Message, String>(
-        ExtensionContext.Namespace.create("org.fit4j.grpc.dsl"),
-        "grpc-dsl-trainings",
         "gRPC",
         GrpcTrainingDefinition::matches,
         GrpcTrainingDefinition::buildResponse
