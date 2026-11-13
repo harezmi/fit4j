@@ -18,17 +18,11 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object Fit4jTestExecutionRegistry {
 
-    private val STORE_NAMESPACE: ExtensionContext.Namespace =
-        ExtensionContext.Namespace.create("org.fit4j.testExecution")
-
-    private const val EXECUTION_ID_KEY = "executionId"
-
     private val stateByExecutionId = ConcurrentHashMap<String, Fit4jExecutionState>()
     private val currentExecutionId = ThreadLocal<String?>()
 
     fun beginTestMethod(extensionContext: ExtensionContext): String {
         val id = UUID.randomUUID().toString()
-        extensionContext.getStore(STORE_NAMESPACE).put(EXECUTION_ID_KEY, id)
         val applicationContext = try {
             SpringExtension.getApplicationContext(extensionContext)
         } catch (_: Exception) {
@@ -44,10 +38,8 @@ object Fit4jTestExecutionRegistry {
         return id
     }
 
-    fun endTestMethod(extensionContext: ExtensionContext) {
-        val id = currentExecutionId.get()
-            ?: extensionContext.getStore(STORE_NAMESPACE).get(EXECUTION_ID_KEY, String::class.java)
-        closeScope(id)
+    fun endTestMethod(@Suppress("UNUSED_PARAMETER") extensionContext: ExtensionContext) {
+        endCurrentScope()
     }
 
     /**
@@ -70,12 +62,10 @@ object Fit4jTestExecutionRegistry {
     }
 
     /**
-     * Clears HTTP and gRPC stubs for the scope on this thread and drops the thread-local id.
+     * Clears stubs, scoped state, and execution state for the scope on this thread (parity with JUnit [endTestMethod]).
      */
     fun endExecutionScope() {
-        HttpDslRegistry.resetCurrentTest()
-        GrpcDslRegistry.resetCurrentTest()
-        closeScope(currentExecutionId.get())
+        endCurrentScope()
     }
 
     fun currentExecutionId(): String? = currentExecutionId.get()
@@ -110,6 +100,12 @@ object Fit4jTestExecutionRegistry {
                 }
             }
         }
+    }
+
+    private fun endCurrentScope() {
+        HttpDslRegistry.resetCurrentTest()
+        GrpcDslRegistry.resetCurrentTest()
+        closeScope(currentExecutionId.get())
     }
 
     private fun closeScope(id: String?) {

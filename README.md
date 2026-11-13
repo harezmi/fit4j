@@ -147,7 +147,7 @@ FIT4J on this branch requires **Spring Boot 4.1.x**. If you are upgrading from F
 
 ### Parallel test execution (same JVM vs. multiple JVMs)
 
-FIT4J uses shared static state (for example the current JUnit `ExtensionContext`) so that mock HTTP/gRPC servers and other infrastructure on **worker threads** can correlate failures and fixtures with the running test. Because of that:
+FIT4J still **caches Spring contexts** and may share embedded brokers, Testcontainers, and other infrastructure across tests in one JVM. Mock HTTP/gRPC **worker threads** correlate stubs, untrained-call tracking, failed calls, and `@TestScoped` beans via a **per-test-method execution id** (ThreadLocal plus HTTP/gRPC propagation)—not a global JUnit `ExtensionContext`. That isolates mock-side state per test method or Cucumber scenario, but does **not** make every shared resource parallel-safe. Because of that:
 
 - **Concurrent execution inside a single JVM is not supported** — do not enable JUnit 5 parallel mode (`@Execution(CONCURRENT)`, parallel classes/methods, etc.) for `@FIT` / `@IT` suites. Doing so can cause races, wrong fixture selection, and flaky failures.
 - **Running tests sequentially is still required within each test JVM process.** Defaults are usually safe: Gradle and Surefire run tests one after another inside a fork unless you explicitly turn on JUnit parallel execution.
@@ -208,18 +208,20 @@ To use only one JVM:
 </plugin>
 ```
 
-**Summary:** Multi-fork / multi-process parallelism is a practical way to improve throughput **without** changing FIT4J; **in-process** JUnit parallelism remains unsupported. True concurrent execution within the same JVM is planned for a future release.
+**Summary:** Multi-fork / multi-process parallelism is a practical way to improve throughput **without** changing FIT4J; **in-process** JUnit parallelism remains unsupported because of shared Spring context caching and infrastructure, not because mock HTTP/gRPC stubs still leak through a static `ExtensionContext`.
 
 ### Test execution id (worker-thread correlation)
 
-FIT4J registers a **per-test-method execution id** and resolves the correct JUnit `ExtensionContext` on mock **HTTP** and **gRPC** worker threads by propagating that id on each outgoing call:
+FIT4J registers a **per-test-method execution id** and resolves the matching **[Fit4jExecutionState](src/main/kotlin/org/fit4j/context/Fit4jExecutionState.kt)** on mock **HTTP** and **gRPC** worker threads by propagating that id on each outgoing call:
 
 - **HTTP:** header `X-Fit4j-Test-Execution-Id` — added automatically for Spring `RestTemplate` beans via a `RestTemplateCustomizer` (runs with highest precedence so it combines with optional custom `HttpHeadersSource` beans).
 - **gRPC:** metadata key `x-fit4j-test-execution-id` — attached on spring-grpc client channels via `GrpcChannelBuilderCustomizer` and read by a server interceptor on the mock gRPC server.
 
 If you use **WebClient**, raw `HttpURLConnection`, or a non-Spring HTTP client, add the same header yourself on outbound calls to FIT mock servers, using the current value from `Fit4jTestExecutionRegistry.currentExecutionId()` when present.
 
-This mechanism is the library’s **Solution 1** building block for same-JVM isolation on server-side mock threads. Other shared resources (for example a singleton embedded Kafka broker in some configurations) may still need care; keep JUnit parallel mode disabled unless you have validated your full stack.
+This mechanism isolates **DSL trainings**, **failed-call tracking**, and **`@TestScoped` beans** per execution id on mock worker threads. **Cucumber** scenarios should use `beginExecutionScope` / `endExecutionScope` (and `attachApplicationContext` when DSL SpEL or scoped beans need Spring); see the FIT4J Cucumber test hooks in this repo.
+
+Other shared resources (for example a singleton embedded Kafka broker in some configurations) may still need care; keep JUnit parallel mode disabled unless you have validated your full stack.
 
 # How to Start Working with This Library?
 
@@ -1935,7 +1937,7 @@ Please ensure that:
 
 **Q**: Does FIT4J support parallel test execution?
 
-**A**: **Not inside a single JVM.** FIT4J relies on shared static state for test context; enabling JUnit 5 parallel execution (concurrent classes/methods in one process) can cause races and flaky tests. **Within each test JVM, `@FIT` / `@IT` tests should run sequentially**, and you should keep `junit.jupiter.execution.parallel.enabled=false` (see [Important Limitations](#️-important-limitations)). **You can still speed up CI** by running tests in **multiple forked JVMs** (e.g. Gradle `maxParallelForks` > 1 or Maven Surefire `forkCount` > 1), which isolates static state per process while tests in each fork run one after another. Watch memory, CPU, and shared resources such as Testcontainers. Concurrent execution *within* one JVM is planned for a future release.
+**A**: **Not inside a single JVM** for full `@FIT` / `@IT` suites. FIT4J isolates mock HTTP/gRPC stub state, failed calls, and `@TestScoped` beans by **execution id**, but Spring **context caching**, Testcontainers, and many embedded services are still shared in one process—enabling JUnit 5 parallel execution can cause races and flaky tests. **Within each test JVM, `@FIT` / `@IT` tests should run sequentially**, and you should keep `junit.jupiter.execution.parallel.enabled=false` (see [Important Limitations](#️-important-limitations)). **You can still speed up CI** by running tests in **multiple forked JVMs** (e.g. Gradle `maxParallelForks` > 1 or Maven Surefire `forkCount` > 1), which isolates process-wide state while tests in each fork run one after another. Watch memory, CPU, and shared resources such as Testcontainers.
 
 **Q**: Which method should I prefer to use for FITs, declarative or programmatic fixture definitions?
 

@@ -1,7 +1,5 @@
 package org.fit4j.context
 
-import org.fit4j.grpc.dsl.GrpcDslRegistry
-import org.fit4j.http.dsl.HttpDslRegistry
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
@@ -18,8 +16,6 @@ class Fit4JTestExtension : BeforeEachCallback, AfterEachCallback,
     }
 
     override fun afterEach(context: ExtensionContext) {
-        HttpDslRegistry.resetCurrentTest()
-        GrpcDslRegistry.resetCurrentTest()
         Fit4jTestExecutionRegistry.endTestMethod(context)
     }
 
