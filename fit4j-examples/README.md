@@ -4,7 +4,7 @@ This project contains examples of how to use FIT with various other libraries an
 Aside from the library dependency itself, the other dependencies listed in each example project's `build.gradle.kts` file is sufficient
 to make use of the example in your own service.
 
-**Build notes:** Examples share the same toolchain as the main library — JDK **25** for compile/test (Gradle auto-provisioned), **Java 17** bytecode, Spring Boot **4.1.x**, FIT4J **<!--fit4jVersion-->0.1.9<!--/fit4jVersion-->**. Version pins live in [`gradle.properties`](gradle.properties).
+**Build notes:** Examples share the same toolchain as the main library — JDK **25** for compile/test (Gradle auto-provisioned), **Java 17** bytecode, Spring Boot **4.1.x**, FIT4J **<!--fit4jVersion-->1.0.0-SNAPSHOT<!--/fit4jVersion-->**. Version pins live in [`gradle.properties`](gradle.properties).
 
 Examples resolve FIT4J via a **composite Gradle build** (`includeBuild("..")` in `settings.gradle.kts`), so you can run them against local FIT4J sources without `publishToMavenLocal`:
 
@@ -42,6 +42,7 @@ Here is the list of examples:
 * [Basic](example-basic/) contains test examples to demonstrate how to start writing FITs using the library.
 * [gRPC](example-grpc/) contains test examples to demonstrate how to write FITs for gRPC calls (`@ImportGrpcClients`).
 * [HTTP/REST](example-rest/) contains test examples to demonstrate how to write FITs for HTTP/REST calls.
+* [Cucumber](example-cucumber/) runs Cucumber scenarios with `@FIT` Spring context, execution-scope hooks, and mock HTTP worker stubbing (`Fit4J.http`).
 * [Kafka Embedded](example-kafka/) contains test examples to demonstrate how to write FITs for Kafka using Embedded Kafka Broker coming with Spring Kafka Test Library.
 * [Kafka with Testcontainers](example-kafka-testcontainers) contains test examples to demonstrate how to write FITs for Kafka using Testcontainers.
 * [Elasticsearch](example-elastic-search/) contains test examples to demonstrate how to write FITs accessing Elasticsearch using Testcontainers.
