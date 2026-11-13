@@ -1,6 +1,9 @@
 package org.fit4j.context
 
+import org.fit4j.http.Fit4jTestRestTemplateSupport
 import org.junit.jupiter.api.Assertions
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -25,6 +28,17 @@ class Fit4JTestExtension : BeforeEachCallback, AfterEachCallback,
     }
 
     override fun beforeTestExecution(context: ExtensionContext) {
+        ensureTestRestTemplateExecutionIdPropagation(context)
+    }
+
+    private fun ensureTestRestTemplateExecutionIdPropagation(context: ExtensionContext) {
+        try {
+            val applicationContext = SpringExtension.getApplicationContext(context)
+            applicationContext.getBeansOfType(TestRestTemplate::class.java).values.forEach { template ->
+                Fit4jTestRestTemplateSupport.ensureExecutionIdPropagation(template)
+            }
+        } catch (_: Exception) {
+        }
     }
 
     override fun afterTestExecution(context: ExtensionContext) {

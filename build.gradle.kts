@@ -112,6 +112,7 @@ dependencies {
 	compileOnly(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 	testImplementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
 	implementation("org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion")
+	compileOnly("org.springframework.boot:spring-boot-starter-webmvc")
 	compileOnly("org.springframework.boot:spring-boot-starter-grpc-server")
 	compileOnly("org.springframework.boot:spring-boot-starter-grpc-client")
 	compileOnly("io.grpc:grpc-inprocess")
