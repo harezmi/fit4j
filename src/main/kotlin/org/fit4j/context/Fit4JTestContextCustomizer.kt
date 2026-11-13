@@ -15,13 +15,14 @@ class Fit4JTestContextCustomizer() : ContextCustomizer {
     override fun customizeContext(context: ConfigurableApplicationContext, mergedConfig: MergedContextConfiguration) {
         logger.debug("${this.javaClass.simpleName} is customizing ApplicationContext")
 
+        val mergedTestClass = mergedConfig.testClass
         val supplierMap = mutableMapOf<String, Supplier<*>>()
 
         supplierMap.put("fit4j.testClass.name") {
-            Fit4JTestContextManager.getTestClassName()
+            Fit4JTestContextManager.getTestClassName() ?: mergedTestClass.name
         }
         supplierMap.put("fit4j.testClass.simpleName") {
-            Fit4JTestContextManager.getTestClassSimpleName()
+            Fit4JTestContextManager.getTestClassSimpleName() ?: mergedTestClass.simpleName
         }
 
         context.parent = ParentApplicationContextFactory.parentApplicationContext

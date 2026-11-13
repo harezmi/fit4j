@@ -3,6 +3,7 @@ package org.fit4j.context
 import org.fit4j.grpc.dsl.GrpcDslRegistry
 import org.fit4j.helper.GrpcExecutionIdSupport
 import org.fit4j.http.dsl.HttpDslRegistry
+import org.fit4j.scope.TestScope
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -113,6 +114,12 @@ object Fit4jTestExecutionRegistry {
 
     private fun closeScope(id: String?) {
         if (id != null) {
+            stateByExecutionId[id]?.applicationContext?.let { applicationContext ->
+                try {
+                    applicationContext.getBean(TestScope::class.java).cleanup(id)
+                } catch (_: Exception) {
+                }
+            }
             stateByExecutionId.remove(id)
         }
         currentExecutionId.remove()
