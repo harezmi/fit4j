@@ -12,4 +12,9 @@ object Fit4jTestExecutionConstants {
      * gRPC metadata key (ASCII). Must match client and server interceptors.
      */
     const val EXECUTION_ID_GRPC_METADATA: String = "x-fit4j-test-execution-id"
+
+    /**
+     * Kafka record header key (UTF-8 bytes). Same value as [EXECUTION_ID_GRPC_METADATA].
+     */
+    const val EXECUTION_ID_KAFKA_HEADER: String = EXECUTION_ID_GRPC_METADATA
 }

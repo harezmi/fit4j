@@ -93,12 +93,26 @@ object Fit4jTestExecutionRegistry {
             block()
         } finally {
             if (!executionId.isNullOrBlank()) {
-                if (previous != null) {
-                    currentExecutionId.set(previous)
-                } else {
-                    currentExecutionId.remove()
-                }
+                restoreCurrentExecutionId(previous)
             }
+        }
+    }
+
+    /**
+     * Replaces the execution id on the current thread (for example Kafka listener workers).
+     * Pair with [restoreCurrentExecutionId] in a finally-style hook.
+     */
+    fun swapCurrentExecutionId(executionId: String): String? {
+        val previous = currentExecutionId.get()
+        currentExecutionId.set(executionId)
+        return previous
+    }
+
+    fun restoreCurrentExecutionId(previous: String?) {
+        if (previous != null) {
+            currentExecutionId.set(previous)
+        } else {
+            currentExecutionId.remove()
         }
     }
 

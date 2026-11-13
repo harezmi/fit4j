@@ -1,5 +1,6 @@
 package org.fit4j.autoconfigure
 
+import org.fit4j.kafka.Fit4jKafkaExecutionIdProducerFactoryCustomizer
 import org.fit4j.kafka.KafkaListenerContainerFactoryTrackingBeanPostProcessor
 import org.fit4j.kafka.KafkaMessageTracker
 import org.fit4j.kafka.KafkaTemplateTrackingBeanPostProcessor
@@ -37,6 +38,16 @@ class TestKafkaAutoConfiguration(environment: ConfigurableEnvironment) {
         val waitLoopCount = configurableEnvironment
             .getProperty<Int>("fit4j.kafka.waitLoopCount", Int::class.java, 30)
         return KafkaMessageTracker(waitTimeout, waitLoopCount)
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+        name = ["fit4j.kafka.executionIdPropagation.enabled"],
+        havingValue = "true",
+        matchIfMissing = true,
+    )
+    fun fit4jKafkaExecutionIdProducerFactoryCustomizer(): Fit4jKafkaExecutionIdProducerFactoryCustomizer {
+        return Fit4jKafkaExecutionIdProducerFactoryCustomizer()
     }
 
     @Bean

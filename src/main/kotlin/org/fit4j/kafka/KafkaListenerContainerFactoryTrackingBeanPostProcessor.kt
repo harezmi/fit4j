@@ -1,18 +1,17 @@
 package org.fit4j.kafka
 
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.kafka.config.AbstractKafkaListenerContainerFactory
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
-import org.springframework.kafka.listener.CompositeRecordInterceptor
 import org.springframework.kafka.listener.RecordInterceptor
-import org.springframework.beans.factory.ObjectProvider
 import org.springframework.util.ReflectionUtils
 
 /**
- * Attaches [KafkaMessageTrackingRecordInterceptor] to every [ConcurrentKafkaListenerContainerFactory]
- * bean so `@KafkaListener` processing is tracked without AspectJ. Preserves any existing
- * [RecordInterceptor] via [CompositeRecordInterceptor].
+ * Attaches FIT4J [RecordInterceptor]s to every [ConcurrentKafkaListenerContainerFactory] bean:
+ * execution-id propagation (when enabled), then message tracking. Preserves any existing user
+ * [RecordInterceptor] via [org.springframework.kafka.listener.CompositeRecordInterceptor].
  */
 class KafkaListenerContainerFactoryTrackingBeanPostProcessor(
     private val kafkaMessageTrackerProvider: ObjectProvider<KafkaMessageTracker>,
@@ -23,45 +22,58 @@ class KafkaListenerContainerFactoryTrackingBeanPostProcessor(
         if (bean !is ConcurrentKafkaListenerContainerFactory<*, *>) {
             return bean
         }
-        val tracker = kafkaMessageTrackerProvider.ifAvailable ?: return bean
 
+        val executionIdEnabled = environment.getProperty(
+            "fit4j.kafka.executionIdPropagation.enabled",
+            Boolean::class.java,
+            true,
+        )
+        val tracker = kafkaMessageTrackerProvider.ifAvailable
+        if (!executionIdEnabled && tracker == null) {
+            return bean
+        }
+
+        val existing = getExistingRecordInterceptorForFactory(bean)
         val delay = environment.getProperty(
             "fit4j.kafka.delayBeforeMessageConsumption",
             Long::class.java,
             500L,
         )
-        val trackingInterceptor = KafkaMessageTrackingRecordInterceptor(tracker, delay)
-        val existing = getExistingRecordInterceptorForFactory(bean)
 
-        if (existing != null && interceptorsContainType(existing, KafkaMessageTrackingRecordInterceptor::class.java)) {
+        val hasExecutionId = existing != null && KafkaRecordInterceptorChainSupport.interceptorsContainType(
+            existing,
+            Fit4jExecutionIdKafkaRecordInterceptor::class.java,
+        )
+        val hasTracking = existing != null && KafkaRecordInterceptorChainSupport.interceptorsContainType(
+            existing,
+            KafkaMessageTrackingRecordInterceptor::class.java,
+        )
+
+        val needsExecutionId = executionIdEnabled && !hasExecutionId
+        val needsTracking = tracker != null && !hasTracking
+        if (!needsExecutionId && !needsTracking) {
             return bean
         }
 
-        @Suppress("UNCHECKED_CAST")
-        val factory = bean as ConcurrentKafkaListenerContainerFactory<Any, Any>
-        val combined: RecordInterceptor<Any, Any> = when (existing) {
-            null -> trackingInterceptor
-            else -> CompositeRecordInterceptor(trackingInterceptor, existing)
-        }
-        factory.setRecordInterceptor(combined)
-        return bean
+        val combined = requireNotNull(
+            KafkaRecordInterceptorChainSupport.buildChain(
+                existing = existing,
+                executionIdEnabled = executionIdEnabled,
+                tracker = tracker,
+                delayBeforeMessageConsumption = delay,
+            ),
+        ) { "FIT4J Kafka interceptor chain must not be empty when execution id or tracking is enabled" }
+        return setInterceptor(bean, combined)
     }
 
-    private fun interceptorsContainType(interceptor: RecordInterceptor<*, *>, type: Class<*>): Boolean {
-        if (type.isInstance(interceptor)) {
-            return true
-        }
-        if (interceptor is CompositeRecordInterceptor<*, *>) {
-            val field =
-                ReflectionUtils.findField(CompositeRecordInterceptor::class.java, "delegates")
-                    ?: return false
-            ReflectionUtils.makeAccessible(field)
-            @Suppress("UNCHECKED_CAST")
-            val delegates = ReflectionUtils.getField(field, interceptor) as? Collection<*>
-                ?: return false
-            return delegates.any { it != null && interceptorsContainType(it as RecordInterceptor<*, *>, type) }
-        }
-        return false
+    @Suppress("UNCHECKED_CAST")
+    private fun setInterceptor(
+        bean: ConcurrentKafkaListenerContainerFactory<*, *>,
+        interceptor: RecordInterceptor<Any, Any>,
+    ): ConcurrentKafkaListenerContainerFactory<*, *> {
+        val factory = bean as ConcurrentKafkaListenerContainerFactory<Any, Any>
+        factory.setRecordInterceptor(interceptor)
+        return bean
     }
 
     private fun getExistingRecordInterceptorForFactory(
