@@ -4,30 +4,41 @@ import org.fit4j.grpc.dsl.GrpcDslRegistry
 import org.fit4j.helper.GrpcExecutionIdSupport
 import org.fit4j.http.dsl.HttpDslRegistry
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.springframework.context.ApplicationContext
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Binds an execution id to the active JUnit [ExtensionContext] for the current test method so
- * mock HTTP/gRPC workers (and other non-test threads) can resolve the same context via id propagation.
+ * Owns execution-id–keyed [Fit4jExecutionState] for the active test method or Cucumber scope.
  *
- * [beginExecutionScope] opens the same id on the calling thread without a JUnit test method, so
- * callers such as Cucumber can register HTTP/gRPC stubs. Workers must receive the id via HTTP
- * header / gRPC metadata (or [runWithExecutionId]); there is no process-wide active-scope fallback.
+ * Mock HTTP/gRPC workers resolve the same state via id propagation (ThreadLocal, HTTP header,
+ * or gRPC metadata). There is no process-wide active-scope fallback and no static ExtensionContext.
  */
 object Fit4jTestExecutionRegistry {
 
-    val STORE_NAMESPACE: ExtensionContext.Namespace = ExtensionContext.Namespace.create("org.fit4j.testExecution")
+    private val STORE_NAMESPACE: ExtensionContext.Namespace =
+        ExtensionContext.Namespace.create("org.fit4j.testExecution")
 
     private const val EXECUTION_ID_KEY = "executionId"
 
-    private val contextByExecutionId = ConcurrentHashMap<String, ExtensionContext>()
+    private val stateByExecutionId = ConcurrentHashMap<String, Fit4jExecutionState>()
     private val currentExecutionId = ThreadLocal<String?>()
 
     fun beginTestMethod(extensionContext: ExtensionContext): String {
         val id = UUID.randomUUID().toString()
         extensionContext.getStore(STORE_NAMESPACE).put(EXECUTION_ID_KEY, id)
-        contextByExecutionId[id] = extensionContext
+        val applicationContext = try {
+            SpringExtension.getApplicationContext(extensionContext)
+        } catch (_: Exception) {
+            null
+        }
+        stateByExecutionId[id] = Fit4jExecutionState(
+            id = id,
+            testClass = extensionContext.requiredTestClass,
+            testMethod = extensionContext.testMethod.orElse(null),
+            applicationContext = applicationContext,
+        )
         currentExecutionId.set(id)
         return id
     }
@@ -45,8 +56,16 @@ object Fit4jTestExecutionRegistry {
      */
     fun beginExecutionScope(): String {
         val id = UUID.randomUUID().toString()
+        stateByExecutionId[id] = Fit4jExecutionState(id = id)
         currentExecutionId.set(id)
         return id
+    }
+
+    /**
+     * Attaches an [ApplicationContext] to the current execution scope (e.g. Cucumber Spring hooks).
+     */
+    fun attachApplicationContext(applicationContext: ApplicationContext) {
+        currentState()?.applicationContext = applicationContext
     }
 
     /**
@@ -67,12 +86,9 @@ object Fit4jTestExecutionRegistry {
         currentExecutionId.get()
             ?: GrpcExecutionIdSupport.currentExecutionId()
 
-    fun resolveExtensionContext(fallback: ExtensionContext?): ExtensionContext? {
-        currentExecutionId.get()?.let { contextByExecutionId[it] }?.let { return it }
-        GrpcExecutionIdSupport.currentExecutionId()
-            ?.let { contextByExecutionId[it] }
-            ?.let { return it }
-        return fallback
+    fun currentState(): Fit4jExecutionState? {
+        val id = resolveTrainingExecutionId() ?: return null
+        return stateByExecutionId[id]
     }
 
     fun runWithExecutionId(executionId: String?, block: () -> Unit) {
@@ -97,7 +113,7 @@ object Fit4jTestExecutionRegistry {
 
     private fun closeScope(id: String?) {
         if (id != null) {
-            contextByExecutionId.remove(id)
+            stateByExecutionId.remove(id)
         }
         currentExecutionId.remove()
     }

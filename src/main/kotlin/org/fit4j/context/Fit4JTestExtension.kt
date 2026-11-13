@@ -3,32 +3,17 @@ package org.fit4j.context
 import org.fit4j.grpc.dsl.GrpcDslRegistry
 import org.fit4j.http.dsl.HttpDslRegistry
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
-import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler
 
-class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback,
+class Fit4JTestExtension : BeforeEachCallback, AfterEachCallback,
     BeforeTestExecutionCallback, AfterTestExecutionCallback, TestExecutionExceptionHandler {
 
-    companion object {
-        /**
-         * Last active JUnit [ExtensionContext] on the test thread. Mock HTTP/gRPC workers must not rely on this alone;
-         * they resolve context via [Fit4jTestExecutionRegistry] using the execution id sent on each request.
-         */
-        var currentExtensionContext: ExtensionContext? = null
-    }
-
-    override fun beforeAll(context: ExtensionContext) {
-        currentExtensionContext = context
-    }
-
     override fun beforeEach(context: ExtensionContext) {
-        currentExtensionContext = context
         Fit4jTestExecutionRegistry.beginTestMethod(context)
     }
 
@@ -36,11 +21,6 @@ class Fit4JTestExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallba
         HttpDslRegistry.resetCurrentTest()
         GrpcDslRegistry.resetCurrentTest()
         Fit4jTestExecutionRegistry.endTestMethod(context)
-        currentExtensionContext = null
-    }
-
-    override fun afterAll(context: ExtensionContext) {
-        currentExtensionContext = null
     }
 
     override fun handleTestExecutionException(context: ExtensionContext, throwable: Throwable) {

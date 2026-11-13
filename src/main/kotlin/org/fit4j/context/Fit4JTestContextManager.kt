@@ -1,19 +1,10 @@
 package org.fit4j.context
 
-import org.fit4j.context.Fit4JTestExtension.Companion.currentExtensionContext
 import org.fit4j.http.HttpRequest
-import org.junit.jupiter.api.extension.ExtensionContext
-import org.junit.jupiter.api.extension.ExtensionContext.Namespace
 import java.lang.reflect.Method
 
 class Fit4JTestContextManager {
     companion object {
-
-        private val FAILED_CALLS_NAMESPACE: Namespace = Namespace.create("org.fit4j.failedCalls")
-
-        @JvmStatic
-        fun currentExtensionContext(): ExtensionContext? =
-            Fit4jTestExecutionRegistry.resolveExtensionContext(currentExtensionContext)
 
         @JvmStatic
         fun getTestClassSimpleName(): String? {
@@ -27,17 +18,17 @@ class Fit4JTestContextManager {
 
         @JvmStatic
         fun getTestMethodName(): String? {
-            return currentExtensionContext()?.testMethod?.get()?.name
+            return getTestMethod()?.name
         }
 
         @JvmStatic
         fun getTestClass(): Class<*>? {
-            return currentExtensionContext()?.requiredTestClass
+            return Fit4jTestExecutionRegistry.currentState()?.testClass
         }
 
         @JvmStatic
         fun getTestMethod(): Method? {
-            return currentExtensionContext()?.requiredTestMethod
+            return Fit4jTestExecutionRegistry.currentState()?.testMethod
         }
 
         @JvmStatic
@@ -50,23 +41,12 @@ class Fit4JTestContextManager {
 
         @JvmStatic
         fun addFailedCall(failedCall: FailedCall) {
-            val context = currentExtensionContext() ?: return
-            val store = context.getStore(FAILED_CALLS_NAMESPACE)
-            @Suppress("UNCHECKED_CAST")
-            var existingFailedCalls = store.get("failed-calls") as MutableList<FailedCall>?
-            if (existingFailedCalls == null) {
-                existingFailedCalls = mutableListOf()
-                store.put("failed-calls", existingFailedCalls)
-            }
-            existingFailedCalls.add(failedCall)
+            Fit4jTestExecutionRegistry.currentState()?.failedCalls?.add(failedCall)
         }
 
         @JvmStatic
         fun getFailedCalls(): List<FailedCall>? {
-            val context = currentExtensionContext() ?: return null
-            val existingFailedCalls =
-                context.getStore(FAILED_CALLS_NAMESPACE).get("failed-calls") ?: return null
-            return existingFailedCalls as List<FailedCall>
+            return Fit4jTestExecutionRegistry.currentState()?.failedCalls
         }
     }
 }
