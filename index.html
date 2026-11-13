@@ -3602,110 +3602,52 @@ graph TD
   - YAML/properties for logging, routing, or fixture selection.</p>
 <ul>
 <li>Delegates to <code>ParentApplicationContextFactory</code> for shared test infrastructure (e.g., common beans or fixtures reused across test contexts).</li>
-<li>Uses <code>DynamicValuesPropertySource</code> so properties are <em>evaluated lazily</em> via <code>Supplier</code>s and always reflect the current JUnit context provided by <code>Fit4JTestExtension</code>.</li>
+<li>Uses <code>DynamicValuesPropertySource</code> so properties are <em>evaluated lazily</em> via <code>Supplier</code>s: per-method values from <code>Fit4JTestContextManager</code> (backed by <code>Fit4jExecutionState</code>) when a test is running, with a fallback to the merged test class from Spring’s <code>MergedContextConfiguration</code>.</li>
 </ul>
 <hr />
 <h2>Fit4JTestContextManager: Bridge Between JUnit and Spring</h2>
 <p><strong>File:</strong> <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/context/Fit4JTestContextManager.kt"><code>src/main/kotlin/org/fit4j/context/Fit4JTestContextManager.kt</code></a></p>
-<p>The <code>Fit4JTestContextManager</code> exposes static methods to retrieve current test metadata from <code>Fit4JTestExtension</code>:</p>
-<pre><code class="language-kotlin">class Fit4JTestContextManager {
-    companion object {
-        @JvmStatic
-        fun getTestClassSimpleName(): String? {
-            return getTestClass()?.simpleName
-        }
-
-        @JvmStatic
-        fun getTestClassName(): String? {
-            return getTestClass()?.name
-        }
-
-        @JvmStatic
-        fun getTestMethodName(): String? {
-            return currentExtensionContext?.testMethod?.get()?.name
-        }
-
-        @JvmStatic
-        fun getTestClass(): Class&lt;*&gt;? {
-            return currentExtensionContext?.requiredTestClass
-        }
-
-        // Additional helpers (not fully shown):
-        // fun storeRequest(HttpRequest) ...
-        // fun getRequest(): HttpRequest? ...
-    }
-}
+<p>The <code>Fit4JTestContextManager</code> exposes static methods to read test metadata and failed-call tracking from the active <code>Fit4jExecutionState</code> (keyed by execution id on the test thread or mock worker):</p>
+<pre><code class="language-kotlin">// Metadata and failed calls resolve via Fit4jTestExecutionRegistry.currentState()
+Fit4JTestContextManager.getTestClass()
+Fit4JTestContextManager.getTestMethod()
+Fit4JTestContextManager.getTestMethodName()
+Fit4JTestContextManager.addFailedCall(request)
+Fit4JTestContextManager.getFailedCalls()
 </code></pre>
 <p>(see <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/context/Fit4JTestContextManager.kt"><code>src/main/kotlin/org/fit4j/context/Fit4JTestContextManager.kt</code></a> for details).</p>
 <p><strong>Integration point</strong></p>
 <ul>
-<li>Relies on <code>Fit4JTestExtension.Companion.currentExtensionContext</code>.</li>
-<li>This is how <code>Fit4JTestContextCustomizer</code> knows what test is currently running when it computes dynamic properties.</li>
+<li>Mock HTTP/gRPC workers propagate the execution id; the registry resolves the same <code>Fit4jExecutionState</code> on server threads.</li>
+<li>No static JUnit <code>ExtensionContext</code> is published library-wide.</li>
 </ul>
 <hr />
 <h2>Fit4JTestExtension: JUnit 5 Lifecycle Orchestrator</h2>
 <p><strong>File:</strong> <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/context/Fit4JTestExtension.kt"><code>src/main/kotlin/org/fit4j/context/Fit4JTestExtension.kt</code></a></p>
-<pre><code class="language-kotlin">class Fit4JTestExtension : BeforeAllCallback,
-    AfterAllCallback,
-    BeforeEachCallback,
-    BeforeTestExecutionCallback,
-    AfterTestExecutionCallback,
-    TestExecutionExceptionHandler {
+<pre><code class="language-kotlin">class Fit4JTestExtension : BeforeEachCallback, AfterEachCallback,
+    BeforeTestExecutionCallback, AfterTestExecutionCallback, TestExecutionExceptionHandler {
 
-    companion object {
-        /*
-        Tests are started to run on the client side, and ExtensionContext is set there.
-        */
-        // val currentExtensionContext: ExtensionContext? = ...
+    override fun beforeEach(context: ExtensionContext) {
+        Fit4jTestExecutionRegistry.beginTestMethod(context)
     }
 
-    // beforeAll, beforeEach, beforeTestExecution, afterTestExecution, afterAll, handleTestExecutionException...
+    override fun afterEach(context: ExtensionContext) {
+        Fit4jTestExecutionRegistry.endTestMethod(context)
+    }
+    // afterTestExecution / handleTestExecutionException: assert no untrained mock calls
 }
 </code></pre>
 <p>(see <a href="https://github.com/harezmi/fit4j/blob/main/src/main/kotlin/org/fit4j/context/Fit4JTestExtension.kt"><code>src/main/kotlin/org/fit4j/context/Fit4JTestExtension.kt</code></a> for full implementation).</p>
 <p><strong>What it does</strong></p>
 <ul>
-<li>Implements multiple JUnit 5 callbacks:</li>
-<li><code>BeforeAllCallback</code>, <code>AfterAllCallback</code> – per–test-class lifecycle.</li>
-<li><code>BeforeEachCallback</code>, <code>BeforeTestExecutionCallback</code>, <code>AfterTestExecutionCallback</code> – per-test-method lifecycle.</li>
-<li>
-<p><code>TestExecutionExceptionHandler</code> – central place to react to test exceptions.</p>
-</li>
-<li>
-<p>Manages a static reference <code>currentExtensionContext</code> used by <code>Fit4JTestContextManager</code> to supply test metadata to Spring.</p>
-</li>
+<li><code>beforeEach</code> → <code>Fit4jTestExecutionRegistry.beginTestMethod</code> (new execution id, <code>Fit4jExecutionState</code>, ThreadLocal).</li>
+<li><code>afterEach</code> → <code>endTestMethod</code> (DSL trainings, <code>@TestScoped</code> beans, state bag).</li>
+<li><code>afterTestExecution</code> / <code>TestExecutionExceptionHandler</code> → fail on untrained mock interactions recorded in execution state.</li>
 </ul>
-<p><strong>Typical lifecycle</strong></p>
-<ol>
-<li><strong>BeforeAll</strong> of a test class:</li>
-<li>Sets <code>currentExtensionContext</code> to the class context.</li>
-<li>
-<p>Optionally pre-loads or configures parent application context.</p>
-</li>
-<li>
-<p><strong>BeforeEach / BeforeTestExecution</strong>:</p>
-</li>
-<li>Updates <code>currentExtensionContext</code> for each test method.</li>
-<li>
-<p>Possibly records an initial <code>HttpRequest</code> or fixture state (see imports in <code>Fit4JTestContextManager</code>).</p>
-</li>
-<li>
-<p><strong>AfterTestExecution / AfterAll</strong>:</p>
-</li>
-<li>Cleans up test-specific data from context.</li>
-<li>
-<p>May coordinate with <code>ApplicationContextLifecycleListener</code> (created in auto-config) to reset or validate state.</p>
-</li>
-<li>
-<p><strong>TestExecutionExceptionHandler</strong>:</p>
-</li>
-<li>Handles assertion failures or infrastructure errors uniformly.</li>
-<li>Could be used to enrich error reporting with Fit4J-specific context (call traces, HTTP exchanges).</li>
-</ol>
 <p><strong>Why this matters</strong></p>
 <ul>
-<li>This extension is the <em>glue</em> that keeps JUnit’s understanding of “current test” synchronized with Spring’s dynamic configuration.</li>
-<li>Without it, the <code>fit4j.testClass.*</code> properties would be null or stale, and context customizers wouldn’t be able to adapt per test.</li>
+<li>Thin JUnit adapter only: receives <code>ExtensionContext</code> in callbacks but does not expose it globally.</li>
+<li>Cucumber scenarios use <code>beginExecutionScope</code> / <code>endExecutionScope</code> (and <code>attachApplicationContext</code> when DSL needs Spring) instead of this extension.</li>
 </ul>
 <hr />
 <h2>Embedded Infrastructure Context Customizers</h2>
@@ -6188,7 +6130,7 @@ sequenceDiagram
 <p>From the README (see <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/README.md"><code>/tmp/repo_fun8n87l/README.md</code></a>):</p>
 <ul>
 <li>FIT4J currently <strong>does not support parallel test execution</strong> for <code>@FIT</code> or <code>@IT</code> tests.</li>
-<li>The main reason: use of <strong>shared static state</strong> in managing the global FIT context, fixture registry, and tracking.</li>
+<li>Shared Spring context caching and embedded/Testcontainers infrastructure remain process-wide; mock HTTP/gRPC stub state, failed calls, and <code>@TestScoped</code> beans are isolated per <strong>execution id</strong>.</li>
 </ul>
 <p>Implication on critical flows:</p>
 <ul>
@@ -9610,7 +9552,7 @@ See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/READM
 &lt;/repositories&gt;
 </code></pre>
 <h3>4.2 Sequential test execution (required)</h3>
-<p>FIT4J currently does <strong>not</strong> support parallel execution of <code>@FIT</code> / <code>@IT</code> tests because of shared static state.<br />
+<p>FIT4J currently does <strong>not</strong> support in-JVM parallel execution of <code>@FIT</code> / <code>@IT</code> suites (shared Spring contexts and infrastructure); mock correlation uses execution id per test method.<br />
 See <a href="https://github.com/harezmi/fit4j/blob/main//tmp/repo_fun8n87l/README.md#L1-L30"><code>/tmp/repo_fun8n87l/README.md:1-30</code></a>.</p>
 <p><strong>Gradle configuration:</strong></p>
 <pre><code class="language-kotlin">tasks.test {
@@ -10072,7 +10014,7 @@ fun runScenario(scenarioName: String) {
 </ul>
 <p>From <a href="https://github.com/harezmi/fit4j/blob/main//README.md"><code>/README.md</code></a> (FAQ and limitations):</p>
 <ul>
-<li>Parallel test execution is not supported; running tests in parallel leads to race conditions due to shared static state managing test context.</li>
+<li>In-JVM parallel test execution is not supported; Spring context caching and shared brokers/Testcontainers can race even though mock stub state is keyed by execution id.</li>
 <li>Make sure your build configuration disables parallel execution, for example:</li>
 </ul>
 <p><code>kotlin
@@ -11710,7 +11652,7 @@ class DatabaseTestSupportCheckingTestSuite {
 <p>The repository explicitly documents a critical limitation in <code>README.md:...</code>:</p>
 <blockquote>
 <p><strong>Parallel Test Execution Not Supported:</strong><br />
-Currently, FIT4J does not support parallel test execution. All tests annotated with <code>@FIT</code> or <code>@IT</code> must be executed sequentially. This limitation is due to the use of shared static state for managing test context.</p>
+Currently, FIT4J does not support in-JVM parallel test execution for full <code>@FIT</code> / <code>@IT</code> suites. Tests must run sequentially per JVM; mock workers correlate via execution id, but Spring context caching and shared infrastructure are not parallel-safe.</p>
 </blockquote>
 <p><strong>Build configuration requirement (quality gate):</strong></p>
 <ul>

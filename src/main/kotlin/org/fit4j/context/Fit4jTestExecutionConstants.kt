@@ -4,7 +4,7 @@ object Fit4jTestExecutionConstants {
 
     /**
      * Outgoing HTTP header on RestTemplate (and expected on mock HTTP server) so worker threads
-     * resolve the correct JUnit [org.junit.jupiter.api.extension.ExtensionContext].
+     * resolve the active [Fit4jExecutionState] via [Fit4jTestExecutionRegistry].
      */
     const val EXECUTION_ID_HTTP_HEADER: String = "X-Fit4j-Test-Execution-Id"
 
