@@ -14,6 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter
  */
 class Fit4jExecutionIdServletFilter : OncePerRequestFilter() {
 
+    override fun shouldNotFilterAsyncDispatch(): Boolean = false
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,

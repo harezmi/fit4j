@@ -1,5 +1,9 @@
 package org.fit4j.http
 
+import jakarta.servlet.DispatcherType
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.fit4j.annotation.FIT
 import org.fit4j.context.Fit4jTestExecutionRegistry
 import org.fit4j.scope.TestScoped
@@ -9,12 +13,16 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Profile
+import org.springframework.core.Ordered
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.filter.OncePerRequestFilter
+import java.util.concurrent.Callable
 
 @FIT
 @Import(ExecutionIdEmbeddedServerPropagationFIT.TestConfig::class)
@@ -45,6 +53,21 @@ class ExecutionIdEmbeddedServerPropagationFIT {
         assertEquals("from-test-thread", messageOnServer)
     }
 
+    @Test
+    fun `embedded server propagates execution id and TestScoped beans to MVC Callable`() {
+        val testThreadId = Fit4jTestExecutionRegistry.currentExecutionId()
+        assertNotNull(testThreadId)
+
+        scopedProbe.message = "from-test-thread"
+
+        val asyncIdResponse = restTemplate.getForEntity("/fit4j/async-execution-id", String::class.java)
+        assertEquals(testThreadId, asyncIdResponse.body)
+        assertEquals(testThreadId, asyncIdResponse.headers.getFirst(ASYNC_DISPATCH_EXECUTION_ID_HEADER))
+
+        val messageOnCallableWorker = restTemplate.getForObject("/fit4j/async-scoped-message", String::class.java)
+        assertEquals("from-test-thread", messageOnCallableWorker)
+    }
+
     @TestConfiguration
     @Profile(PROFILE)
     class TestConfig {
@@ -56,8 +79,34 @@ class ExecutionIdEmbeddedServerPropagationFIT {
         @Bean
         fun probeEndpoints(scopedProbe: EmbeddedServerScopedProbe): ProbeEndpoints =
             ProbeEndpoints(scopedProbe)
+
+        @Bean
+        fun asyncDispatchProbeFilter(): FilterRegistrationBean<OncePerRequestFilter> {
+            val filter: OncePerRequestFilter = object : OncePerRequestFilter() {
+                override fun shouldNotFilterAsyncDispatch(): Boolean = false
+
+                override fun doFilterInternal(
+                    request: HttpServletRequest,
+                    response: HttpServletResponse,
+                    filterChain: FilterChain,
+                ) {
+                    if (request.dispatcherType == DispatcherType.ASYNC) {
+                        Fit4jTestExecutionRegistry.currentExecutionId()?.let {
+                            response.setHeader(ASYNC_DISPATCH_EXECUTION_ID_HEADER, it)
+                        }
+                    }
+                    filterChain.doFilter(request, response)
+                }
+            }
+            return FilterRegistrationBean(filter).apply {
+                order = Ordered.HIGHEST_PRECEDENCE + 1
+                setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC)
+            }
+        }
     }
 }
+
+private const val ASYNC_DISPATCH_EXECUTION_ID_HEADER = "X-Fit4j-Async-Dispatch-Execution-Id"
 
 open class EmbeddedServerScopedProbe {
     var message: String = ""
@@ -77,4 +126,15 @@ class ProbeEndpoints(
 
     @GetMapping("/fit4j/scoped-message")
     fun scopedMessage(): String = scopedProbe.message
+
+    @GetMapping("/fit4j/async-execution-id")
+    fun asyncExecutionId(): Callable<String> = Callable {
+        Fit4jTestExecutionRegistry.currentExecutionId()
+            ?: "missing"
+    }
+
+    @GetMapping("/fit4j/async-scoped-message")
+    fun asyncScopedMessage(): Callable<String> = Callable {
+        scopedProbe.message
+    }
 }

@@ -1,6 +1,7 @@
 package org.fit4j.autoconfigure
 
 import org.fit4j.http.Fit4jExecutionIdServletFilter
+import org.fit4j.http.Fit4jExecutionIdCallableInterceptor
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
@@ -8,6 +9,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.core.Ordered
 import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @AutoConfiguration
 @EnableOnFIT
@@ -19,6 +22,15 @@ class Fit4jExecutionIdServletAutoConfiguration {
     fun fit4jExecutionIdServletFilterRegistration(): FilterRegistrationBean<Fit4jExecutionIdServletFilter> {
         return FilterRegistrationBean(Fit4jExecutionIdServletFilter()).apply {
             order = Ordered.HIGHEST_PRECEDENCE
+        }
+    }
+
+    @Bean
+    fun fit4jExecutionIdAsyncWebMvcConfigurer(): WebMvcConfigurer {
+        return object : WebMvcConfigurer {
+            override fun configureAsyncSupport(configurer: AsyncSupportConfigurer) {
+                configurer.registerCallableInterceptors(Fit4jExecutionIdCallableInterceptor())
+            }
         }
     }
 }
