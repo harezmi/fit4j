@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
 object Fit4jTestExecutionRegistry {
 
     private val stateByExecutionId = ConcurrentHashMap<String, Fit4jExecutionState>()
-    private val currentExecutionId = ThreadLocal<String?>()
+    private val threadBoundExecutionId = ThreadLocal<String?>()
 
     fun beginTestMethod(extensionContext: ExtensionContext): String {
         requireNoActiveScope("test method")
@@ -35,7 +35,7 @@ object Fit4jTestExecutionRegistry {
             testMethod = extensionContext.testMethod.orElse(null),
             applicationContext = applicationContext,
         )
-        currentExecutionId.set(id)
+        threadBoundExecutionId.set(id)
         return id
     }
 
@@ -52,7 +52,7 @@ object Fit4jTestExecutionRegistry {
         requireNoActiveScope("execution scope")
         val id = UUID.randomUUID().toString()
         stateByExecutionId[id] = Fit4jExecutionState(id = id)
-        currentExecutionId.set(id)
+        threadBoundExecutionId.set(id)
         return id
     }
 
@@ -70,27 +70,28 @@ object Fit4jTestExecutionRegistry {
         endCurrentScope()
     }
 
-    fun currentExecutionId(): String? = currentExecutionId.get()
-
     /**
-     * Id used to store and look up DSL stubs on the current thread (or gRPC server context).
+     * Returns the effective execution id for the current call.
+     *
+     * Ordinary test, HTTP, and Kafka threads use the thread-bound id. A gRPC server worker may instead resolve
+     * the id from its gRPC context, allowing downstream HTTP, gRPC, and Kafka calls to propagate the same scope.
      */
-    fun resolveTrainingExecutionId(): String? =
-        currentExecutionId.get()
+    fun currentExecutionId(): String? =
+        threadBoundExecutionId.get()
             ?: GrpcExecutionIdSupport.currentExecutionId()
 
     fun currentState(): Fit4jExecutionState? {
-        val id = resolveTrainingExecutionId() ?: return null
+        val id = currentExecutionId() ?: return null
         return stateByExecutionId[id]
     }
 
     fun runWithExecutionId(executionId: String?, block: () -> Unit) {
-        val previous = currentExecutionId.get()
+        val previous = threadBoundExecutionId.get()
         try {
             if (!executionId.isNullOrBlank()) {
-                currentExecutionId.set(executionId)
+                threadBoundExecutionId.set(executionId)
             } else {
-                currentExecutionId.remove()
+                threadBoundExecutionId.remove()
             }
             block()
         } finally {
@@ -103,27 +104,27 @@ object Fit4jTestExecutionRegistry {
      * Pair with [restoreCurrentExecutionId] in a finally-style hook.
      */
     fun swapCurrentExecutionId(executionId: String): String? {
-        val previous = currentExecutionId.get()
-        currentExecutionId.set(executionId)
+        val previous = threadBoundExecutionId.get()
+        threadBoundExecutionId.set(executionId)
         return previous
     }
 
     fun restoreCurrentExecutionId(previous: String?) {
         if (previous != null) {
-            currentExecutionId.set(previous)
+            threadBoundExecutionId.set(previous)
         } else {
-            currentExecutionId.remove()
+            threadBoundExecutionId.remove()
         }
     }
 
     private fun endCurrentScope() {
         HttpDslRegistry.resetCurrentTest()
         GrpcDslRegistry.resetCurrentTest()
-        closeScope(currentExecutionId.get())
+        closeScope(threadBoundExecutionId.get())
     }
 
     private fun requireNoActiveScope(scopeDescription: String) {
-        check(currentExecutionId.get() == null) {
+        check(threadBoundExecutionId.get() == null) {
             "Cannot begin a FIT4J $scopeDescription while another execution scope is active on this thread"
         }
     }
@@ -138,6 +139,6 @@ object Fit4jTestExecutionRegistry {
             }
             stateByExecutionId.remove(id)
         }
-        currentExecutionId.remove()
+        threadBoundExecutionId.remove()
     }
 }

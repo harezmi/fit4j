@@ -10,7 +10,7 @@ class TestScope : Scope {
     private val destructionCallbacks = ConcurrentHashMap<String, ConcurrentHashMap<String, Runnable>>()
 
     private fun getCurrentTestId(): String {
-        val executionId = Fit4jTestExecutionRegistry.resolveTrainingExecutionId()
+        val executionId = Fit4jTestExecutionRegistry.currentExecutionId()
             ?: throw IllegalStateException(
                 "TestScope is only available during an active FIT4J test method or execution scope"
             )

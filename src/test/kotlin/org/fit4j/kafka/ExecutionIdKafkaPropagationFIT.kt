@@ -106,7 +106,7 @@ class ExecutionIdKafkaListener(
 
     @KafkaListener(topics = [ExecutionIdKafkaPropagationFIT.TOPIC], groupId = "fit4j-execution-id-kafka-group")
     fun handle(@Suppress("UNUSED_PARAMETER") message: String) {
-        listenerProbe.lastExecutionId = Fit4jTestExecutionRegistry.resolveTrainingExecutionId()
+        listenerProbe.lastExecutionId = Fit4jTestExecutionRegistry.currentExecutionId()
         listenerProbe.lastScopedMessage = scopedProbe.message
     }
 }

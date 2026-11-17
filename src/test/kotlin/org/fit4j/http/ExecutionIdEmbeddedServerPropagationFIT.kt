@@ -71,7 +71,7 @@ class ProbeEndpoints(
 
     @GetMapping("/fit4j/execution-id")
     fun executionId(): String {
-        return Fit4jTestExecutionRegistry.resolveTrainingExecutionId()
+        return Fit4jTestExecutionRegistry.currentExecutionId()
             ?: "missing"
     }
 

@@ -12,7 +12,7 @@ internal class TestTrainingRegistry<T, Q, R>(
     private val trainingsByExecutionId = ConcurrentHashMap<String, CopyOnWriteArrayList<T>>()
 
     fun register(training: T) {
-        val executionId = Fit4jTestExecutionRegistry.resolveTrainingExecutionId()
+        val executionId = Fit4jTestExecutionRegistry.currentExecutionId()
             ?: throw IllegalStateException(
                 "$protocol DSL can only be used inside an active FIT4J test method or execution scope"
             )
@@ -20,13 +20,13 @@ internal class TestTrainingRegistry<T, Q, R>(
     }
 
     fun resolve(request: Q): R? {
-        val executionId = Fit4jTestExecutionRegistry.resolveTrainingExecutionId() ?: return null
+        val executionId = Fit4jTestExecutionRegistry.currentExecutionId() ?: return null
         val trainings = trainingsByExecutionId[executionId] ?: return null
         val training = trainings.firstOrNull { matches(it, request) } ?: return null
         return respond(training, request)
     }
 
     fun resetCurrentTest() {
-        Fit4jTestExecutionRegistry.resolveTrainingExecutionId()?.let { trainingsByExecutionId.remove(it) }
+        Fit4jTestExecutionRegistry.currentExecutionId()?.let { trainingsByExecutionId.remove(it) }
     }
 }
