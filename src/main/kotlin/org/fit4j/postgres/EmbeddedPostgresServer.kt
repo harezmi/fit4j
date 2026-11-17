@@ -12,19 +12,29 @@ class EmbeddedPostgresServer(port: Int, private val initScript: String) : Initia
     private var db : EmbeddedPostgres? = null
 
     override fun afterPropertiesSet() {
-        db = builder.start()
+        try {
+            db = builder.start()
 
-        val rs = ClassPathResource(initScript)
-        if(rs.exists()) {
-            val dataSource = db!!.postgresDatabase
-            val populator = ResourceDatabasePopulator()
-            populator.setSeparator(ScriptUtils.EOF_STATEMENT_SEPARATOR)
-            populator.addScript(rs)
-            populator.execute(dataSource)
+            val rs = ClassPathResource(initScript)
+            if(rs.exists()) {
+                val dataSource = db!!.postgresDatabase
+                val populator = ResourceDatabasePopulator()
+                populator.setSeparator(ScriptUtils.EOF_STATEMENT_SEPARATOR)
+                populator.addScript(rs)
+                populator.execute(dataSource)
+            }
+        } catch (exception: Exception) {
+            db?.close()
+            db = null
+            throw IllegalStateException(
+                "Failed to start embedded PostgreSQL or initialize it from '$initScript'",
+                exception,
+            )
         }
     }
 
     override fun destroy() {
-        db!!.close()
+        db?.close()
+        db = null
     }
 }

@@ -347,7 +347,29 @@ Acceptance criteria:
 
 ## Phase 5: Harden lifecycle, isolation, and core behavior
 
-**Status:** Not started
+**Status:** In progress (2026-11-17)
+
+### Execution record
+
+- Replaced process-global test metadata, failed-call tracking, DSL training state, and `@TestScoped` bean state
+  with execution-id-keyed state that is removed when each test method or Cucumber scenario ends.
+- Added lifecycle tests proving scopes remove state, failed calls, and DSL training; separate execution IDs on
+  worker threads do not share state.
+- Propagated execution IDs across mock HTTP and gRPC calls, embedded servlet requests, Spring
+  `TestRestTemplate`, Kafka producers/listeners, and Cucumber hooks. Added end-to-end HTTP, gRPC, and Kafka
+  worker-thread tests, including `@TestScoped` resolution.
+- Preserved existing user Kafka interceptors while composing FIT4J propagation and message tracking.
+- Added guards against nested scopes that would orphan state, restored outer scope state after blank/malformed
+  worker IDs and exceptions, and made test-scope storage safe for worker-thread access.
+- Ensured all test-scope destruction callbacks are attempted and state is removed even when one callback fails;
+  added direct extension tests for cleanup after user setup and test-execution failures.
+- Replaced `NoopDatabaseTestSupport.connection()`'s placeholder `NotImplementedError` with an actionable
+  `IllegalStateException` and a contract test.
+- Added actionable embedded Redis/PostgreSQL startup diagnostics and ensured a PostgreSQL instance is closed
+  when initialization fails.
+
+Remaining before completion: verify parent/child and multi-class cleanup more directly, add separate-fork
+verification, exercise fixed-port startup failures, and run lifecycle tests repeatedly with varied class order.
 
 ### Verify Spring context lifecycle
 

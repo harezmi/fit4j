@@ -3,29 +3,50 @@ package org.fit4j.scope
 import org.fit4j.context.Fit4jTestExecutionRegistry
 import org.springframework.beans.factory.ObjectFactory
 import org.springframework.beans.factory.config.Scope
+import java.util.concurrent.ConcurrentHashMap
 
 class TestScope : Scope {
-    private val scopedObjects = mutableMapOf<String, MutableMap<String, Any>>()
-    private val destructionCallbacks = mutableMapOf<String, MutableMap<String, Runnable>>()
+    private val scopedObjects = ConcurrentHashMap<String, ConcurrentHashMap<String, Any>>()
+    private val destructionCallbacks = ConcurrentHashMap<String, ConcurrentHashMap<String, Runnable>>()
 
     private fun getCurrentTestId(): String {
-        return Fit4jTestExecutionRegistry.resolveTrainingExecutionId()
+        val executionId = Fit4jTestExecutionRegistry.resolveTrainingExecutionId()
             ?: throw IllegalStateException(
                 "TestScope is only available during an active FIT4J test method or execution scope"
             )
+        check(Fit4jTestExecutionRegistry.currentState() != null) {
+            "FIT4J execution id '$executionId' does not identify an active test or execution scope"
+        }
+        return executionId
     }
 
     /**
      * Drops scoped beans and destruction callbacks for [executionId] when a test method or Cucumber scenario ends.
      */
     fun cleanup(executionId: String) {
-        destructionCallbacks.remove(executionId)?.values?.forEach { it.run() }
-        scopedObjects.remove(executionId)
+        val callbacks = destructionCallbacks.remove(executionId)?.values.orEmpty()
+        var failure: Throwable? = null
+        try {
+            callbacks.forEach { callback ->
+                try {
+                    callback.run()
+                } catch (throwable: Throwable) {
+                    if (failure == null) {
+                        failure = throwable
+                    } else {
+                        failure.addSuppressed(throwable)
+                    }
+                }
+            }
+        } finally {
+            scopedObjects.remove(executionId)
+        }
+        failure?.let { throw it }
     }
 
     override fun get(name: String, objectFactory: ObjectFactory<*>): Any {
         val testId = getCurrentTestId()
-        val objects = scopedObjects.computeIfAbsent(testId) { mutableMapOf() }
+        val objects = scopedObjects.computeIfAbsent(testId) { ConcurrentHashMap() }
         return objects.computeIfAbsent(name) { objectFactory.getObject() }
     }
 
@@ -37,7 +58,7 @@ class TestScope : Scope {
 
     override fun registerDestructionCallback(name: String, callback: Runnable) {
         val testId = getCurrentTestId()
-        destructionCallbacks.computeIfAbsent(testId) { mutableMapOf() }[name] = callback
+        destructionCallbacks.computeIfAbsent(testId) { ConcurrentHashMap() }[name] = callback
     }
 
     override fun resolveContextualObject(key: String): Any? {

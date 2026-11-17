@@ -4,12 +4,59 @@ import org.fit4j.dsl.TestTrainingRegistry
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
 class Fit4jExecutionStateLifecycleTest {
+
+    @Test
+    fun `nested execution scope fails without orphaning the active state`() {
+        val id = Fit4jTestExecutionRegistry.beginExecutionScope()
+        try {
+            val exception = assertThrows<IllegalStateException> {
+                Fit4jTestExecutionRegistry.beginExecutionScope()
+            }
+            assertTrue(exception.message!!.contains("another execution scope is active"))
+            assertEquals(id, Fit4jTestExecutionRegistry.currentState()?.id)
+        } finally {
+            Fit4jTestExecutionRegistry.endExecutionScope()
+        }
+    }
+
+    @Test
+    fun `blank worker execution id restores the outer scope`() {
+        val id = Fit4jTestExecutionRegistry.beginExecutionScope()
+        try {
+            Fit4jTestExecutionRegistry.runWithExecutionId(" ") {
+                assertNull(Fit4jTestExecutionRegistry.currentExecutionId())
+                assertNull(Fit4jTestExecutionRegistry.currentState())
+            }
+            assertEquals(id, Fit4jTestExecutionRegistry.currentExecutionId())
+            assertEquals(id, Fit4jTestExecutionRegistry.currentState()?.id)
+        } finally {
+            Fit4jTestExecutionRegistry.endExecutionScope()
+        }
+    }
+
+    @Test
+    fun `worker execution id is restored when worker code throws`() {
+        val id = Fit4jTestExecutionRegistry.beginExecutionScope()
+        try {
+            assertThrows<IllegalArgumentException> {
+                Fit4jTestExecutionRegistry.runWithExecutionId("unknown-execution-id") {
+                    assertNull(Fit4jTestExecutionRegistry.currentState())
+                    throw IllegalArgumentException("worker failure")
+                }
+            }
+            assertEquals(id, Fit4jTestExecutionRegistry.currentExecutionId())
+            assertEquals(id, Fit4jTestExecutionRegistry.currentState()?.id)
+        } finally {
+            Fit4jTestExecutionRegistry.endExecutionScope()
+        }
+    }
 
     @Test
     fun `execution scope lifecycle clears state after end`() {

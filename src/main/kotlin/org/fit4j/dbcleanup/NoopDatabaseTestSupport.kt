@@ -13,6 +13,8 @@ class NoopDatabaseTestSupport : DatabaseTestSupport {
     }
 
     override fun connection(): Connection {
-        throw NotImplementedError()
+        throw IllegalStateException(
+            "No database connection is available because FIT4J did not find a supported DataSource"
+        )
     }
 }

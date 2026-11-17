@@ -22,6 +22,7 @@ object Fit4jTestExecutionRegistry {
     private val currentExecutionId = ThreadLocal<String?>()
 
     fun beginTestMethod(extensionContext: ExtensionContext): String {
+        requireNoActiveScope("test method")
         val id = UUID.randomUUID().toString()
         val applicationContext = try {
             SpringExtension.getApplicationContext(extensionContext)
@@ -48,6 +49,7 @@ object Fit4jTestExecutionRegistry {
      * stubs only when that id is present on the request (or via [runWithExecutionId]).
      */
     fun beginExecutionScope(): String {
+        requireNoActiveScope("execution scope")
         val id = UUID.randomUUID().toString()
         stateByExecutionId[id] = Fit4jExecutionState(id = id)
         currentExecutionId.set(id)
@@ -92,9 +94,7 @@ object Fit4jTestExecutionRegistry {
             }
             block()
         } finally {
-            if (!executionId.isNullOrBlank()) {
-                restoreCurrentExecutionId(previous)
-            }
+            restoreCurrentExecutionId(previous)
         }
     }
 
@@ -120,6 +120,12 @@ object Fit4jTestExecutionRegistry {
         HttpDslRegistry.resetCurrentTest()
         GrpcDslRegistry.resetCurrentTest()
         closeScope(currentExecutionId.get())
+    }
+
+    private fun requireNoActiveScope(scopeDescription: String) {
+        check(currentExecutionId.get() == null) {
+            "Cannot begin a FIT4J $scopeDescription while another execution scope is active on this thread"
+        }
     }
 
     private fun closeScope(id: String?) {

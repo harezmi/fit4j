@@ -1,9 +1,9 @@
 package org.fit4j.kafka
 
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.header.internals.RecordHeader
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.fit4j.annotation.FIT
+import org.fit4j.context.Fit4jTestExecutionConstants
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,18 +47,17 @@ class KafkaMessageWithHeadersFIT {
         kafkaTemplate.send(pr).join()
 
         val kmp = kafkaMessageTracker.getMessagesPublishedAt("my-topic").get(0)
-        Assertions.assertEquals(expectedHeaders,kmp.headers)
         Assertions.assertEquals("h-value",kmp.getHeaderValueAsString("k-key"))
+        Assertions.assertTrue(kmp.containsHeader(Fit4jTestExecutionConstants.EXECUTION_ID_KAFKA_HEADER))
 
         val kmr = kafkaMessageTracker.getMessagesReceivedAt("my-topic").get(0)
-        Assertions.assertEquals(expectedHeaders,kmr.headers)
         Assertions.assertTrue { kmr.containsHeader("k-key") }
         Assertions.assertTrue { kmr.containsHeader("k-key","h-value") }
+        Assertions.assertTrue(kmr.containsHeader(Fit4jTestExecutionConstants.EXECUTION_ID_KAFKA_HEADER))
 
         val kmpr = kafkaMessageTracker.getMessagesProcessedAt("my-topic").get(0)
-        Assertions.assertArrayEquals(expectedHeaders.toArray(),
-            kmpr.headers.filter { it is RecordHeader }.toTypedArray())
         Assertions.assertArrayEquals("h-value".toByteArray(Charsets.UTF_8),kmpr.getHeaderValue("k-key"))
+        Assertions.assertTrue(kmpr.containsHeader(Fit4jTestExecutionConstants.EXECUTION_ID_KAFKA_HEADER))
     }
 }
 

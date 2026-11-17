@@ -10,10 +10,17 @@ class EmbeddedRedisServer(private val port: Int) : InitializingBean, DisposableB
     private val portProperty = "REDIS_PORT"
 
     override fun afterPropertiesSet() {
-        if (!redisServer.isActive) {
-            redisServer.start()
+        try {
+            if (!redisServer.isActive) {
+                redisServer.start()
+            }
+            System.setProperty(portProperty, port.toString())
+        } catch (exception: Exception) {
+            throw IllegalStateException(
+                "Failed to start embedded Redis on port $port; verify that the port is available and supported by this platform",
+                exception,
+            )
         }
-        System.setProperty(portProperty, port.toString())
     }
 
     override fun destroy() {
