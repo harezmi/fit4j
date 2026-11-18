@@ -347,7 +347,7 @@ Acceptance criteria:
 
 ## Phase 5: Harden lifecycle, isolation, and core behavior
 
-**Status:** In progress (2026-11-17)
+**Status:** Complete (2026-11-18)
 
 ### Execution record
 
@@ -367,9 +367,19 @@ Acceptance criteria:
   `IllegalStateException` and a contract test.
 - Added actionable embedded Redis/PostgreSQL startup diagnostics and ensured a PostgreSQL instance is closed
   when initialization fails.
-
-Remaining before completion: verify parent/child and multi-class cleanup more directly, add separate-fork
-verification, exercise fixed-port startup failures, and run lifecycle tests repeatedly with varied class order.
+- Added Spring MVC asynchronous propagation for both controller `Callable` worker threads and subsequent
+  servlet `ASYNC` dispatches, with end-to-end execution-id and `@TestScoped` bean verification.
+- Added direct parent/child application-context cleanup coverage and sequential multi-class lifecycle coverage,
+  proving failed calls, test metadata, scoped beans, and execution state do not leak into the next class.
+- Verified the full suite with the existing `maxParallelForks = 8` configuration. Execution registries are
+  process-local by design; realistic cross-fork resource contention remains part of the Phase 6 integration matrix.
+- Added fixed-port conflict tests for embedded Redis and PostgreSQL. FIT4J now rejects a port already accepting
+  connections before delegating to an embedded library, preventing silent reuse or ownership of another process,
+  and reports the conflicting port with actionable guidance.
+- Added a 100-cycle registry retention test that directly verifies the execution-state map is empty afterward.
+  The lifecycle suite also passed repeated clean runs with random-order seeds 101, 202, and 303.
+- Verified `clean check --no-configuration-cache` after these additions. The task ran API validation and the
+  complete test suite successfully across the configured Gradle workers.
 
 ### Verify Spring context lifecycle
 

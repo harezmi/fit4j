@@ -13,6 +13,20 @@ import java.util.concurrent.atomic.AtomicReference
 class Fit4jExecutionStateLifecycleTest {
 
     @Test
+    fun `repeated scopes leave no retained execution state`() {
+        repeat(100) {
+            Fit4jTestExecutionRegistry.beginExecutionScope()
+            Fit4jTestExecutionRegistry.endExecutionScope()
+        }
+
+        val stateField = Fit4jTestExecutionRegistry::class.java.getDeclaredField("stateByExecutionId")
+        stateField.isAccessible = true
+        val retainedState = stateField.get(Fit4jTestExecutionRegistry) as Map<*, *>
+        assertTrue(retainedState.isEmpty())
+        assertNull(Fit4jTestExecutionRegistry.currentExecutionId())
+    }
+
+    @Test
     fun `nested execution scope fails without orphaning the active state`() {
         val id = Fit4jTestExecutionRegistry.beginExecutionScope()
         try {

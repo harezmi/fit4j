@@ -3,6 +3,8 @@ package org.fit4j.redis
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.InitializingBean
 import redis.embedded.RedisServer
+import java.net.InetSocketAddress
+import java.net.Socket
 
 class EmbeddedRedisServer(private val port: Int) : InitializingBean, DisposableBean {
 
@@ -11,9 +13,8 @@ class EmbeddedRedisServer(private val port: Int) : InitializingBean, DisposableB
 
     override fun afterPropertiesSet() {
         try {
-            if (!redisServer.isActive) {
-                redisServer.start()
-            }
+            checkPortAvailable()
+            redisServer.start()
             System.setProperty(portProperty, port.toString())
         } catch (exception: Exception) {
             throw IllegalStateException(
@@ -21,6 +22,20 @@ class EmbeddedRedisServer(private val port: Int) : InitializingBean, DisposableB
                 exception,
             )
         }
+    }
+
+    private fun checkPortAvailable() {
+        if (port <= 0) {
+            return
+        }
+        Socket().use { socket ->
+            try {
+                socket.connect(InetSocketAddress("localhost", port), 200)
+            } catch (_: Exception) {
+                return
+            }
+        }
+        throw IllegalStateException("Port $port is already accepting connections")
     }
 
     override fun destroy() {
