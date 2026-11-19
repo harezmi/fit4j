@@ -23,7 +23,7 @@ closed.
 | DynamoDB Local | Startup, client access, independent context storage, and explicit shutdown on context close | Document supported native architectures |
 | Testcontainers | Selective registration, inheritance, expression resolution, backward-compatible YAML, data population, normal network shutdown, and reverse-order cleanup after a multi-container startup failure | No known 1.0 blocker; retain regression coverage |
 | Elasticsearch | Readiness strategy, YAML document parsing, container population and client readback | Repeat on supported Docker platforms and record resource requirements |
-| Toxiproxy | Default/explicit upstream parsing, property generation, invalid definitions, live latency/disable/reset lifecycle | Add failure cleanup verification when a proxied target cannot start |
+| Toxiproxy | Default/explicit upstream parsing, property generation, invalid definitions, live latency/disable/reset lifecycle, and immediate cleanup when proxy registration fails | No known 1.0 blocker; retain regression coverage |
 | Declarative fixtures | Class/method precedence, groups, predicates, generated HTTP/gRPC responses, per-test cleanup | No known 1.0 blocker; retain regression coverage |
 
 ## Execution policy

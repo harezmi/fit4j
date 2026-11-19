@@ -437,6 +437,8 @@ Acceptance criteria:
 - Hardened Testcontainers startup cleanup: a failed definition stops its own container, previously registered
   definitions are destroyed in reverse order, and the shared Docker network closes on both failure and context
   shutdown.
+- Hardened Toxiproxy registration cleanup so a started proxy container is stopped immediately if route, bean, or
+  property registration fails, while preserving the original failure.
 - Verified the complete `check` lifecycle, including API compatibility checks, after the Phase 6 additions.
 
 ### Define the integration matrix
