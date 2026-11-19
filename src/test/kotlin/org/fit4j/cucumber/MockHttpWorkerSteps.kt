@@ -28,6 +28,16 @@ class MockHttpWorkerSteps(
         }
     }
 
+    @Given("the payment authorize endpoint is stubbed to reject through FIT4J")
+    fun stubPaymentRejection() {
+        Fit4J.http {
+            path("/payments/authorize").method("POST").respond {
+                status(422)
+                bodyAsJson("""{"result":"REJECTED"}""")
+            }
+        }
+    }
+
     @When("the application RestClient posts to the mock payment authorize endpoint")
     fun postAuthorize() {
         statusCode = null

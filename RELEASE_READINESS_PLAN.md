@@ -420,7 +420,19 @@ Acceptance criteria:
 
 ## Phase 6: Complete integration and platform coverage
 
-**Status:** Not started
+**Status:** In progress (2026-11-19)
+
+### Execution record
+
+- Added `INTEGRATION_TEST_MATRIX.md`, mapping every stable integration to current executable coverage and the
+  remaining 1.0 gaps rather than treating all existing `*FIT` classes as equivalent evidence.
+- Kept the existing `test` task as the single complete suite, avoiding manually maintained test classifications
+  and duplicate Gradle task configuration.
+- Added successful fixed-port lifecycle tests for embedded Redis and PostgreSQL, including Redis request handling,
+  PostgreSQL init-script effects, normal shutdown, and Redis system-property cleanup.
+- Added end-to-end coverage proving that the embedded HTTP mock server propagates a trained non-2xx status and
+  response body through a real Spring `RestClient` call.
+- Verified the complete `check` lifecycle, including API compatibility checks, after the Phase 6 additions.
 
 ### Define the integration matrix
 
@@ -452,7 +464,7 @@ minimum Docker resources and native-platform exclusions.
 Acceptance criteria:
 
 - Every stable integration has at least one end-to-end test.
-- Docker-backed and Docker-free suites are independently runnable.
+- The complete integration suite is runnable through the standard Gradle verification lifecycle.
 - All resource-owning tests prove cleanup on success and failure.
 - Required suites pass on the supported Linux and macOS environments, or limitations are explicit.
 - Repeated release-suite execution produces no intermittent port, process, or container leaks.
