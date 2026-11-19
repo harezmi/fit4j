@@ -6,11 +6,11 @@ to make use of the example in your own service.
 
 **Build notes:** Examples share the same toolchain as the main library — JDK **25** for compile/test (Gradle auto-provisioned), **Java 17** bytecode, Spring Boot **4.1.x**, FIT4J **<!--fit4jVersion-->1.0.0-SNAPSHOT<!--/fit4jVersion-->**. Version pins live in [`gradle.properties`](gradle.properties).
 
-Examples resolve FIT4J via a **composite Gradle build** (`includeBuild("..")` in `settings.gradle.kts`), so you can run them against local FIT4J sources without `publishToMavenLocal`:
+Examples resolve FIT4J from the isolated candidate repository under the root build directory. This verifies the
+published Gradle module metadata without relying on a composite build or `mavenLocal()`:
 
 ```bash
-cd fit4j-examples
-./gradlew test
+./gradlew verifyExamples
 ```
 
 Migrating from Boot 3.5? See [BOOT4_MIGRATION.md](../BOOT4_MIGRATION.md) in the repo root.

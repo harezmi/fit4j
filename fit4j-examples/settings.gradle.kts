@@ -16,14 +16,14 @@ plugins {
 
 dependencyResolutionManagement {
 	repositories {
+		maven {
+			name = "fit4jCandidate"
+			url = uri(providers.gradleProperty("fit4jRepository").orElse("../build/candidate-repository").get())
+			content {
+				includeModule("io.github.harezmi", "fit4j")
+			}
+		}
 		mavenCentral()
-		mavenLocal()
-	}
-}
-
-includeBuild("..") {
-	dependencySubstitution {
-		substitute(module("io.github.harezmi:fit4j")).using(project(":"))
 	}
 }
 

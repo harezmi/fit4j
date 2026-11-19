@@ -17,11 +17,6 @@ plugins {
     id("com.google.protobuf") version "0.9.6"
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 configurations.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "io.grpc" && requested.name !in setOf("grpc-kotlin-stub", "protoc-gen-grpc-java", "protoc-gen-grpc-kotlin")) {
@@ -77,6 +72,8 @@ subprojects {
     }
 
     dependencies {
+        // Provides the shared ExamplesParentApplication bootstrap class; FIT4J itself still resolves
+        // exclusively from the isolated candidate Maven repository.
         testImplementation(project(":"))
 
         testImplementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))

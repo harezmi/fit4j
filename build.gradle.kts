@@ -247,9 +247,15 @@ protobuf {
     }
 }
 
+val candidatePublicationBuild = gradle.startParameter.taskNames.any {
+    it == "verifyExamples" || it.contains("CandidateRepository", ignoreCase = true)
+}
+
 mavenPublishing {
     publishToMavenCentral(true)
-    signAllPublications()
+    if (!candidatePublicationBuild) {
+        signAllPublications()
+    }
 }
 
 mavenPublishing {
@@ -284,12 +290,39 @@ mavenPublishing {
 
 signing {
     useGpgCmd()
-    sign(publishing.publications)
+    if (!candidatePublicationBuild) {
+        sign(publishing.publications)
+    }
+}
+
+val candidateRepository = layout.buildDirectory.dir("candidate-repository")
+
+publishing {
+    repositories {
+        maven {
+            name = "candidate"
+            url = uri(candidateRepository)
+        }
+    }
 }
 
 val signingTasks: TaskCollection<Sign> = tasks.withType<Sign>()
 tasks.withType<PublishToMavenRepository>().configureEach {
     mustRunAfter(signingTasks)
+}
+
+tasks.register<Exec>("verifyExamples") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Publishes the candidate to an isolated repository and tests the examples against it."
+    dependsOn("publishMavenPublicationToCandidateRepository")
+    workingDir("fit4j-examples")
+    commandLine(
+        "./gradlew",
+        "test",
+        "--no-daemon",
+        "--max-workers=2",
+        "-Pfit4jRepository=${candidateRepository.get().asFile.toURI()}",
+    )
 }
 
 apply(from = "gradle/sync-docs-version.gradle.kts")

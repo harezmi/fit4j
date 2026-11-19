@@ -486,7 +486,16 @@ Acceptance criteria:
 
 ## Phase 7: Make examples and external consumers test the candidate artifact
 
-**Status:** Not started
+**Status:** In progress (2026-11-19)
+
+### Execution record
+
+- Added an isolated Maven repository under `build/candidate-repository` and a `verifyExamples` task that publishes
+  `1.0.0-SNAPSHOT` before running the examples.
+- Removed `mavenLocal()` and composite-build dependency substitution so the examples' FIT4J dependency resolves
+  only from the candidate publication. The examples root project remains as their shared application bootstrap.
+- Updated CI to run examples through `verifyExamples`, exercising the candidate Gradle module metadata. POM-only
+  consumption remains assigned to the Maven fixture below.
 
 ### Publish to an isolated local test repository
 
