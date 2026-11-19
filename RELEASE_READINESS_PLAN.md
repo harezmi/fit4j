@@ -496,6 +496,12 @@ Acceptance criteria:
   only from the candidate publication. The examples root project remains as their shared application bootstrap.
 - Updated CI to run examples through `verifyExamples`, exercising the candidate Gradle module metadata. POM-only
   consumption remains assigned to the Maven fixture below.
+- Added isolated Java and Kotlin Gradle consumers that compile and run on a Java 17 toolchain against the candidate
+  Gradle module metadata.
+- Added a Java 17 Maven consumer and wired it into CI to resolve FIT4J using only the candidate POM metadata.
+- Ran the Maven consumer locally and corrected two POM-only runtime conflicts it exposed: DynamoDB Local no longer
+  exports its obsolete Log4j implementation, and FIT4J now declares its directly used SLF4J 2 API version so
+  Testcontainers cannot downgrade Maven consumers to SLF4J 1.7.
 
 ### Publish to an isolated local test repository
 

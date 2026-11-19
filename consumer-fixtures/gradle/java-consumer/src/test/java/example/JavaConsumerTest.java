@@ -1,0 +1,23 @@
+package example;
+
+import org.fit4j.annotation.FIT;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Import;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@FIT
+@Import(JavaConsumerTest.TestApplication.class)
+class JavaConsumerTest {
+    @Test
+    void startsFit4jFromThePublishedJava17Artifact() {
+        assertNotNull(TestApplication.class);
+    }
+
+    @SpringBootConfiguration
+    @EnableAutoConfiguration
+    static class TestApplication {
+    }
+}

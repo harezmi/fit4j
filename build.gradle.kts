@@ -96,6 +96,7 @@ configurations.all {
 dependencies {
 	val springBootVersion : String by project
 	val springKafkaVersion : String by project
+	val slf4jVersion: String by project
 	val kotlinVersion : String by project
 	val mockkVersion : String by project
 	val protobufJavaVersion : String by project
@@ -127,6 +128,7 @@ dependencies {
 	api("org.springframework.boot:spring-boot-restclient:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-resttestclient:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
+	implementation("org.slf4j:slf4j-api:$slf4jVersion")
 	implementation("org.springframework.boot:spring-boot-kafka:$springBootVersion")
 	implementation("org.springframework.boot:spring-boot-jackson:$springBootVersion")
 	implementation("com.h2database:h2:$h2Version")
@@ -158,6 +160,8 @@ dependencies {
 
 	implementation("com.amazonaws:DynamoDBLocal:$dynamoDBLocalVersion") {
 		exclude(group = "org.slf4j", module = "slf4j-api")
+		exclude(group = "org.apache.logging.log4j", module = "log4j-api")
+		exclude(group = "org.apache.logging.log4j", module = "log4j-core")
 	}
 
 	implementation("jakarta.annotation:jakarta.annotation-api:$jakartaAnnotationVersion")
@@ -248,7 +252,8 @@ protobuf {
 }
 
 val candidatePublicationBuild = gradle.startParameter.taskNames.any {
-    it == "verifyExamples" || it.contains("CandidateRepository", ignoreCase = true)
+    it in setOf("verifyExamples", "verifyGradleConsumers", "verifyMavenConsumer", "verifyExternalConsumers") ||
+        it.contains("CandidateRepository", ignoreCase = true)
 }
 
 mavenPublishing {
@@ -323,6 +328,41 @@ tasks.register<Exec>("verifyExamples") {
         "--max-workers=2",
         "-Pfit4jRepository=${candidateRepository.get().asFile.toURI()}",
     )
+}
+
+val verifyGradleConsumers by tasks.registering(Exec::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Tests Java and Kotlin Gradle consumers against the isolated candidate publication."
+    dependsOn("publishMavenPublicationToCandidateRepository")
+    commandLine(
+        "./gradlew",
+        "-p",
+        "consumer-fixtures/gradle",
+        "test",
+        "--no-daemon",
+        "-Pfit4jRepository=${candidateRepository.get().asFile.toURI()}",
+    )
+}
+
+val verifyMavenConsumer by tasks.registering(Exec::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Tests a Java 17 Maven consumer against the candidate POM."
+    dependsOn("publishMavenPublicationToCandidateRepository")
+    commandLine(
+        "mvn",
+        "--batch-mode",
+        "--update-snapshots",
+        "--file",
+        "consumer-fixtures/maven/pom.xml",
+        "-Dfit4j.repository=${candidateRepository.get().asFile.toURI()}",
+        "test",
+    )
+}
+
+tasks.register("verifyExternalConsumers") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Tests Gradle module metadata and Maven POM consumption of the candidate publication."
+    dependsOn(verifyGradleConsumers, verifyMavenConsumer)
 }
 
 apply(from = "gradle/sync-docs-version.gradle.kts")
