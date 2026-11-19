@@ -439,6 +439,14 @@ Acceptance criteria:
   shutdown.
 - Hardened Toxiproxy registration cleanup so a started proxy container is stopped immediately if route, bean, or
   property registration fails, while preserving the original failure.
+- Added an end-to-end Kafka Testcontainer test that sends through the application `KafkaTemplate` and verifies
+  FIT4J publication and listener-processing tracking against the real container broker.
+- Documented the supported host matrix and release-suite Docker resource profile. Linux remains the required CI
+  environment; macOS Apple silicon was verified locally, while Windows and Intel macOS remain explicitly unverified.
+- Kept GitHub-hosted macOS out of the release matrix because it cannot run Docker/Testcontainers. Continuous
+  full-suite macOS verification is deferred until a self-hosted Mac runner with a compatible runtime is available.
+- Completed two consecutive full-suite runs on macOS arm64, with the second using `--rerun-tasks`; both passed
+  without intermittent port, process, or container failures.
 - Verified the complete `check` lifecycle, including API compatibility checks, after the Phase 6 additions.
 
 ### Define the integration matrix

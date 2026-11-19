@@ -25,6 +25,24 @@ is supported only after it appears in this table and CI.
 | Elasticsearch | Elasticsearch Java client 9.4.2 and the tested container image `elasticsearch:9.0.4`. |
 | DynamoDB Local | DynamoDB Local 2.6.1. It includes native SQLite libraries; supported host architectures are limited to those for which the upstream artifact supplies a working native library. A Docker-backed DynamoDB definition remains available as an alternative. |
 
+### Host operating systems
+
+| Host | 1.0 status |
+|---|---|
+| Linux on `ubuntu-latest` | Supported release-CI environment. The complete suite runs on JDK 17 and 25. |
+| macOS on Apple silicon | Locally verified development environment, not a continuously verified CI platform. The complete suite, including embedded Redis, PostgreSQL, DynamoDB Local, and container integrations, is verified on macOS 26.6 arm64 with a Docker-compatible runtime. GitHub-hosted macOS runners cannot provide the Docker/Testcontainers coverage required for the release suite. |
+| macOS on Intel | Not verified for 1.0; no native embedded-service support claim is made. Container-backed alternatives may still work. |
+| Windows | Not verified for 1.0; no native embedded-service support claim is made. Container-backed alternatives are recommended. |
+
+The repository release suite requires a Docker-compatible runtime for container-backed tests. Maintainers should
+allocate at least 4 CPUs, 8 GiB of memory, and 10 GiB of free disk to that runtime; lower allocations are not part
+of the 1.0 release-verification profile. Embedded Redis, PostgreSQL, and DynamoDB Local remain subject to their
+upstream native-binary availability even on an otherwise supported host.
+
+Linux is the only continuously verified 1.0 host platform. Full macOS CI support requires a self-hosted Mac
+runner with a Docker-compatible runtime; a partial GitHub-hosted macOS job is intentionally not treated as
+release evidence because it cannot exercise the container-backed feature set.
+
 FIT4J uses the Spring Boot 4.1 BOM internally to resolve its build and test classpaths, but does not publish the
 BOM as a platform dependency. Published Maven and Gradle metadata instead contains explicit versions only for
 FIT4J's direct dependencies. Adding FIT4J therefore does not import the entire Boot dependency-management

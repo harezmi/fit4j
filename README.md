@@ -124,6 +124,12 @@ and the [FIT4J 1.x compatibility contract](COMPATIBILITY.md).
 | **DynamoDB Local** | 2.6.1 | Embedded mode is subject to upstream native SQLite support; container mode is the portable alternative. |
 | **Build tools** | Gradle wrapper 9.1.0; Maven Central metadata | Consumers may use Gradle or Maven. FIT4J development uses the checked-in wrapper. |
 
+The release suite is continuously verified on Linux CI and has also passed locally on Apple-silicon macOS with
+a Docker-compatible runtime. GitHub-hosted macOS runners cannot run the required Testcontainers coverage, so
+macOS is not claimed as a continuously verified CI platform. Windows and Intel macOS native embedded-service
+support is not claimed for 1.0. See the
+[host operating-system matrix and Docker resource profile](COMPATIBILITY.md#host-operating-systems).
+
 FIT4J uses the Spring Boot 4.1 BOM internally but does not export it. Your application retains control of its
 own Boot BOM and unrelated dependency versions. Feature stability, extension SPI, dependency scopes,
 deprecation rules, configuration-format guarantees, and concurrency limitations are defined in
