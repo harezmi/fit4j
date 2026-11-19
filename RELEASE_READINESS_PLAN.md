@@ -432,6 +432,11 @@ Acceptance criteria:
   PostgreSQL init-script effects, normal shutdown, and Redis system-property cleanup.
 - Added end-to-end coverage proving that the embedded HTTP mock server propagates a trained non-2xx status and
   response body through a real Spring `RestClient` call.
+- Added DynamoDB Local lifecycle coverage proving database isolation between application contexts and client
+  shutdown when each context closes.
+- Hardened Testcontainers startup cleanup: a failed definition stops its own container, previously registered
+  definitions are destroyed in reverse order, and the shared Docker network closes on both failure and context
+  shutdown.
 - Verified the complete `check` lifecycle, including API compatibility checks, after the Phase 6 additions.
 
 ### Define the integration matrix

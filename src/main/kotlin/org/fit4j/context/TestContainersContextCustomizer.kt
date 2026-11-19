@@ -2,11 +2,13 @@ package org.fit4j.context
 
 import org.fit4j.testcontainers.NetworkFaultRegistrar
 import org.fit4j.testcontainers.ProxiedTarget
+import org.fit4j.testcontainers.TestContainerDefinition
 import org.fit4j.testcontainers.TestContainerDefinitionRegistrar
 import org.fit4j.testcontainers.TestContainerResourcePaths
 import org.fit4j.testcontainers.TestContainersDefinitionProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.ContextCustomizer
 import org.springframework.test.context.MergedContextConfiguration
@@ -34,22 +36,45 @@ class TestContainersContextCustomizer(
         }
         val network = Network.newNetwork()
         context.beanFactory.registerSingleton("dockerContainerNetwork", network)
+        registerDefinitions(context, definitions, network) {
+            if (proxiedTargets.isNotEmpty()) {
+                NetworkFaultRegistrar(
+                    context = context,
+                    network = network,
+                    definitions = definitions,
+                    proxiedTargets = proxiedTargets,
+                    registeredDefinitionNames = if (registerDefinitionsSelectively) {
+                        registerDefinitions
+                    } else {
+                        definitions.map { it.beanName }.toTypedArray()
+                    },
+                ).register()
+            }
+        }
+    }
 
-        definitions.map { TestContainerDefinitionRegistrar(it, network) }
-            .forEach { it.register(context) }
-
-        if (proxiedTargets.isNotEmpty()) {
-            NetworkFaultRegistrar(
-                context = context,
-                network = network,
-                definitions = definitions,
-                proxiedTargets = proxiedTargets,
-                registeredDefinitionNames = if (registerDefinitionsSelectively) {
-                    registerDefinitions
-                } else {
-                    definitions.map { it.beanName }.toTypedArray()
-                },
-            ).register()
+    internal fun registerDefinitions(
+        context: ConfigurableApplicationContext,
+        definitions: List<TestContainerDefinition>,
+        network: Network,
+        registerDefinition: (TestContainerDefinition) -> Unit = {
+            TestContainerDefinitionRegistrar(it, network).register(context)
+        },
+        afterRegistration: () -> Unit = {},
+    ) {
+        val registeredDefinitions = mutableListOf<TestContainerDefinition>()
+        try {
+            definitions.forEach { definition ->
+                registerDefinition(definition)
+                registeredDefinitions += definition
+            }
+            afterRegistration()
+            (context.beanFactory as DefaultSingletonBeanRegistry)
+                .registerDisposableBean("dockerContainerNetwork", network::close)
+        } catch (ex: Exception) {
+            registeredDefinitions.asReversed().forEach { it.destroy() }
+            network.close()
+            throw ex
         }
     }
 

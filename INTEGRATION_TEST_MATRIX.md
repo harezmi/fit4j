@@ -20,8 +20,8 @@ closed.
 | Database cleanup | H2, MySQL, and PostgreSQL cleanup; exclusions; generated and assigned identifiers; composite keys; foreign keys; data-source selection and missing transaction manager | Re-run Docker database suites repeatedly and record platform results |
 | Embedded PostgreSQL | Random-port context wiring; successful fixed-port startup; init-script effects; fixed-port conflict diagnostics; failed initialization and normal shutdown | Document and verify supported native platforms in CI |
 | Embedded Redis | Random-port context wiring and data operations; successful fixed-port startup and ping; fixed-port conflict diagnostics; shutdown property cleanup | Document and verify supported native platforms in CI |
-| DynamoDB Local | Startup and client access | Add isolation and explicit shutdown verification; document supported architectures |
-| Testcontainers | Selective registration, inheritance, expression resolution, backward-compatible YAML, data population, container stop paths | Add failure-during-start cleanup coverage across a multi-container definition set |
+| DynamoDB Local | Startup, client access, independent context storage, and explicit shutdown on context close | Document supported native architectures |
+| Testcontainers | Selective registration, inheritance, expression resolution, backward-compatible YAML, data population, normal network shutdown, and reverse-order cleanup after a multi-container startup failure | No known 1.0 blocker; retain regression coverage |
 | Elasticsearch | Readiness strategy, YAML document parsing, container population and client readback | Repeat on supported Docker platforms and record resource requirements |
 | Toxiproxy | Default/explicit upstream parsing, property generation, invalid definitions, live latency/disable/reset lifecycle | Add failure cleanup verification when a proxied target cannot start |
 | Declarative fixtures | Class/method precedence, groups, predicates, generated HTTP/gRPC responses, per-test cleanup | No known 1.0 blocker; retain regression coverage |

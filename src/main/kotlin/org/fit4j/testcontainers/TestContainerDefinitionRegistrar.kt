@@ -17,12 +17,17 @@ class TestContainerDefinitionRegistrar(private val definition: TestContainerDefi
         val listableBeanFactory = context.beanFactory as DefaultListableBeanFactory
         val parentListableBeanFactory = (context.parent as ConfigurableApplicationContext).beanFactory as DefaultListableBeanFactory
         definition.getContainer().withNetwork(network).withNetworkAliases(definition.beanName)
-        definition.startContainer()
-        if(!definition.getContainer().isRunning()) {
-            throw IllegalStateException("Container ${definition.getImageName()} is not running, probably due to not calling start function")
-        }
+        try {
+            definition.startContainer()
+            if(!definition.getContainer().isRunning()) {
+                throw IllegalStateException("Container ${definition.getImageName()} is not running, probably due to not calling start function")
+            }
 
-        initDefinition(definition, context)
+            initDefinition(definition, context)
+        } catch (ex: Exception) {
+            definition.stopContainer()
+            throw ex
+        }
 
         if(definition.isReusable() && !parentListableBeanFactory.containsBean(definition.beanName)) {
             parentListableBeanFactory.registerSingleton(definition.beanName,definition)
